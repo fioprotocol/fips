@@ -9,9 +9,14 @@ updated:
 ---
 
 ## Abstract
+This FIP implements the following:
+* Adding ability to transfer FIO Domain to new owner using new action
+* Adding ability to transfer FIO Address to new owner using new action
+* Adding new API end points for FIO Domain transfer, FIO Address transfer
+* Adding new fees for FIO Domain transfer and FIO Address transfer
 
 ## Motivation
-Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by a FIO public key. There is currently no support in FIO Protocol for transferring of ownership of either NFT. It was always assumed that this will be one of the first improvements to the FIO Protocol. FIO Address can be associated to FIO Requests, FIO Data, address mappings, and owner private key is required to decrypt some of this data. It is therefore prudent that when a FIO Address is transferred, the associated data is first purged.
+Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by a FIO Public Key. Ability to transfer ownership is a must, yet there is currently no support for it in FIO Protocol. It was always assumed that this will be one of the first improvements to the FIO Protocol.
 
 ## Specification 
 ### Transfer FIO Domain
@@ -37,9 +42,12 @@ Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by
 ##### Processing
 * Request is validated per Exception handling
 * Fee is collected
-* If account is derived from hashing new_owner_fio_public_key
-* If account does not exist, it gets created
+* Account is derived from hashing new_owner_fio_public_key
+* If new owner account does not exist, it gets created
 * Owner of domain is changed from current account to account hashed from public key
+	* Action explicitly not taken:
+		* Domain expiration date is not updated
+		* is_public flag is not updated
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -50,6 +58,7 @@ Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
 |FIO Domain expired|FIO Domain is expired|400|"fio_domain"|Value sent in, e.g. "alice"|"FIO Domain expired. Renew first."|
+|FIO Domain not registered|FIO Domain is not registered|400|"fio_domain"|Value sent in, e.g. "alice"|"FIO Domain not registered"|
 |Not owner of FIO Domain|The signer does not own the domain|403||||
 ##### Response
 |Parameter|Format|Definition|
@@ -63,6 +72,10 @@ Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by
 	"fee_collected": 2000000000
 }
 ```
+#### New API end_point: */tranfer_fio_domain*
+A new end point is added and maps to new action.
+#### New fee
+A new *tranfer_fio_domain* fee is added. Recommend initial amount same as transfer_tokens_pub_key (2 FIO as of 4/3/2020)
 ### Transfer FIO Address
 #### New action: *xferaddress*
 ##### Request
@@ -88,21 +101,26 @@ Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by
 	* Explicitly allowed:
 		* Transfer of FIO Address when domain of that address is expired
 * Fee is collected
-* If account is derived from hashing new_owner_fio_public_key
-* If account does not exist, it gets created
+* Account is derived from hashing new_owner_fio_public_key
+* If new owner account does not exist, it gets created
 * Owner of address is changed from current account to account hashed from public key
 	* Action explicitly not taken:
-		* Past FIO Requests/Data where this FIO Address was the receiver, is not updated. This data is alreday storing FIO Public key required for encryption, so the new owner will not be able to decrypt FIO Requests/Data of the previous owner, since they do not have the old private key.
+		* Past FIO Requests/Data is not updated.
+		* Address expiration date is not updated
+		* Address bundled transaction counter is not updated
+* All existing Other Blockchain Public Addresses (OBPA) mappings for the FIO Address are purged.
+* new_owner_fio_public_key is set as the chain_code:FIO, token_code:FIO of the transferred FIO Address 
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|FIO Address not purged|FIO Address has associated data: Initiated FIO Requests, Initiated Sent FIO Data, Mapped Other Blockchain Public Addresses (OBPA). Only applies to data initiated by the FIO Public Address, not to the FIO Public Address being the receiver.|400|"fio_address"|"Associated FIO Address data has to be purged before transfer."|
 |Invalid FIO Address format|FIO Address format is not valid|400|"fio_domain"|Value sent in, e.g. "alice"|"Invalid FIO domain"|
 |Invalid FIO Public Key|FIO Public Key format is not valid|400|"new_owner_fio_public_key"|Value sent in, e.g. "notakey"|"Invalid FIO Public Key"|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|FIO Address expired|FIO Address is expired|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address expired. Renew first."|
+|FIO Address not registered|FIO Address is not registered|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address not registered"|
 |Not owner of FIO Address|The signer does not own the address|403||||
 ##### Response
 |Parameter|Format|Definition|
@@ -116,3 +134,30 @@ Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by
 	"fee_collected": 2000000000
 }
 ```
+
+### Modification to existing queries
+#### get_obt_data
+get_obt_data is modified to only return OBT records which include the provided FIO Public Key. It currently returns OBT records which include FIO Addresses owned by the provided key at the time of query.
+#### get_pending_fio_requests
+get_pending_fio_requests is modified to only FIO Requests which include the provided FIO Public Key. It currently returns FIO Requests which include FIO Addresses owned by the provided key at the time of query.
+#### get_sent_fio_requests
+get_sent_fio_requests is modified to only FIO Requests which include the provided FIO Public Key. It currently returns FIO Requests which include FIO Addresses owned by the provided key at the time of query.
+
+## Rationale
+### Purging of data
+Other Blockchain Public Addresses (OBPA) mappings should be purged on FIO Address transfer to avoid the risk of new owner not realizing there are mappings already attached to their address that are not theirs.
+
+Aside from OBPA mappings, FIO Address is associated to FIO Requests and FIO Data. Initial approach was to purge this data, but that is not feasible since this data has a counter-party and they should be able to retrieve the data post transfer. You can also argue that the previous owner should be able to access their data, even they have transferred ownership of the FIO Address.
+
+Since the contents of FIO Request and FIO Data is encrypted using private/public keys at the time the request is sent, the new owner will not be able to decrypt.
+
+Wallets, at their discretion, may choose to check if FIO Address of displayed FIO Request has changed since original request and shos a notification to the user viewing an old request.
+
+### Fees
+Both FIO Domain and FIO Address transfers should each have a new fee type. The fee should be high enough to cover possible new account creation.
+
+## Backwards Compatibility
+These are all new calls and backwards compatibility is not an issue. *setfeevote* takes an array of fees and is not required for that action to have all possible fees. Adding new fees will therefore not break that call.
+
+## Future considerations
+An escrow functionality for domain transfer could be beneficial. A new domain transfer action could be created which would allow a domain owner to specify amount and optionally FIO Address of potential buyer. When executed the domain would be put in escrow until buyer makes a payment, using unique action, equal to specified amount. The domain would then be transferred to buyer and funds to seller.
