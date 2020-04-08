@@ -161,6 +161,19 @@ Wallets, at their discretion, may choose to check if FIO Address of displayed FI
 ### Fees
 Both FIO Domain and FIO Address transfers should each have a new fee type. The fee should be high enough to cover possible new account creation.
 
+## Implementation
+The following files will be affected during this implementation:
+   * fio.address.cpp
+   * chain_plugin.cpp/.hpp
+   * chain_api_plugin.cpp
+   * httpc.hpp ( clio )
+   
+The fio.address smart contact, Clio and the chain plugin are all required to be updated. The proposer will update to current fio version with the new clio and chain_plugin updates. They will then propose the msig for the fio.address contact to the active Block Producers.
+
+Current Issue Page: https://github.com/fioprotocol/fio/issues/41
+Current Branch: https://github.com/fioprotocol/fio/compare/develop...feature/transfer_domain
+Current Pull Request: N/A
+
 ## Backwards Compatibility
 ### New actions
 *xferdomain* and *xferaddress* are new actions and therefore do not impact existing users
