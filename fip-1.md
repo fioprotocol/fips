@@ -161,19 +161,6 @@ Wallets, at their discretion, may choose to check if FIO Address of displayed FI
 ### Fees
 Both FIO Domain and FIO Address transfers should each have a new fee type. The fee should be high enough to cover possible new account creation.
 
-## Backwards Compatibility
-### New actions
-*xferdomain* and *xferaddress* are new actions and therefore do not impact existing users
-### New API end points
-*/tranfer_fio_domain* and */tranfer_fio_address* are new end points and therefore do not impact existing users
-### New fees
-*setfeevote* takes an array of fees and is not required for that action to have all possible fees. Adding new fees will therefore not break that action.
-### Modification to existing queries
-*get_obt_data*, *get_pending_fio_requests*, and *get_sent_fio_requests* will continue to only return relevant data, so modifications to the SDKs and wallet integrations are not required.
-
-## Future considerations
-An escrow functionality for domain transfer could be beneficial. A new domain transfer action could be created which would allow a domain owner to specify amount and optionally FIO Address of potential buyer. When executed the domain would be put in escrow until buyer makes a payment, using unique action, equal to specified amount. The domain would then be transferred to buyer and funds to seller.
-
 ## Implementation
 The following files will be affected during this implementation:
    * fio.address.cpp
@@ -186,3 +173,16 @@ The fio.address smart contact, Clio and the chain plugin are all required to be 
 Current Issue Page: https://github.com/fioprotocol/fio/issues/41
 Current Branch: https://github.com/fioprotocol/fio/compare/develop...feature/transfer_domain
 Current Pull Request: N/A
+
+## Backwards Compatibility
+### New actions
+*xferdomain* and *xferaddress* are new actions and therefore do not impact existing users
+### New API end points
+*/tranfer_fio_domain* and */tranfer_fio_address* are new end points and therefore do not impact existing users
+### New fees
+*setfeevote* takes an array of fees and is not required for that action to have all possible fees. Adding new fees will therefore not break that action.
+### Modification to existing queries
+*get_obt_data*, *get_pending_fio_requests*, and *get_sent_fio_requests* will continue to only return relevant data, so modifications to the SDKs and wallet integrations are not required.
+
+## Future considerations
+An escrow functionality for domain transfer could be beneficial. A new domain transfer action could be created which would allow a domain owner to specify amount and optionally FIO Address of potential buyer. When executed the domain would be put in escrow until buyer makes a payment, using unique action, equal to specified amount. The domain would then be transferred to buyer and funds to seller.
