@@ -1,7 +1,7 @@
 ---
 fip: 1
 title: FIO Domain/FIO Address transfer and data purge
-status: Draft
+status: Accepted
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-02
