@@ -168,10 +168,10 @@ The following files will be affected during this implementation:
    * chain_api_plugin.cpp
    * httpc.hpp ( clio )
    
-The fio.address smart contact, Clio and the chain plugin are all required to be updated. The proposer will update to current fio version with the new clio and chain_plugin updates. They will then propose the msig for the fio.address contact to the active Block Producers.
+The fio.address smart contact, Clio, and the chain plugin are all required to be updated. The proposer will update to current fio version with the new clio and chain_plugin updates. They will then propose the msig for the fio.address contact to the active Block Producers. It is suggested that the top 21 Block Producers vote for the two new endpoints before the execution of the msig. 
 
-Current Issue Page: https://github.com/fioprotocol/fio/issues/41
-Current Branch: https://github.com/fioprotocol/fio/compare/develop...feature/transfer_domain
+Current Issue Page: https://github.com/fioprotocol/fio/issues/41<br>
+Current Branch: https://github.com/fioprotocol/fio/compare/develop...feature/transfer_domain<br>
 Current Pull Request: N/A
 
 ## Backwards Compatibility
