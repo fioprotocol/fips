@@ -308,8 +308,6 @@ Custom end points were put in place to make interaction with FIO Protocol easier
    --modify chain_plugin.cpp and hpp to add new params and code for the fetching of this information when the timestamp is set.  dev test and resolve all issues (2 days)
 
 ## Backwards Compatibility
-  -- leave the get_fio_names endpoint in place to permit easier migration to using the new domain and address calls.
-  -- if the time_stamp parameter is not specified, the original search will be perfomed by */get_sent_fio_requests*, */get_pending_fio_requests*, and */get_obt_data*
 ### New API end points
 */get_fio_domains* and */get_fio_address* are new end points and therefore do not impact existing users. */get_fio_names* end point remains unchanged.
 ### Modification to existing end points
