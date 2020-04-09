@@ -300,7 +300,7 @@ The existing API end point will be updated to add optional *min_create_time* par
 Custom end points were put in place to make interaction with FIO Protocol easier for developers by hidding the complexity of EOSIO tools. Enhancing the functionality is done for the same reason. Advanced tools such as *get_table* remains unchanged.
 
 ## Implementation
-Pending
+Pending feedback from development
 
 ## Backwards Compatibility
 ### New API end points
