@@ -2,7 +2,10 @@
 FIPs describe proposed changes to the FIO Protocol.
 
 ## Contributing
-Fork the repository and add your FIP to it. Then submit a Pull Request.
+### Review FIPs
+Everyone is encouraged to review existing FIPs and provide feedback.
+### Proposing a FIP
+Fork the repository and add your FIP to it with status *Draft*. See *Successful FIP includes* below for what a FIP should include. Reach out to the community and solicit feedback. Once you are ready submit a pull request to add your FIP to the main fips repo. Once repo custodians accepts your FIP, you can code the solution and submit pull request to relevant repo. Once the code has been pushed, the status will be changed to *Adopted*.
 
 ## FIP Type
 * Core - improvements requiring a consensus fork
