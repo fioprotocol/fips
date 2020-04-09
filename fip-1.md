@@ -73,10 +73,10 @@ Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by
 	"fee_collected": 2000000000
 }
 ```
-#### New API end_point: */tranfer_fio_domain*
+#### New API end_point: */transfer_fio_domain*
 A new end point is added and maps to new action.
 #### New fee
-A new *tranfer_fio_domain* fee is added. Recommend initial amount same as transfer_tokens_pub_key (2 FIO as of 4/3/2020)
+A new *transfer_fio_domain* fee is added. Recommend initial amount same as transfer_tokens_pub_key (2 FIO as of 4/3/2020)
 ### Transfer FIO Address
 #### New action: *xferaddress*
 ##### Request
@@ -135,10 +135,10 @@ A new *tranfer_fio_domain* fee is added. Recommend initial amount same as transf
 	"fee_collected": 2000000000
 }
 ```
-#### New API end_point: */tranfer_fio_address*
+#### New API end_point: */transfer_fio_address*
 A new end point is added and maps to the new action.
 #### New fee
-A new *tranfer_fio_address* fee is added. Recommend initial amount same as transfer_tokens_pub_key (2 FIO as of 4/3/2020)
+A new *transfer_fio_address* fee is added. Recommend initial amount same as transfer_tokens_pub_key (2 FIO as of 4/3/2020)
 
 ### Modification to existing queries
 #### get_obt_data
@@ -178,7 +178,7 @@ Current Pull Request: N/A
 ### New actions
 *xferdomain* and *xferaddress* are new actions and therefore do not impact existing users
 ### New API end points
-*/tranfer_fio_domain* and */tranfer_fio_address* are new end points and therefore do not impact existing users
+*/transfer_fio_domain* and */transfer_fio_address* are new end points and therefore do not impact existing users
 ### New fees
 *setfeevote* takes an array of fees and is not required for that action to have all possible fees. Adding new fees will therefore not break that action.
 ### Modification to existing queries
