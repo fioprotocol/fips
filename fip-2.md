@@ -1,11 +1,11 @@
 ---
 fip: 2
 title: Improvements to paging via API
-status: Draft
+status: Accepted
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-06
-updated: 2020-04-08
+updated: 2020-04-09
 ---
 
 ## Abstract
