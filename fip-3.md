@@ -42,8 +42,8 @@ It is important to note that Friend List will exist between FIO Public Keys, not
 * Receiver's wallet fetches FIO Public Key associated with FIO Address entered
 * Receiver's wallet uses Receiver's FIO Private Key and Sender's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
 * Receiver's wallet records on the blockchain:
- * Sender's FIO Address and FIO Public Key encrypted symmetrically with Receiver's FIO Private Key. This will be used by Receiver to be able to restore their Friend List from wallet seed phrases without relying on local storage.
- * Sender's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector. This will be used as a **Look-up Index** by Sender to check if they are on whitelist or to identify a transaction that is intended for them.
+  * Sender's FIO Address and FIO Public Key encrypted symmetrically with Receiver's FIO Private Key. This will be used by Receiver to be able to restore their Friend List from wallet seed phrases without relying on local storage.
+  * Sender's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector. This will be used as a **Look-up Index** by Sender to check if they are on whitelist or to identify a transaction that is intended for them.
  
 ![](images/Diagram-Adding-to-Friend-List.PNG)
  
@@ -93,27 +93,27 @@ The blockchain will look for secret key with provided Look-up index and Chain co
 
 ##### Example
 * Payee places NBPA as follows:
- * NBPA ID: 1
- * Blockchain code: BTC
- * NBPA encrypted with FIO Address level secret key (Secret 1): ABC
- * NBPA encrypted with Chain level secret key (Secret 2): DEF
- * NBPA encrypted with NBPA level secret key (Secret 3): GHI
+  * NBPA ID: 1
+  * Blockchain code: BTC
+  * NBPA encrypted with FIO Address level secret key (Secret 1): ABC
+  * NBPA encrypted with Chain level secret key (Secret 2): DEF
+  * NBPA encrypted with NBPA level secret key (Secret 3): GHI
 * Payee places secret for Payer 1 to decrypt all BTC addresses:
- * Look-up index: index_for_payer_1
- * Blockchain code: BTC
- * Key ID: 1
- * Encrypted Secret Key: XXX
+  * Look-up index: index_for_payer_1
+  * Blockchain code: BTC
+  * Key ID: 1
+  * Encrypted Secret Key: XXX
 * Payee places secret for Payer 2 to decrypt just one BTC address:
- * Look-up index: index_for_payer_2
- * Blockchain code: BTC
- * Key ID: 1
- * Encrypted Secret Key: YYY
+  * Look-up index: index_for_payer_2
+  * Blockchain code: BTC
+  * Key ID: 1
+  * Encrypted Secret Key: YYY
 * Payer 1 sends index_for_payer_1 and BTC and receives:
- * XXX - Payer 1 decrypts Secret 2 with their private key
- * DEF - Payer 1 decrypts NBPA with Secret 2
+  * XXX - Payer 1 decrypts Secret 2 with their private key
+  * DEF - Payer 1 decrypts NBPA with Secret 2
 * Payer 2 sends index_for_payer_2 and BTC and receives:
- * YYY - Payer 2 decrypts Secret 3 with their private key
- * GHI - Payer 2 decrypts NBPA with Secret 3
+  * YYY - Payer 2 decrypts Secret 3 with their private key
+  * GHI - Payer 2 decrypts NBPA with Secret 3
 
 ## Rationale
 ## Other approaches considered
