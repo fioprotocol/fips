@@ -53,6 +53,7 @@ It is important to note that Friend List will exist between FIO Public Keys, not
 
 ### Friend List actions
 #### Add to Friend List: *addfriend*
+Adds user to Friend List.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -99,6 +100,108 @@ The content element is a packed and encrypted version of the following data stru
 {
 	"status": "OK",
 	"fee_collected": 2000000000
+}
+```
+#### Remove from Friend List: *removefriend*
+Removes user from Friend List.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key_hash|Yes|String|FIO Public Key of party being removed hashed using Hash Function A and Secret as initialization vector.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### Example
+```
+{
+	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
+	"max_fee": 0,
+	"tpid": "",
+	"actor": "aftyershcu22"
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Fee is collected
+* Record is removed from chain
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Key not in Friend List|Supplied FIO Publick key is not in Friend List|400|"fio_public_key_hash"|Value sent in, i.e. "1000000000"|"FIO public key not in Friend List"|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if succesful|
+|fee_collected|Int|Amount of SUFs collected as fee|
+###### Example
+```
+{
+	"status": "OK",
+	"fee_collected": 2000000000
+}
+```
+#### Get Friend List
+Returns Friend List.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key|Yes|FIO public|FIO public key of owner.|
+|limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
+###### Example
+```
+{
+	"fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+	"limit": 100,
+	"offset": 0
+}
+```
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Empty list|No items in friend list|404||"No items in friend list"|
+##### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+|friends|fio_public_key_hash|String|See Add to Friend List|
+|friends|content|String|See Add to Friend List|
+||more|Int|Number of remaining results|
+###### Example
+```
+{
+    "friends": [
+        {
+            "fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
+            "content": "...",
+        }
+    ],
+    "more": 0
+}
+```
+#### Check Friend List
+Checks if a user is in a Friend's list. Can be called by either party.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key_hash|Yes|FIO public|See Add to Friend List|
+###### Example
+```
+{
+	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384"
+}
+```
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|is_friend|Int|1 - in Friend's List; 0 - not in Friend's List|
+###### Example
+```
+{
+	"is_friend": 1
 }
 ```
 
