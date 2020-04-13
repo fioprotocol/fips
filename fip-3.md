@@ -27,11 +27,11 @@ Even though contents of FIO Requests and OBT Records is already encrypted, there
 
 ## Specification
 ### Friend List
-The core concept which accomplishes objectives described in *Motivation* is Friend List. The challenge with creating a Friend List on open-blockchain is that it should not be known that two parties are transacting with each other. To overcome this challenge, the party placing a transaction on the blockchain encrypts the other party's public key in such a way that the other party can know it's theirs, but an observer cannot.
+The core concept which accomplishes above objectives is a Friend List. This concept allows for the computation of shared secret where only one party is visible on chain. To acheive this, the party placing a transaction on the blockchain encrypts the other party's public key in such a way that the other party can know it's theirs, but an observer cannot.
 
 This concept will allow the following:
-* Place FIO Request, OBT Record on the blockchain with only one party visible by an observer
-* Place NBPAs mappings on the blockchain with only one party visible by an observer
+* Place FIO Request, OBT Record on the blockchain with only one party visible by an observer.
+* Place NBPAs mappings on the blockchain with only one party visible by an observer.
 
 It is important to note that Friend List will exist between FIO Public Keys, not FIO Addresses, as past transactions should not be readable by the new owner of the FIO Address. This has the following consequences:
 * Once user transfers their FIO Address to another public key (even if they control it), they will lose their whitelist. That is already a moot point, since they will not be able to decrypt the data anyway.
@@ -46,12 +46,63 @@ It is important to note that Friend List will exist between FIO Public Keys, not
   * Sender's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector. This will be used as a **Look-up Index** by Sender to check if they are on whitelist or to identify a transaction that is intended for them.
  
 ![](images/Diagram-Adding-to-Friend-List.PNG)
- 
+
 #### Checking a Friend List
  
 ![](images/Diagram-Checking-Friend-List.PNG)
 
-### Making NBPA mappings private
+### Friend List actions
+#### Add to Friend List: *addfriend*
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key_hash|Yes|String|FIO Public Key of party being added hashed using Hash Function A and Secret as initialization vector. This will be used as a look-up index by Sender to check if they are on Friend List.|
+|content|Yes|FIO public key|Encrypted blob. See below. This will be used by Friend Lister to be able to restore their Friend List from wallet seed phrases without relying on local storage.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### *content* format
+The content element is a packed and encrypted version of the following data structure:
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_address|Yes|String|FIO Address of the party being added.|
+|public_key|Yes|IO Public Key|FIO Public Key of the party being added.|
+###### Example
+```
+{
+	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
+	"content": "...",
+	"max_fee": 0,
+	"tpid": "",
+	"actor": "aftyershcu22"
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Fee is collected
+* Content is placed on chain
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Key in Friend List|Supplied FIO Publick key is already in Friend List|400|"fio_public_key_hash"|Value sent in, i.e. "1000000000"|"FIO public key already in Friend List"|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if succesful|
+|fee_collected|Int|Amount of SUFs collected as fee|
+###### Example
+```
+{
+	"status": "OK",
+	"fee_collected": 2000000000
+}
+```
+
+### NBPA mappings
 In existing implementation, NBPAs are placed on FIO Chain unencrypted. Once a Friend List functionality exists, it can be leveraged to store NBPAs privately.
 
 In order to offer the most flexibility to users and to reduce the amount of content stored on the FIO Chain, each NBPA is encrypted symmetrically three separate times using different secret key each time:
@@ -61,7 +112,7 @@ In order to offer the most flexibility to users and to reduce the amount of cont
 
 NBPA level secret key can decrypt just one NBPA. Chain level secret key can decrypt current public addresses for specific chain and all future NBPAs for that chain published by the owner. FIO Address level secret key can decrypt all NBPAs associated with that FIO Address. The FIO Address owner can then decide which of these decrypt keys to make available to which friend by placing them on the FIO Chain encrypted asymmetrically with the friend’s public key.
 
-#### Payee encrypting NBPA and placing it on FIO Chain
+#### Placing NBPA on chain
 Each NBPA will be encrypted using three unique secret keys. Method of deriving secret keys (where + is string concatenation):
 ```
 HMAC(hashName, secret, hash) == result
@@ -77,14 +128,14 @@ The NBA will then be placed on the FIO Chain using new action as three distinct 
 
 ![](images/Diagram-Placing-NBPA.PNG)
 
-#### Payee encrypting secret key and placing it on FIO Chain
+#### Placing secret decrypt key on chain
 A secret key is placed on the FIO Chain for specific Payer using new action. The data includes:
 * Look-up Index - Payee derives the same index as used for Adding a friend to a Friend List. It allows the Payer to get the key intended for them.
 * Chain code (if secret key is chain level)
 * Key ID (if secret key is for specific key)
 * Encrypted Secret Key
 
-#### Payer fetches NBPA
+#### Looking up NBPA
 Payer looks for NBPA using:
 * Look-up index - Payer derives the same index as used for Adding a friend to a Friend List.
 * Chain code
@@ -114,6 +165,71 @@ The blockchain will look for secret key with provided Look-up index and Chain co
 * Payer 2 sends index_for_payer_2 and BTC and receives:
   * YYY - Payer 2 decrypts Secret 3 with their private key
   * GHI - Payer 2 decrypts NBPA with Secret 3
+  
+### FIO Request and FIO Data
+#### New Funds Request
+* Payee initiate a [new_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/new-funds-request/new-funds-request-model) to Payer (types FIO Address into wallet)
+* Payee's wallet checks to see if Payee is added to Payer's whitelist:
+  * Fetches FIO Public Key associated to Payer FIO Address
+  * Uses Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme.
+  * Computes look-up index
+    * Payee's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector.
+  * Check blockchain if look-up index is associated with Payer's FIO Address
+* Payee's wallet submits new_funds_request with:
+  * Unencrypted:
+    * Payee FIO Public Key. This will allow Payee to locate their own requests.
+    * Payee's FIO Address. This will be used to deduct bundled transactions.
+    * Auto-generated FIO Request ID sam as now.
+  * Hashed:
+    * Payer's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payer's FIO Public Key as initialization vector. This will be used by Payer to find requests that are for them.
+  * Encrypted with Secret + random IV
+    * Payer FIO Address
+    * Request details (chain, amount, memo)
+* Payee should also add Payer to their own whitelist at the same time
+
+![](images/Diagram-New-Funds-Request.PNG)
+
+#### Fetching New Funds Request
+* Payer's wallet will compute look-up index by hashing Payer's FIO Public Key using Hash Function A and Secret + Payer's FIO Public Key as initialization vector.
+
+![](images/Diagram-Fetching-Funds-Request.PNG)
+
+#### Rejecting Funds Request
+* Payer's wallet submits reject_funds_request with:
+  * Unencrypted:
+    * Payer's FIO Public Key. This will allow Payer to locate their own responses.
+    * Payer's FIO Address. This will be used to deduct bundled transactions.
+  * Hashed:
+    * Payee's FIO Public Key hashed using Hash Function A and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find responses.
+  * Encrypted with Secret + IV
+    * FIO request ID
+    * Status = rejected
+    
+![](images/Diagram-Rejecting-Funds-Request.PNG)
+
+#### Recording OBT Data
+* Payer's wallet submits new action with:
+  * Unencrypted:
+    * Payer's FIO Public Key. This will allow Payer to locate their own responses.
+    * Payer's FIO Address. This will be used to deduct bundled transactions
+  * Hashed:
+    * Payee's FIO Public Key hashed using Hash Function A and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find responses.
+  * Encrypted with Secret + IV:
+    * FIO request ID (if in response to request)
+    * Status = sent_to_blockchain
+    * Payer FIO Address
+    * Payee FIO Address
+    * Send details (chain, amount, memo)
+    
+#### Fetching sent FIO Requests
+* Payee sends their FIO public key, which is unencrypted on chain
+
+#### Fetching send actions
+* This is a new construct which returns all send actions, e.g. request rejections or recorded OBT content. Since the details are now encrypted, it's not possible to get the status together with Funds Requests.
+* Payee's wallet will compute look-up index by hashing Payer's FIO Public Key using Hash Function A and Secret + Payer's FIO Public Key as initialization vector use it to fetch:
+  * Reject messages
+  * Record send messages
+* The Payee's wallet is responsible for putting together all requests from get_sent_fio_requests with their associated statuses
 
 ## Rationale
 ## Other approaches considered
@@ -129,4 +245,6 @@ We've considered using a SLIP-44 derivation path for those keys, but it does not
 
 ## Implementation
 ## Backwards compatibility
+To support backwars compatibility, every FIO Address will elect to be *private* or *public*. If *public* is elected, the FIO Address will continue to function as is. If *private* is elected, it will only support new private actions and all public action will respond with advosory that this address only supports private mode. To support existing users, all new FIO Addresses will be set to public by default.
+
 ## Future considerations
