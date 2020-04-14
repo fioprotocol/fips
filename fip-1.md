@@ -5,7 +5,7 @@ status: Accepted
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-02
-updated: 2020-04-03
+updated: 2020-04-14
 ---
 
 ## Abstract
@@ -114,7 +114,7 @@ A new *transfer_fio_domain* fee is added. Recommend initial amount same as trans
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid FIO Address format|FIO Address format is not valid|400|"fio_domain"|Value sent in, e.g. "alice"|"Invalid FIO domain"|
+|Invalid FIO Address format|FIO Address format is not valid|400|"fio_address"|Value sent in, e.g. "purse@alice"|"Invalid FIO Address"|
 |Invalid FIO Public Key|FIO Public Key format is not valid|400|"new_owner_fio_public_key"|Value sent in, e.g. "notakey"|"Invalid FIO Public Key"|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
@@ -156,7 +156,7 @@ Aside from OBPA mappings, FIO Address is associated to FIO Requests and FIO Data
 
 Since the contents of FIO Request and FIO Data is encrypted using private/public keys at the time the request is sent, the new owner will not be able to decrypt it.
 
-Wallets, at their discretion, may choose to check if FIO Address of displayed FIO Request has changed since original request and shos a notification to the user viewing an old request.
+Wallets, at their discretion, may choose to check if FIO Address of displayed FIO Request has changed since original request and show a notification to the user viewing an old request.
 
 ### Fees
 Both FIO Domain and FIO Address transfers should each have a new fee type. The fee should be high enough to cover possible new account creation.
