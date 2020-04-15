@@ -123,6 +123,8 @@ A new *transfer_fio_domain* fee is added. Recommend initial amount same as trans
 |FIO Address expired|FIO Address is expired|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address expired. Renew first."|
 |FIO Address not registered|FIO Address is not registered|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address not registered"|
 |Not owner of FIO Address|The signer does not own the address|403||||
+|FIO Address is active producer|Supplied FIO Address is registered as producer and is_active = 1|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address is active producer. Unregister first."|
+|FIO Address is proxy|Supplied FIO Address is registered as proxy|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address is proxy. Unregister first."|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
