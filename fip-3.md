@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-09
-updated: 2020-04-09
+updated: 2020-04-15
 ---
 
 ## Abstract
@@ -27,7 +27,7 @@ Even though contents of FIO Requests and OBT Records is already encrypted, there
 
 ## Specification
 ### Friend List
-The core concept which accomplishes above objectives is a Friend List. This concept allows for the computation of shared secret where only one party is visible on chain. To acheive this, the party placing a transaction on the blockchain encrypts the other party's public key in such a way that the other party can know it's theirs, but an observer cannot.
+The core concept which accomplishes above objectives is a Friend List. When two users are friends, one can encrypt information (NBPA mappings, FIO Request, FIO Data, etc.) and put them on the chain in a structure which enables only the other party to find it and only the two parties to decrypt it.
 
 This concept will allow the following:
 * Place FIO Request, OBT Record on the blockchain with only one party visible by an observer.
@@ -52,7 +52,7 @@ It is important to note that Friend List will exist between FIO Public Keys, not
 ![](images/Diagram-Checking-Friend-List.PNG)
 
 ### Friend List actions
-#### Add to Friend List: *addfriend*
+#### Add to Friend List. New action: *addfriend*; New endpoint: /priv_add_friend
 Adds user to Friend List.
 ##### Request
 |Parameter|Required|Format|Definition|
@@ -102,7 +102,7 @@ The content element is a packed and encrypted version of the following data stru
 	"fee_collected": 2000000000
 }
 ```
-#### Remove from Friend List: *removefriend*
+#### Remove from Friend List. New action: *removefriend*; New endpoint: /priv_remove_friend
 Removes user from Friend List.
 ##### Request
 |Parameter|Required|Format|Definition|
@@ -182,7 +182,7 @@ Returns Friend List.
     "more": 0
 }
 ```
-#### Check Friend List
+#### Check Friend List. New endpoint: /priv_check_friend_list
 Checks if a user is in a Friend's list. Can be called by either party.
 ##### Request
 |Parameter|Required|Format|Definition|
@@ -333,6 +333,257 @@ The blockchain will look for secret key with provided Look-up index and Chain co
   * Reject messages
   * Record send messages
 * The Payee's wallet is responsible for putting together all requests from get_sent_fio_requests with their associated statuses
+
+### FIO Request and FIO Data actions
+#### New funds request. New action: *privfundsreq*; New endpoint: /priv_new_funds_request 
+New Funds Request when utilizing Friend List.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|payee_fio_address|Yes|FIO Address|FIO Address of the payee.|
+|payee_fio_public_key|Yes|FIO Public Key|FIO Public Key of the payee.|
+|lookup_index_for_payer|Yes|String|Derived as follows: Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme. Payer's FIO Public Key is then hashed using Hash Function A and Secret + Payer's FIO Public Key as initialization vector. This will be used by Payer to find requests that are for them.|
+|content|Yes|FIO public key|Encrypted blob. Same as content element of [/new_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/new-funds-request/new-funds-request-model)|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### Example
+```
+{
+	"payee_fio_address": "crypto@bob",
+	"payee_fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+	"lookup_index_for_payer": "515184318471884685485465454464846864686484464694181384",
+	"content": "...",
+	"max_fee": 0,
+	"tpid": "",
+	"actor": "aftyershcu22"
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Fee is collected
+* Content is placed on chain
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Not owner of FIO Address|The signer does not own the FIO Address|403||||
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|fio_request_id|Int|ID of FIO Request created.|
+|status|String|OK if succesful|
+|fee_collected|Int|Amount of SUFs collected as fee|
+###### Example
+```
+{
+	"fio_request_id": "10",
+	"status": "OK",
+	"fee_collected": 0
+}
+```
+#### Records send action. New action: *privrecsend*; New endpoint: /priv_record_send_action 
+This action is made to record information about a send transaction. Because content is encrypted, two calls used in unencrypted mode ([/record_obt_data](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model) and [/reject_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/reject-funds-request/reject-funds-request-model) are combined into a single action.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|payer_fio_address|Yes|FIO Address|FIO Address of the payer.|
+|payer_fio_public_key|Yes|FIO Public Key|FIO Public Key of the payer.|
+|lookup_index_for_payee|Yes|String|Derived as follows: Payer's FIO Private Key and Payee's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme. Payee's FIO Public Key is then hashed using Hash Function A and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find send actions that are for them.|
+|content|Yes|FIO public key|Encrypted blob. Same as content element of [/record_obt_data](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model)|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### Example
+```
+{
+	"payer_fio_address": "purse@alice",
+	"payer_fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+	"lookup_index_for_payee": "515184318471884685485465454464846864686484464694181384",
+	"content": "...",
+	"max_fee": 0,
+	"tpid": "",
+	"actor": "aftyershcu22"
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Fee is collected
+* Content is placed on chain
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Not owner of FIO Address|The signer does not own the FIO Address|403||||
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if succesful|
+|fee_collected|Int|Amount of SUFs collected as fee|
+###### Example
+```
+{
+	"status": "OK",
+	"fee_collected": 0
+}
+```
+#### Get received FIO Requests. New endpoint: /priv_get_received_fio_requests 
+Requests call polls for any requests sent to a receiver by a specified sender. Because status is now encrypted, it's no longer possible to return only pending FIO Requests, like it is in current [/get_pending_fio_requests](https://developers.fioprotocol.io/api/api-spec/reference/get-pending-fio-requests/get-pending-fio-requests). It will now be up to the wallet to decrypt each request and obtain status.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|lookup_indexes_for_payer|Yes|JSON Array|Array of key hashes. Derived as follows: Payer's FIO Private Key and Payee's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme. Payer's FIO Public Key is then hashed using Hash Function A and Secret + Payer's FIO Public Key as initialization vector.|
+|limit|No|Positive Int|Number of requests to return. If omitted, all requests will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First request from list to return. If omitted, 0 is assumed.|
+###### Example
+```
+{
+	"lookup_indexes_for_payer": [
+		"515184318471884685485465454464846864686484464694181384",
+		"515184318471884685485465454464846864686484464694181385",
+		"515184318471884685485465454464846864686484464694181386",
+		"515184318471884685485465454464846864686484464694181387"
+	],
+	"limit": 100,
+	"offset": 0
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Return *limit* FIO Requests starting at *offset* where payee in *lookup_indexes_for_payer*.
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|No FIO Requests|No requests were found|404|||"No FIO Requests."|
+##### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+|requests|payee_fio_address|String|FIO Address of the payee.|
+|requests|payee_fio_public_key|String|FIO Public Key of the payee.|
+|requests|lookup_index_for_payer|String|See priv_new_funds_request|
+|requests|content|String|Encrypted blob. See priv_new_funds_request|
+||more|Int|Number of results remaining|
+###### Example
+```
+{
+	"requests": [
+		{
+			"payee_fio_address": "crypto@bob",
+			"payee_fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+			"lookup_index_for_payer": "515184318471884685485465454464846864686484464694181384",
+			"content": "..."
+		}
+	],
+	"more": 0
+}
+```
+#### Get sent FIO Requests. New endpoint: /priv_get_sent_fio_requests 
+Sent requests call polls for any requests sent by provided FIO public key.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key|Yes|String|FIO public key of Payee.|
+|limit|No|Positive Int|Number of requests to return. If omitted, all requests will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First request from list to return. If omitted, 0 is assumed.|
+###### Example
+```
+{
+	"fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+	"limit": 100,
+	"offset": 0
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Return *limit* FIO Requests starting at *offset* where payee's FIO Public Key is *fio_public_key*.
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|No FIO Requests|No requests were found|404|||"No FIO Requests."|
+##### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+|requests|payee_fio_address|String|FIO Address of the payee.|
+|requests|payee_fio_public_key|String|FIO Public Key of the payee.|
+|requests|lookup_index_for_payer|String|See priv_new_funds_request|
+|requests|content|String|Encrypted blob. See priv_new_funds_request|
+||more|Int|Number of results remaining|
+###### Example
+```
+{
+	"requests": [
+		{
+			"payee_fio_address": "crypto@bob",
+			"payee_fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+			"lookup_index_for_payer": "515184318471884685485465454464846864686484464694181384",
+			"content": "..."
+		}
+	],
+	"more": 0
+}
+```
+#### Get information about actions received. New endpoint: /priv_get_received_actions 
+Requests call polls for any actions taken by payer on the payee. Because status is now encrypted, OBT Data and status is now combined in same call. It will now be up to the wallet to decrypt each action and obtain status.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|lookup_indexes_for_payer|Yes|JSON Array|Array of key hashes. Derived as follows: Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme. Payer's FIO Public Key is then hashed using Hash Function A and Secret + Payer's FIO Public Key as initialization vector.|
+|limit|No|Positive Int|Number of actions to return. If omitted, all actions will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First action from list to return. If omitted, 0 is assumed.|
+###### Example
+```
+{
+	"lookup_indexes_for_payer": [
+		"515184318471884685485465454464846864686484464694181384",
+		"515184318471884685485465454464846864686484464694181385",
+		"515184318471884685485465454464846864686484464694181386",
+		"515184318471884685485465454464846864686484464694181387"
+	],
+	"limit": 100,
+	"offset": 0
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Return *limit* actions starting at *offset* where payer in *lookup_indexes_for_payer*.
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|No Received Actions|No requests were found|404|||"No Received Actions."|
+##### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+|actions|payer_fio_address|String|FIO Address of the payer.|
+|actions|payer_fio_public_key|String|FIO Public Key of the payer.|
+|actions|lookup_index_for_payer|String|See priv_record_send_action|
+|actions|content|String|Encrypted blob. See priv_record_send_action|
+||more|Int|Number of results remaining|
+###### Example
+```
+{
+	"actions": [
+		{
+			"payer_fio_address": "crypto@bob",
+			"payer_fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+			"lookup_index_for_payer": "515184318471884685485465454464846864686484464694181384",
+			"content": "..."
+		}
+	],
+	"more": 0
+}
+```
 
 ## Rationale
 ## Other approaches considered
