@@ -17,7 +17,7 @@ Create an issue describing the FIP or section of a FIP you would like to open up
 ## FIP Status
 * Draft - a FIP that is open for consideration.
 * Accepted - a FIP that is planned for immediate adoption. Changes may still be made as required by development.
-* Final - a FIP that has been adopted.
+* Final - a FIP that has been adopted, coded, merged, and deployed by the block producers on FIO mainnet.
 * Deferred - a FIP that is not being considered for immediate adoption. May be reconsidered in the future.
 
 ## Successful FIP includes
@@ -47,7 +47,7 @@ Detailed definition of what is being changed, e.g. actions, API end-points, proc
 The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made.
 
 ### Implementation
-Initially this section should include technical implementation strategy, such how this change made (contracts, core, etc.), how will the specification be accomplished in code, how will the code be tested/deployed. Eventually it should reference a specific pull-request.
+Initially this section should include technical implementation strategy, such how this change made (contracts, core, etc.), how will the specification be accomplished in code, how will the code be tested/deployed. Before development beings, create a master ticket in the fio repo to track progress on development towards this FIP.
 
 ### Backwards Compatibility
 All FIPs that introduce backwards incompatibilities must include a section describing these incompatibilities and their severity. The FIP must explain how the author proposes to deal with these incompatibilities.
