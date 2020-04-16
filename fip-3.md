@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-09
-updated: 2020-04-15
+updated: 2020-04-16
 ---
 
 ## Abstract
@@ -96,7 +96,7 @@ The content element is a packed and encrypted version of the following data stru
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
-|status|String|OK if succesful|
+|status|String|OK if successful|
 |fee_collected|Int|Amount of SUFs collected as fee|
 ###### Example
 ```
@@ -138,7 +138,7 @@ Removes user from Friend List.
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
-|status|String|OK if succesful|
+|status|String|OK if successful|
 |fee_collected|Int|Amount of SUFs collected as fee|
 ###### Example
 ```
@@ -239,19 +239,23 @@ A secret key is placed on the FIO Chain for specific Payer using new action. The
 * Look-up Index - Payee derives the same index as used for Adding a friend to a Friend List. It allows the Payer to get the key intended for them.
 * Chain code (if secret key is chain level)
 * Key ID (if secret key is for specific key)
+* Token code
 * Secret Key encrypted asymmetrically using the friend’s public key to derive shared secret using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
 
 #### Looking up NBPA
 Payer looks for NBPA using:
 * Look-up index - Payer derives the same index as used for Adding a friend to a Friend List.
+* FIO Address
 * Chain code
+* Token code
 
-The blockchain will look for secret key with provided Look-up index and Chain code and return correct level encrypted NBPA and corresponding Encrypted Secret Key if found.
+The blockchain will look for secret key with provided Look-up index and chain and token code and return correct level encrypted NBPA and corresponding Encrypted Secret Key if found.
 
 ##### Example
 * Payee places NBPA as follows:
   * NBPA ID: 1
   * Blockchain code: BTC
+  * Token code: BTC
   * NBPA encrypted with FIO Address level secret key (Secret 1): ABC
   * NBPA encrypted with Chain level secret key (Secret 2): DEF
   * NBPA encrypted with NBPA level secret key (Secret 3): GHI
@@ -265,12 +269,196 @@ The blockchain will look for secret key with provided Look-up index and Chain co
   * Blockchain code: BTC
   * Key ID: 1
   * Encrypted Secret Key: YYY
-* Payer 1 sends index_for_payer_1 and BTC and receives:
+* Payer 1 sends index_for_payer_1 and BTC/BTC and receives:
   * XXX - Payer 1 decrypts Secret 2 with their private key
   * DEF - Payer 1 decrypts NBPA with Secret 2
-* Payer 2 sends index_for_payer_2 and BTC and receives:
+* Payer 2 sends index_for_payer_2 and BTC/BTC and receives:
   * YYY - Payer 2 decrypts Secret 3 with their private key
   * GHI - Payer 2 decrypts NBPA with Secret 3
+
+### NBPA mappings actions
+The following is a list of all new contract actions and endpoint added.
+#### Add NBPA. New action: *privaddadr*; New endpoint: /priv_add_pub_address
+Adds NBPA to chain.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_address|Yes|String|FIO Address for which NBPA is being added.|
+|public_addresses|Yes|JSON Array. See public_addresses below Min: 1 item Max: 5 items|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### *public_addresses* format
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|chain_code|Yes|String|Chain code of NBPA being added, not encrypted.|
+|token_code|Yes|String|Token code of NBPA being added, not encrypted.|
+|public_key_address_level|Yes|String|NBPA encrypted with FIO Address-level secret.|
+|public_key_chain_level|Yes|String|NBPA encrypted with chain-level secret.|
+|public_key_nbpa_level|Yes|String|NBPA encrypted with NBPAs-level secret.|
+###### Example
+```
+{
+	"fio_address": "purse@alice",
+	"public_addresses": [
+		{
+			"chain_code": "BTC",
+			"token_code": "BTC",
+			"public_key_address_level": "jK4P6yxXwoZjCz4xodEVMY63PZQEvs1GVRUSusohSpFzO8mBegxGE1Zl7yYqxwqHIWYrxihOxJya51QMVzyJVv8z2S2fnWUB",
+			"public_key_chain_level": "5zsyqCjsZ9bAGfQybQKIGZL36UQldukmoJMq410SQzIVeSus1dozqGZu4X8Fh0qzHioAL4dwIkORz7cG8XAtQ1ZOG9vaK9su",
+			"public_key_nbpa_level": "uE98xys0iDlmJyPdrTof09iZbqxIJEDXZC6KlyRdtgdgrt2E1XWUr04h9JE7CvtGCHDan2G58x0BzzXi7NnsTyCaSi05ird1"
+		},
+		{
+			"chain_code": "ETH",
+			"token_code": "USDC",
+			"public_key_address_level": "cXg5EEs5i0wqR5K0eskMo02Q3Tsqpt0VCeU9MPAkvlPC3g5cJd690aeEmBlkHsvOGTEI7KiQZ7W4kWfwaOCTq8rDja3p6kRw",
+			"public_key_chain_level": "GUzY0kzw61nFChs9EWVear5oHNRLQRci2qbv4kQQNztg8JY6Q3atEnKYrcdfDWr4HzmXx23hDfZfWbw4LjwyFSlZyOqc6z3G",
+			"public_key_nbpa_level": "ddegiZfBqENdtVWGsgzeDsSJHlQGwmlTtUxpzEcI4hkkbVhHbR96ow9tPD1EALLnqigl9hF4scxt9qPfCh1bavPWLN9X1jie"
+		}
+	],
+	"max_fee": 0,
+	"tpid": "rewards@wallet",
+	"actor": "aftyershcu22"
+}
+```
+##### Processing
+* Request is validated per Exception handling.
+* Fee is collected
+* Content is placed on chain
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Invalid chain format|Supplied chain code is not a valid format.|400|"chain_code"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Chain Code"|
+|Invalid token format|Supplied token code is not a valid format.|400|"token_code"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Token Code"|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Not owner of FIO Address|The signer does not own the FIO Address|403||||
+|FIO Address not found|Supplied FIO Address cannot be found|404||||
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if successful|
+|key_id|Int|ID of key|
+|fee_collected|Int|Amount of SUFs collected as fee|
+###### Example
+```
+{
+	"status": "OK",
+	"key_id: 1000000,
+	"fee_collected": 2000000000
+}
+```
+#### Grant NBPA access. New action: *privganbpa*; New endpoint: /priv_grant_pub_address_access
+Grants NBPA access to specific friend by placing a decrypt secret for them.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key_hash|Yes|String|FIO Public Key of friend being granted access hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector.|
+|decrypt_keys|Yes|JSON Array. See decrypt_keys below Min: 1 item Max: 5 items|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### *decrypt_keys* format
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|level|Yes|String|Level of decryption key: address, chain, nbpa|
+|level_index|Yes|String|Level index: for address-level: FIO Address, for chain-level: chain code, for nbpa: key ID|
+|decrypt_key|Yes|String|Encrypted key|
+###### Example
+```
+{
+	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
+	"decrypt_keys": [
+		{
+			"level": "chain",
+			"level_index": "BTC",
+			"decrypt_key": "5zsyqCjsZ9bAGfQybQKIGZL36UQldukmoJMq410SQzIVeSus1dozqGZu4X8Fh0qzHioAL4dwIkORz7cG8XAtQ1ZOG9vaK9su"
+		},
+		{
+			"level": "nbpa",
+			"level_index": "1000",
+			"decrypt_key": "GUzY0kzw61nFChs9EWVear5oHNRLQRci2qbv4kQQNztg8JY6Q3atEnKYrcdfDWr4HzmXx23hDfZfWbw4LjwyFSlZyOqc6z3G"
+		}
+	],
+	"max_fee": 0,
+	"tpid": "rewards@wallet",
+	"actor": "aftyershcu22"
+}
+```
+##### Processing
+* Request is validated per Exception handling.
+* Fee is collected
+* Content is placed on chain
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Key not in Friend List|Supplied FIO Public key is not in Friend List|400|"fio_public_key_hash"|Value sent in, i.e. "1000000000"|"FIO public key not in Friend List"|
+|Invalid level format|Supplied level not a valid format.|400|"level"|Value sent in, i.e. "something|"Invalid level."|
+|Invalid chain format|Supplied chain code is not a valid format.|400|"level_index"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Chain Code"|
+|Invalid nbpa id format|Supplied nbpa id is not valid or key does not belong to signer.|400|"level_index"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Chain Code"|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Not owner of FIO Address|The signer does not own the FIO Address|403||||
+|FIO Address not found|Supplied FIO Address cannot be found|404||||
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if successful|
+|fee_collected|Int|Amount of SUFs collected as fee|
+###### Example
+```
+{
+	"status": "OK",
+	"fee_collected": 2000000000
+}
+```
+#### Get NBPA. New endpoint: /priv_get_pub_address
+Looks up NBPA for supplied FIO Address and chain code.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key_hash|Yes|String|FIO Public Key of caller hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector.|
+|chain_code|Yes|Chain code for requested NBPA.|
+|token_code|Yes|Token code for requested NBPA.|
+###### Example
+```
+{
+	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
+	"fio_address": "purse@alice",
+	"chain_code": "FIO",
+	"token_code": "FIO"
+}
+```
+##### Processing
+* Request is validated per Exception handling.
+* NBPA is looked up using:
+  * Provided FIO Address
+  * Chain code
+  * Token code
+* Decrypt key is looked up using fio_public_key_hash and appropriate decrypt key is returned:
+  * if nbpa-level decrypt key exists, it is returned
+  * if chain-level decrypt key exists, it is returned
+  * if address-level decrypt key exists, it is returned
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Public Address not found|There was no matching NBPA and/or matching decrypt key|404|||"Public address not found"|
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|public_address|String|Encrypted public key.|
+|decrypt_key|String|Encrypted decrypt key.|
+###### Example
+```
+{
+	"public_address": "GUzY0kzw61nFChs9EWVear5oHNRLQRci2qbv4kQQNztg8JY6Q3atEnKYrcdfDWr4HzmXx23hDfZfWbw4LjwyFSlZyOqc6z3G",
+	"decrypt_key": "ddegiZfBqENdtVWGsgzeDsSJHlQGwmlTtUxpzEcI4hkkbVhHbR96ow9tPD1EALLnqigl9hF4scxt9qPfCh1bavPWLN9X1jie"
+}
+```
 
 ### FIO Request and FIO Data
 #### New Private Funds Request
@@ -285,7 +473,7 @@ The blockchain will look for secret key with provided Look-up index and Chain co
   * Unencrypted:
     * Payee FIO Public Key. This will allow Payee to locate their own requests.
     * Payee's FIO Address. This will be used to deduct bundled transactions.
-    * Auto-generated FIO Request ID sam as now.
+    * Auto-generated FIO Request ID same as now.
   * Hashed:
     * Payer's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payer's FIO Public Key as initialization vector. This will be used by Payer to find requests that are for them.
   * Encrypted with Secret + random IV
@@ -381,7 +569,7 @@ New Funds Request when utilizing Friend List.
 |Parameter|Format|Definition|
 |---|---|---|
 |fio_request_id|Int|ID of FIO Request created.|
-|status|String|OK if succesful|
+|status|String|OK if successful|
 |fee_collected|Int|Amount of SUFs collected as fee|
 ###### Example
 ```
@@ -433,7 +621,7 @@ This action is made to record information about a send transaction. Because cont
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
-|status|String|OK if succesful|
+|status|String|OK if successful|
 |fee_collected|Int|Amount of SUFs collected as fee|
 ###### Example
 ```
@@ -602,6 +790,6 @@ We've considered using a SLIP-44 derivation path for those keys, but it does not
 
 ## Implementation
 ## Backwards compatibility
-To support backwars compatibility, every FIO Address will elect to be *private* or *public*. If *public* is elected, the FIO Address will continue to function as is. If *private* is elected, it will only support new private actions and all public action will respond with advosory that this address only supports private mode. To support existing users, all new FIO Addresses will be set to public by default.
+To support backwards compatibility, every FIO Address will elect to be *private* or *public*. If *public* is elected, the FIO Address will continue to function as is. If *private* is elected, it will only support new private actions and all public action will respond with advisory that this address only supports private mode. To support existing users, all new FIO Addresses will be set to public by default.
 
 ## Future considerations
