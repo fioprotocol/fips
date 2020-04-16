@@ -28,7 +28,7 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |fio_request_id|Yes|Positive Int|Existing Funds request id|
-|max_fee|Yes|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|max_fee|Yes|Max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
 |tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid 10% of the fee.See FIO Protocol#TPIDs for details. Set to empty if not known.|
 |actor|Yes|FIO account name|FIO account for the signer, the account owning this payee FIO Address.|
 ###### Example
