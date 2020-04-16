@@ -6,6 +6,8 @@ FIPs describe proposed changes to the FIO Protocol.
 Everyone is encouraged to review existing FIPs and provide feedback.
 ### Proposing a FIP
 Fork the repository and add your FIP to it with status *Draft*. See *Successful FIP includes* below for what a FIP should include. Reach out to the community and solicit feedback. Once you are ready submit a pull request to add your FIP to the main fips repo. Once repo custodians accepts your FIP, you can code the solution and submit pull request to relevant repo. Once the code has been pushed, the status will be changed to *Adopted*.
+### Discussing a FIP
+Create an issue describing the FIP or section of a FIP you would like to open up for discussion.
 
 ## FIP Type
 * Core - improvements requiring a consensus fork
@@ -14,7 +16,7 @@ Fork the repository and add your FIP to it with status *Draft*. See *Successful 
 
 ## FIP Status
 * Draft - a FIP that is open for consideration.
-* Accepted - a FIP that is planned for immediate adoption.
+* Accepted - a FIP that is planned for immediate adoption. Changes may still be made as required by development.
 * Final - a FIP that has been adopted.
 * Deferred - a FIP that is not being considered for immediate adoption. May be reconsidered in the future.
 
