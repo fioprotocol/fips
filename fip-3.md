@@ -48,18 +48,20 @@ It is important to note that Friend List will exist between FIO Public Keys, not
 ![](images/Diagram-Adding-to-Friend-List.PNG)
 
 #### Checking a Friend List
+The Sender can check if they have been added to the Receiver's Friend List by hashing their own FIO Public Key using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector.
  
 ![](images/Diagram-Checking-Friend-List.PNG)
 
 ### Friend List actions
+The following is a list of all new contract actions and endpoint added.
 #### Add to Friend List. New action: *addfriend*; New endpoint: /priv_add_friend
 Adds user to Friend List.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|fio_public_key_hash|Yes|String|FIO Public Key of party being added hashed using Hash Function A and Secret as initialization vector. This will be used as a look-up index by Sender to check if they are on Friend List.|
-|content|Yes|FIO public key|Encrypted blob. See below. This will be used by Friend Lister to be able to restore their Friend List from wallet seed phrases without relying on local storage.|
-|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|fio_public_key_hash|Yes|String|FIO Public Key of party being added hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector. This will be used as a look-up index by Sender to check if they are on Friend List.|
+|content|Yes|FIO public key|Encrypted blob. See below. This will be used by the owner of Friend List to be able to restore their Friend List from wallet seed phrases without relying on local storage.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 |actor|Yes|12 character string|Valid actor of signer|
 ###### *content* format
@@ -79,7 +81,8 @@ The content element is a packed and encrypted version of the following data stru
 }
 ```
 ##### Processing
-* Request is validated per Exception handling
+* Request is validated per Exception handling. Explicitly allowed:
+	* User does not need to have a FIO Address registered, as Friend List on a Public Key level
 * Fee is collected
 * Content is placed on chain
 ##### Exception handling
@@ -107,8 +110,8 @@ Removes user from Friend List.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|fio_public_key_hash|Yes|String|FIO Public Key of party being removed hashed using Hash Function A and Secret as initialization vector.|
-|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|fio_public_key_hash|Yes|String|FIO Public Key of party being removed hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 |actor|Yes|12 character string|Valid actor of signer|
 ###### Example
@@ -144,7 +147,7 @@ Removes user from Friend List.
 	"fee_collected": 2000000000
 }
 ```
-#### Get Friend List
+#### Get Friend List. New endpoint: /priv_get_friend_list
 Returns Friend List.
 ##### Request
 |Parameter|Required|Format|Definition|
@@ -206,14 +209,14 @@ Checks if a user is in a Friend's list. Can be called by either party.
 ```
 
 ### NBPA mappings
-In existing implementation, NBPAs are placed on FIO Chain unencrypted. Once a Friend List functionality exists, it can be leveraged to store NBPAs privately.
+In existing implementation, NBPAs are placed on FIO Chain unencrypted. Friend List functionality can be leveraged to store NBPAs privately.
 
-In order to offer the most flexibility to users and to reduce the amount of content stored on the FIO Chain, each NBPA is encrypted symmetrically three separate times using different secret key each time:
+In order to offer the most flexibility to users and to reduce the amount of content stored on the FIO Chain, each NBPA is encrypted symmetrically three separate times using different random secret key each time:
 * FIO Address level secret key – used to encrypt all NBPAs associated with that FIO Address.
 * Chain level secret key – used to encrypt all NBPAs for a particular chain (i.e. Ethereum).
 * NBPA level secret key – only used to encrypt one NBPA.
 
-NBPA level secret key can decrypt just one NBPA. Chain level secret key can decrypt current public addresses for specific chain and all future NBPAs for that chain published by the owner. FIO Address level secret key can decrypt all NBPAs associated with that FIO Address. The FIO Address owner can then decide which of these decrypt keys to make available to which friend by placing them on the FIO Chain encrypted asymmetrically with the friend’s public key.
+NBPA level secret key can decrypt just one NBPA. Chain level secret key can decrypt current public addresses for specific chain and all future NBPAs for that chain published by the owner. FIO Address level secret key can decrypt all NBPAs associated with that FIO Address. The FIO Address owner can then decide which of these decrypt keys to make available to which friend by placing them on the FIO Chain encrypted.
 
 #### Placing NBPA on chain
 Each NBPA will be encrypted using three unique secret keys. Method of deriving secret keys (where + is string concatenation):
@@ -236,7 +239,7 @@ A secret key is placed on the FIO Chain for specific Payer using new action. The
 * Look-up Index - Payee derives the same index as used for Adding a friend to a Friend List. It allows the Payer to get the key intended for them.
 * Chain code (if secret key is chain level)
 * Key ID (if secret key is for specific key)
-* Encrypted Secret Key
+* Secret Key encrypted asymmetrically using the friend’s public key to derive shared secret using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
 
 #### Looking up NBPA
 Payer looks for NBPA using:
@@ -268,17 +271,17 @@ The blockchain will look for secret key with provided Look-up index and Chain co
 * Payer 2 sends index_for_payer_2 and BTC and receives:
   * YYY - Payer 2 decrypts Secret 3 with their private key
   * GHI - Payer 2 decrypts NBPA with Secret 3
-  
+
 ### FIO Request and FIO Data
-#### New Funds Request
-* Payee initiate a [new_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/new-funds-request/new-funds-request-model) to Payer (types FIO Address into wallet)
+#### New Private Funds Request
+* Payee initiate a new private funds request to Payer (types FIO Address into wallet)
 * Payee's wallet checks to see if Payee is added to Payer's whitelist:
   * Fetches FIO Public Key associated to Payer FIO Address
-  * Uses Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme.
+  * Uses Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
   * Computes look-up index
     * Payee's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector.
   * Check blockchain if look-up index is associated with Payer's FIO Address
-* Payee's wallet submits new_funds_request with:
+* Payee's wallet submits new private funds request with:
   * Unencrypted:
     * Payee FIO Public Key. This will allow Payee to locate their own requests.
     * Payee's FIO Address. This will be used to deduct bundled transactions.
@@ -293,30 +296,30 @@ The blockchain will look for secret key with provided Look-up index and Chain co
 ![](images/Diagram-New-Funds-Request.PNG)
 
 #### Fetching New Funds Request
-* Payer's wallet will compute look-up index by hashing Payer's FIO Public Key using Hash Function A and Secret + Payer's FIO Public Key as initialization vector.
+* Payer's wallet will compute look-up index by hashing Payer's FIO Public Key using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payer's FIO Public Key as initialization vector.
 
 ![](images/Diagram-Fetching-Funds-Request.PNG)
 
 #### Rejecting Funds Request
-* Payer's wallet submits reject_funds_request with:
+* Payer's wallet records new action with:
   * Unencrypted:
     * Payer's FIO Public Key. This will allow Payer to locate their own responses.
     * Payer's FIO Address. This will be used to deduct bundled transactions.
   * Hashed:
-    * Payee's FIO Public Key hashed using Hash Function A and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find responses.
+    * Payee's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find responses.
   * Encrypted with Secret + IV
     * FIO request ID
     * Status = rejected
     
 ![](images/Diagram-Rejecting-Funds-Request.PNG)
 
-#### Recording OBT Data
-* Payer's wallet submits new action with:
+#### Recording OBT Data aka accepting funds request
+* Payer's wallet records new action with:
   * Unencrypted:
     * Payer's FIO Public Key. This will allow Payer to locate their own responses.
     * Payer's FIO Address. This will be used to deduct bundled transactions
   * Hashed:
-    * Payee's FIO Public Key hashed using Hash Function A and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find responses.
+    * Payee's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find responses.
   * Encrypted with Secret + IV:
     * FIO request ID (if in response to request)
     * Status = sent_to_blockchain
@@ -329,9 +332,9 @@ The blockchain will look for secret key with provided Look-up index and Chain co
 
 #### Fetching send actions
 * This is a new construct which returns all send actions, e.g. request rejections or recorded OBT content. Since the details are now encrypted, it's not possible to get the status together with Funds Requests.
-* Payee's wallet will compute look-up index by hashing Payer's FIO Public Key using Hash Function A and Secret + Payer's FIO Public Key as initialization vector use it to fetch:
+* Payee's wallet will compute look-up index by hashing Payer's FIO Public Key using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payer's FIO Public Key as initialization vector use it to fetch:
   * Reject messages
-  * Record send messages
+  * Record OBT messages
 * The Payee's wallet is responsible for putting together all requests from get_sent_fio_requests with their associated statuses
 
 ### FIO Request and FIO Data actions
@@ -342,9 +345,9 @@ New Funds Request when utilizing Friend List.
 |---|---|---|---|
 |payee_fio_address|Yes|FIO Address|FIO Address of the payee.|
 |payee_fio_public_key|Yes|FIO Public Key|FIO Public Key of the payee.|
-|lookup_index_for_payer|Yes|String|Derived as follows: Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme. Payer's FIO Public Key is then hashed using Hash Function A and Secret + Payer's FIO Public Key as initialization vector. This will be used by Payer to find requests that are for them.|
+|lookup_index_for_payer|Yes|String|Derived as follows: Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange). Payer's FIO Public Key is then hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payer's FIO Public Key as initialization vector. This will be used by Payer to find requests that are for them.|
 |content|Yes|FIO public key|Encrypted blob. Same as content element of [/new_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/new-funds-request/new-funds-request-model)|
-|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 |actor|Yes|12 character string|Valid actor of signer|
 ###### Example
@@ -368,7 +371,7 @@ New Funds Request when utilizing Friend List.
 |---|---|---|---|---|---|
 |Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address invalid or does not exist."|
 |FIO Address expired|Supplied FIO Address has expired|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
-|FIO Domain expired|Domain of supplied FIO Address has expired|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
@@ -389,15 +392,15 @@ New Funds Request when utilizing Friend List.
 }
 ```
 #### Records send action. New action: *privrecsend*; New endpoint: /priv_record_send_action 
-This action is made to record information about a send transaction. Because content is encrypted, two calls used in unencrypted mode ([/record_obt_data](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model) and [/reject_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/reject-funds-request/reject-funds-request-model) are combined into a single action.
+This action is made to record information about a send transaction. Because content is encrypted, two calls used in unencrypted mode ([/record_obt_data](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model) and [/reject_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/reject-funds-request/reject-funds-request-model)) are combined into a single action.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |payer_fio_address|Yes|FIO Address|FIO Address of the payer.|
 |payer_fio_public_key|Yes|FIO Public Key|FIO Public Key of the payer.|
-|lookup_index_for_payee|Yes|String|Derived as follows: Payer's FIO Private Key and Payee's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme. Payee's FIO Public Key is then hashed using Hash Function A and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find send actions that are for them.|
+|lookup_index_for_payee|Yes|String|Derived as follows: Payer's FIO Private Key and Payee's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange). Payee's FIO Public Key is then hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payee's FIO Public Key as initialization vector. This will be used by Payee to find send actions that are for them.|
 |content|Yes|FIO public key|Encrypted blob. Same as content element of [/record_obt_data](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model)|
-|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 |actor|Yes|12 character string|Valid actor of signer|
 ###### Example
@@ -421,7 +424,7 @@ This action is made to record information about a send transaction. Because cont
 |---|---|---|---|---|---|
 |Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address invalid or does not exist."|
 |FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
-|FIO Domain expired|Domain of supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
@@ -444,7 +447,7 @@ Requests call polls for any requests sent to a receiver by a specified sender. B
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|lookup_indexes_for_payer|Yes|JSON Array|Array of key hashes. Derived as follows: Payer's FIO Private Key and Payee's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme. Payer's FIO Public Key is then hashed using Hash Function A and Secret + Payer's FIO Public Key as initialization vector.|
+|lookup_indexes_for_payer|Yes|JSON Array|Array of key hashes. Derived as follows: Payer's FIO Private Key and Payee's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange). Payer's FIO Public Key is then hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payer's FIO Public Key as initialization vector.|
 |limit|No|Positive Int|Number of requests to return. If omitted, all requests will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
 |offset|No|Positive Int|First request from list to return. If omitted, 0 is assumed.|
 ###### Example
@@ -539,7 +542,7 @@ Requests call polls for any actions taken by payer on the payee. Because status 
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|lookup_indexes_for_payer|Yes|JSON Array|Array of key hashes. Derived as follows: Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using Diffie-Hellman Key Exchange scheme. Payer's FIO Public Key is then hashed using Hash Function A and Secret + Payer's FIO Public Key as initialization vector.|
+|lookup_indexes_for_payer|Yes|JSON Array|Array of key hashes. Derived as follows: Payee's FIO Private Key and Payer's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange). Payer's FIO Public Key is then hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret + Payer's FIO Public Key as initialization vector.|
 |limit|No|Positive Int|Number of actions to return. If omitted, all actions will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
 |offset|No|Positive Int|First action from list to return. If omitted, 0 is assumed.|
 ###### Example
