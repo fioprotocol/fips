@@ -777,19 +777,38 @@ Requests call polls for any actions taken by payer on the payee. Because status 
 ```
 
 ## Rationale
-## Other approaches considered
-FIO Private Messaging
-Make calls using non-linked keys
-Randomize FIO Addresses
+### Complexity tradeoffs
+Privacy on a public blockchain is a complex problem. The Dapix team has spent several weeks in 2019 brainstorming solutions with number of experts. Without a doubt, the solution contemplated in this FIP is adding significant complexity to the blockchain and for the integrators, even though it is planned that a lot of the complexity will be eliminated in the SDKs.
+
+Potential complexity tradeoffs include:
+1. Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet.
+1. If #1 is accepted, FIO Request status can additionally be made public, which would push request filtering, such as "show only pending requests" to the blockchain API.
+1. Eliminate the flexibility of allowing users multi-level encryption of NBPAs. Only address-level encryption would be supported, which would basically mean that once someone is your friend, they will get access to all keys you have shared for any FIO Address you grant them access to.
+
+### Other approaches considered
+1. FIO Private Messaging - akin to Onion Routing a new message protocol would be created and BPs would act as message relays. This would be a way to exchange a Request for Friend without any blockchain record.
+1. Make calls using non-linked keys - in current implementation the new_funds_request call and record_send calls have to be made by the corresponding payee or payer specified in the call. This means that the data is disclosed and the owner signature makes it easy to trace the signer's FIO Address. With this approach privacy-minded users can choose to use different private keys to sign these calls instead of keys which can trace back to their FIO Address.
+1. Randomize FIO Addresses - in this approach, a record is placed by the known party on the blockchain (request placed by payee, reject by payer, record send by payer), but the counter party is disclosed together with X number of other randomly selected FIO Addresses.
 
 ### Why do we encrypt a NBPA with three secret keys?
-This was meant to be an alternative to encrypting NBPA for each user separately. For example, if a user has placed 20 NBPAs on the FIO Chain for Payer 1 and they now wanted to give the same access to Payer 2, they would need to place 20 new entries on the FIO Chain. With secret keys, they will place the 20 NBPAs once and then just give one secret key to Payer 1 and 1 secret key to Payer 2, reducing the amount of data that needs to be stored on chain.
+Assuming we want to offer the flexibility to users to decide which user can see which NBPA, this was meant to be an alternative to encrypting NBPA for each user separately. For example, if a user has placed 20 NBPAs on the FIO Chain for Payer 1 and they now wanted to give the same access to Payer 2, they would need to place 20 new entries on the FIO Chain. With secret keys, they will place the 20 NBPAs once and then just give one secret key to Payer 1 and 1 secret key to Payer 2, reducing the amount of data that needs to be stored on chain.
 
-### Deriving secret keys
 We've considered using a SLIP-44 derivation path for those keys, but it does not seem like a good approach, because there would still need to be some index that matched the keys to records on the FIO blockchain.
 
 ## Implementation
+Pending
+
 ## Backwards compatibility
-To support backwards compatibility, every FIO Address will elect to be *private* or *public*. If *public* is elected, the FIO Address will continue to function as is. If *private* is elected, it will only support new private actions and all public action will respond with advisory that this address only supports private mode. To support existing users, all new FIO Addresses will be set to public by default.
+To support backwards compatibility, every FIO Address will elect to be *private* or *public*.
+
+The following is an interaction matrix of public user interactions:
+|Interaction|Public -> Public|Public -> Private|Private -> Public|Private -> Private|
+|---|---|---|---|---|
+|Send to FIO Address|As is|Private Address owner may still choose to publish public NBPAs. I they don't: error: no NBPA|As is|Friend workflow|
+|Request funds|As is|Error: recipient private|Error: association will be discolsed. Allow override.|Friend workflow|
+|Record OBT|As is|Error: recipient private|Error: association will be discolsed. Allow override.|Friend workflow|
+
+Note: this functionality not yet added to *Specification*
 
 ## Future considerations
+Isn't this enough?
