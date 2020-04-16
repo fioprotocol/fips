@@ -1,7 +1,7 @@
 ---
 fip: 3
 title: Provide ability to cancel a request for funds
-status:Proposed
+status:Draft
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>
 created: 2020-04-16

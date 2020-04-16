@@ -1,7 +1,7 @@
 ---
 fip: 4
 title: Provide ability to remove pub address from the FIO protocol for a user.
-status:Proposed
+status:Draft
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>
 created: 2020-04-16
