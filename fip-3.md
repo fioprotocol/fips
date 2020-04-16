@@ -81,7 +81,3 @@ Custom end points were put in place to make interaction with FIO Protocol easier
 * Add new API end point for cancel_fio_request
   --modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code. Add new status for cancelled to fio.request.obt.hpp. Add new action to fio.request.obt.cpp and fio.request.obt.abi. dev test api endpoint and push action and resolve all issues (2 days)
 
-
-## Backwards Compatibility
-### New API end points
-*/get_fio_domains* and */get_fio_address* are new end points and therefore do not impact existing users. */get_fio_names* end point remains unchanged.
