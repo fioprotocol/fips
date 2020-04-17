@@ -34,14 +34,14 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 |fio_request_id|Yes|Positive Int|Existing Funds request id|
 |max_fee|Yes|Max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
 |tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid 10% of the fee.See FIO Protocol#TPIDs for details. Set to empty if not known.|
-|pub_address|Yes|the FIO pub address of the canceller|FIO pub address relating to the account owning this payee FIO Address.|
+|fio_public_key|Yes|the FIO pub address of the canceller|FIO pub address relating to the account owning this payee FIO Address.|
 ###### Example
 ```
 {
 	"fio_request_id": "27",
 	"max_fee": 40000000000,
 	"tpid": ""
-    "pub_address":"FIO5LfXWzK4bRbQSDvVeu2FoMxvNzR3HDsaWaa9oC1gEVfoyKNZ1s"
+    "fio_public_key":"FIO5LfXWzK4bRbQSDvVeu2FoMxvNzR3HDsaWaa9oC1gEVfoyKNZ1s"
 }
 ```
 ##### Processing
@@ -66,7 +66,7 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 |Request ID|Request cannot be cancelled because status is sent to blockchain (2)|400|"fio_request_id"|request with status sent to blockchain cannot be cancelled |
 |Fee exceeds maximum|fee exceeded the specified max|400|"max_fee"|fee exceeds max_fee specified|"Fee exceeds maximum"|
 |Invalid TPID|TPID is not empty or contains invalid FIO address|400|"tpid"|Value sent in is not empty and not a valid FIO Address format|"TPID must be empty or valid FIO address"|
-|Invalid Actor|Actor does not match payee FIO Address owner of request|403|||"Invalid Actor"|
+|Invalid pub key|pub key hashed to account does not match payee FIO Address owner of request|403|||"Invalid pub key"|
 ##### Response
 |Group|Parameter|Format|Definition|
 |---|---|---|---|
@@ -81,7 +81,64 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 }
 ```
 ## Fees
-Add a new fee to the system.
+Add a new fee to the system for cancel_fio_request, type 1, 600000000 SUF
+
+
+### Get Cancelled Requests
+#### New end point: *get_cancelled_requests*
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key|Yes|See FIO Public Key validation rules|FIO public key of the requestee/payee.|
+|limit|No|Positive Int|Number of domains to return. If omitted, all domains will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First request from list to return. If omitted, 0 is assumed.|
+###### Example
+```
+{
+"fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+"limit": 100,
+"offset": 0
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Return *limit* FIO requests starting at *offset* owned by *fio_public_key*.
+##### Response
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Invalid FIO Public Key|FIO Public Key format is not valid|400|"fio_public_key"|Value sent in, e.g. "notakey"|"Invalid FIO Public Key"|
+|Invalid limit|limit format is not valid|400|"limit"|Value sent in, e.g. "-1"|"Invalid limit"|
+|Invalid offset|offset format is not valid|400|"offset"|Value sent in, e.g. "-1"|"Invalid offset"|
+|No Requests|No FIO Requests were found for provided FIO Public Key or that key does not hash to a known account|404|||"No FIO Requests"|
+##### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+|requests|fio_request_id|String|id of the cancelled request|
+|requests|payer_fio_address|String|fio address of payer of the request|
+|requests|payee_fio_address|String|fio address of payee of the request|
+|requests|payer_fio_public_key|String|fio public key of payer of the request|
+|requests|payee_fio_public_key|String|fio public key of payee of the request|
+|requests|content|encrypted binary blob|encrypted content for the request|
+|requests|timestamp|time|the timestamp when cancellation took place|
+||more|Int|Number of remaining results|
+###### Example
+```
+{
+"requests": [
+{
+"fio_request_id": "10",
+"payer_fio_address": "purse@alice",
+"payee_fio_address": "crypto@bob",
+"payer_fio_public_key": "FIO7167ErgCveJvuonvrEvVGhdWnkP4AEMfqvEd8s8raMkbbAXqhx",
+"payee_fio_public_key": "FIO7KGdMYj4ZMY2nUX9EaZu3G3GxZhTNXUq1tsNqC5rcP9rcmvWHq",
+"content": "...",
+"time_stamp": "2020-09-11T18:30:56"
+}
+],
+"more": 0
+}
+```
 
 
 ## Rationale
