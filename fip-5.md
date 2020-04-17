@@ -1,5 +1,5 @@
 ---
-fip: 3
+fip: 5
 title: Enhanced privacy via friending
 status: Draft
 type: Functionality
@@ -951,7 +951,7 @@ We've considered using a SLIP-44 derivation path for those keys, but it does not
 Will be provided in a later stage of the FIP.
 
 ## Backwards compatibility
-It is anticipated that both public (existing) and private FIO Addresses will cooexist simultenously indefinitely. It's also likely that some wallets would not implement the enhanced privacy features.
+It is anticipated that both public (existing) and private FIO Addresses will coexist simultaneously indefinitely. It's also likely that some wallets would not implement the enhanced privacy features.
 
 Every FIO Address will elect a privacy option as follows:
 * 0 - FIO Address is public
@@ -967,6 +967,8 @@ The following is an interaction matrix of public user interactions:
 |Record OBT|As is|Not allowed|As is|Not allowed|Friend workflow|
 
 All existing calls will function as is. All new calls for privacy users are designated with the priv_ prefix.
+
+This model should allow a user with privacy option set to 1 or 2 to restores seed phrases to a wallet which does not yet support privacy, and not break, although some features will not work.
 
 ## Future considerations
 Isn't this enough?
