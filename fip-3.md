@@ -147,5 +147,10 @@ We chose to permit the setting of a new status of cancelled whenever the status 
 
 ## Implementation
 * Add new API end point for cancel_fio_request
-  --modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code. Add new status for cancelled to fio.request.obt.hpp. Add new action to fio.request.obt.cpp and fio.request.obt.abi. defined and add a new fee to the system, this fee will be the same cost as reject. dev test api endpoint and push action and resolve all issues (2 days)
+* Modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code. Add new status for cancelled to fio.request.obt.hpp. Add new action to fio.request.obt.cpp and fio.request.obt.abi. defined and add a new fee to the system, this fee will be the same cost as reject. dev test api endpoint and push action and resolve all issues (2 days)
+* Add new API end point for get cancelled requests
+* Modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code for the fetching of domains.  dev test and resolve all issues (1 day)
+* Add new check for cancelled request and error message 
+* Modify fio.request.obt.cpp sendobt action, add new error into processing of request id, dev test and resolve all issues. (4 hours)
+  
 
