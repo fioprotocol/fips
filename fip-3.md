@@ -35,26 +35,26 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 |fio_request_id|Yes|Positive Int|Existing Funds request id|
 |max_fee|Yes|Max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
 |tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid 10% of the fee.See FIO Protocol#TPIDs for details. Set to empty if not known.|
-|fio_public_key|Yes|the FIO pub address of the canceller|FIO pub address relating to the account owning this payee FIO Address.|
+|actor|Yes|the FIO account of the canceller|FIO pub account owning this payee FIO Address.|
 ###### Example
 ```
 {
 	"fio_request_id": "27",
 	"max_fee": 40000000000,
 	"tpid": ""
-    "fio_public_key":"FIO5LfXWzK4bRbQSDvVeu2FoMxvNzR3HDsaWaa9oC1gEVfoyKNZ1s"
+    "actor":"edrtfgtrthg "
 }
 ```
 ##### Processing
 * Verify the request exists. Error if id is not present. 
 * Check that no payment is yet received for this request. If status is sent to blockchain then error.
 * Check that payee_fio_address is owned by actor.
+* verify that this payee key from the context table hashes to this actor.
 * require auth of the actor
 * verify that the fee for this does not exceed the max fee specified.
 * charge appropriate fee (this will be a bundled fee transaction, fee will be same as reject)
 * if there is not a status, create status to become cancelled.
-* if there is a status, and status is cancelled, or rejected, then error
-* if there is a status, then update the status to be cancelled.
+* if there is a status, and status is cancelled, or rejected, or sent to blockchain then error
 * if there is not a status then create a new cancelled status.
 * check that transaction does not exceed the max allowable tx size.
 * bump the ram allowance by 512
@@ -64,10 +64,11 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
 |Invalid Request ID|Request ID not found|400|"fio_request_id"|Value sent in not found|"Invalid FIO Request ID"|
+|Invalid status|Request status is not pending|400|"fio_request_id"|"Only pending requests can be cancelled."|
 |Request ID|Request cannot be cancelled because status is sent to blockchain (2)|400|"fio_request_id"|request with status sent to blockchain cannot be cancelled |
 |Fee exceeds maximum|fee exceeded the specified max|400|"max_fee"|fee exceeds max_fee specified|"Fee exceeds maximum"|
 |Invalid TPID|TPID is not empty or contains invalid FIO address|400|"tpid"|Value sent in is not empty and not a valid FIO Address format|"TPID must be empty or valid FIO address"|
-|Invalid pub key|pub key hashed to account does not match payee FIO Address owner of request|403|||"Invalid pub key"|
+|Invalid actor|payee pub key hashed to account does not match actor FIO Address owner of request does not match actor|403|||"Invalid Actor"|
 ##### Response
 |Group|Parameter|Format|Definition|
 |---|---|---|---|
