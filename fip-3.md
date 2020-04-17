@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-09
-updated: 2020-04-16
+updated: 2020-04-17
 ---
 
 ## Abstract
@@ -54,8 +54,11 @@ The Sender can check if they have been added to the Receiver's Friend List by ha
 
 ### Friend List actions
 The following is a list of all new contract actions and endpoint added.
-#### Add to Friend List. New action: *addfriend*; New endpoint: /priv_add_friend
+#### Add to Friend List
 Adds user to Friend List.
+##### New action: *addfriend*
+##### New endpoint: /priv_add_friend
+##### New fee: priv_add_friend, bundle-eligible (uses 1 bundled transaction)
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -105,8 +108,11 @@ The content element is a packed and encrypted version of the following data stru
 	"fee_collected": 2000000000
 }
 ```
-#### Remove from Friend List. New action: *removefriend*; New endpoint: /priv_remove_friend
+#### Remove from Friend List
 Removes user from Friend List.
+##### New action: *removefriend*
+##### New endpoint: /priv_remove_friend
+##### New fee: priv_remove_friend, bundle-eligible (uses 1 bundled transaction)
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -147,8 +153,9 @@ Removes user from Friend List.
 	"fee_collected": 2000000000
 }
 ```
-#### Get Friend List. New endpoint: /priv_get_friend_list
+#### Get Friend List.
 Returns Friend List.
+##### New endpoint: /priv_get_friend_list
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -185,8 +192,9 @@ Returns Friend List.
     "more": 0
 }
 ```
-#### Check Friend List. New endpoint: /priv_check_friend_list
+#### Check Friend List.
 Checks if a user is in a Friend's list. Can be called by either party.
+##### New endpoint: /priv_check_friend_list
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -278,8 +286,11 @@ The blockchain will look for secret key with provided Look-up index and chain an
 
 ### NBPA mappings actions
 The following is a list of all new contract actions and endpoint added.
-#### Add NBPA. New action: *privaddadr*; New endpoint: /priv_add_pub_address
+#### Add NBPA.
 Adds NBPA to chain.
+##### New action: *privaddadr*
+##### New endpoint: /priv_add_pub_address
+##### New fee: priv_add_pub_address, bundle-eligible (uses 1 bundled transaction)
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -328,6 +339,8 @@ Adds NBPA to chain.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
 |Invalid chain format|Supplied chain code is not a valid format.|400|"chain_code"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Chain Code"|
 |Invalid token format|Supplied token code is not a valid format.|400|"token_code"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Token Code"|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
@@ -350,8 +363,11 @@ Adds NBPA to chain.
 	"fee_collected": 2000000000
 }
 ```
-#### Grant NBPA access. New action: *privganbpa*; New endpoint: /priv_grant_pub_address_access
+#### Grant NBPA access
 Grants NBPA access to specific friend by placing a decrypt secret for them.
+##### New action: *privganbpa*
+##### New endpoint: /priv_grant_pub_address_access
+##### New fee: priv_grant_pub_address_access, bundle-eligible (uses 1 bundled transaction)
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -416,8 +432,9 @@ Grants NBPA access to specific friend by placing a decrypt secret for them.
 	"fee_collected": 2000000000
 }
 ```
-#### Get NBPA. New endpoint: /priv_get_pub_address
+#### Get NBPA
 Looks up NBPA for supplied FIO Address and chain code.
+##### New endpoint: /priv_get_pub_address
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -526,8 +543,11 @@ Looks up NBPA for supplied FIO Address and chain code.
 * The Payee's wallet is responsible for putting together all requests from get_sent_fio_requests with their associated statuses
 
 ### FIO Request and FIO Data actions
-#### New funds request. New action: *privfundsreq*; New endpoint: /priv_new_funds_request 
 New Funds Request when utilizing Friend List.
+#### New funds request
+##### New action: *privfundsreq*
+##### New endpoint: /priv_new_funds_request 
+##### New fee: priv_new_funds_request, bundle-eligible (uses 2 bundled transaction)
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -579,8 +599,11 @@ New Funds Request when utilizing Friend List.
 	"fee_collected": 0
 }
 ```
-#### Records send action. New action: *privrecsend*; New endpoint: /priv_record_send_action 
+#### Records send action.
 This action is made to record information about a send transaction. Because content is encrypted, two calls used in unencrypted mode ([/record_obt_data](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model) and [/reject_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/reject-funds-request/reject-funds-request-model)) are combined into a single action.
+##### New action: *privrecsend*
+##### New endpoint: /priv_record_send_action 
+##### New fee: priv_record_send_action, bundle-eligible (uses 2 bundled transaction)
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -630,8 +653,9 @@ This action is made to record information about a send transaction. Because cont
 	"fee_collected": 0
 }
 ```
-#### Get received FIO Requests. New endpoint: /priv_get_received_fio_requests 
+#### Get received FIO Requests
 Requests call polls for any requests sent to a receiver by a specified sender. Because status is now encrypted, it's no longer possible to return only pending FIO Requests, like it is in current [/get_pending_fio_requests](https://developers.fioprotocol.io/api/api-spec/reference/get-pending-fio-requests/get-pending-fio-requests). It will now be up to the wallet to decrypt each request and obtain status.
+##### New endpoint: /priv_get_received_fio_requests 
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -680,8 +704,9 @@ Requests call polls for any requests sent to a receiver by a specified sender. B
 	"more": 0
 }
 ```
-#### Get sent FIO Requests. New endpoint: /priv_get_sent_fio_requests 
+#### Get sent FIO Requests
 Sent requests call polls for any requests sent by provided FIO public key.
+##### New endpoint: /priv_get_sent_fio_requests 
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -725,8 +750,9 @@ Sent requests call polls for any requests sent by provided FIO public key.
 	"more": 0
 }
 ```
-#### Get information about actions received. New endpoint: /priv_get_received_actions 
+#### Get information about actions received.
 Requests call polls for any actions taken by payer on the payee. Because status is now encrypted, OBT Data and status is now combined in same call. It will now be up to the wallet to decrypt each action and obtain status.
+##### New endpoint: /priv_get_received_actions 
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -776,19 +802,115 @@ Requests call polls for any actions taken by payer on the payee. Because status 
 }
 ```
 
+### Setting FIO Address privacy
+#### Set FIO Address private
+Sets your FIO Address privacy options.
+##### New action: *setaddpriv*
+##### New endpoint: /set_fio_address_privacy
+##### New fee: set_fio_address_privacy, bundle-eligible (uses 1 bundled transaction)
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_address|Yes|String|FIO Address to set private/public.|
+|privacy|Yes|Int|0 - FIO Address is public; 1 - FIO Address is private and FIO Request to public FIO Addresses are allowed; 2 - FIO Address is private and FIO Request to public FIO Addresses are not allowed;|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### Example
+```
+{
+	"fio_address": "purse@alice",
+	"privacy": 1,
+	"max_fee": 2000000000,
+	"tpid": "rewards@wallet",
+	"actor": "aftyershcu22"
+}
+```
+##### Processing
+* Request is validated per Exception handling.
+* Fee is collected
+* privacy option is set
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Not owner of FIO Address|The signer does not own the FIO Address|403||||
+|FIO Address not found|Supplied FIO Address cannot be found|404||||
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if successful|
+|fee_collected|Int|Amount of SUFs collected as fee|
+###### Example
+```
+{
+	"status": "OK",
+	"fee_collected": 2000000000
+}
+```
+
+### Modification to existing queries
+#### get_fio_names, get_fio_addresses
+Should now return privacy for all FIO Addresses
+```
+{
+	"fio_addresses": [
+		{
+			"fio_address": "purse@alice",
+			"expiration": "2020-09-11T18:30:56",
+			"privacy": 1
+		}
+	]
+}
+```
+#### new_funds_request
+##### new_funds_request to *private* FIO Address
+An attemp to send new_funds_request to *private* FIO Address (payer) should result in:
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|FIO Address private|Payer's FIO Addreess is private|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"Payer's FIO Addreess is private."|
+##### new_funds_request from *private* to *public* FIO Address
+An attemp to send new_funds_request from *private* to *public* FIO Address (payer) when privacy option is set to 2 should result in:
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Restricted by privacy setting|Payee FIO Address is private and payer is public|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"Payer's FIO Addreess is public and request not allowed."|
+
+#### record_obt_data
+An attemp to send record_obt_data to *private* FIO Address (payee) should result error (unless in response to FIO Request):
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|FIO Address private|Payee's FIO Addreess is private|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"Payee's FIO Addreess is private."|
+
 ## Rationale
 ### Complexity tradeoffs
 Privacy on a public blockchain is a complex problem. The Dapix team has spent several weeks in 2019 brainstorming solutions with number of experts. Without a doubt, the solution contemplated in this FIP is adding significant complexity to the blockchain and for the integrators, even though it is planned that a lot of the complexity will be eliminated in the SDKs.
 
-Potential complexity tradeoffs include:
-1. Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet.
-1. If #1 is accepted, FIO Request status can additionally be made public, which would push request filtering, such as "show only pending requests" to the blockchain API.
+Complexity could be reduced if certain privacy requirements are relaxed. Specifically:
+1. Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet, i.e. by typing in a FIO Address.
+1. If #1 is accepted, FIO Request status can additionally be made public, which would push request filtering, such as "show only pending requests" to the blockchain API, instead of having it done insode wallet/SDK.
 1. Eliminate the flexibility of allowing users multi-level encryption of NBPAs. Only address-level encryption would be supported, which would basically mean that once someone is your friend, they will get access to all keys you have shared for any FIO Address you grant them access to.
 
 ### Other approaches considered
-1. FIO Private Messaging - akin to Onion Routing a new message protocol would be created and BPs would act as message relays. This would be a way to exchange a Request for Friend without any blockchain record.
-1. Make calls using non-linked keys - in current implementation the new_funds_request call and record_send calls have to be made by the corresponding payee or payer specified in the call. This means that the data is disclosed and the owner signature makes it easy to trace the signer's FIO Address. With this approach privacy-minded users can choose to use different private keys to sign these calls instead of keys which can trace back to their FIO Address.
-1. Randomize FIO Addresses - in this approach, a record is placed by the known party on the blockchain (request placed by payee, reject by payer, record send by payer), but the counter party is disclosed together with X number of other randomly selected FIO Addresses.
+* FIO Private Messaging - akin to [Onion Routing](https://en.wikipedia.org/wiki/Onion_routing) a new message protocol would be created and BPs would act as message relays. This would be a way to exchange a Request for Friend without any blockchain record. Why discounted:
+  * Makes looking up requests harder
+  * Require new calls to be built, e.g. *Fetch BPs*
+  * Requires messaging functionality to be built
+  * Creates complexity of disconnected calls
+    * What if BP suddenly goes offline
+    * What if original transaction gets forked out, but notification doesn't or vv.
+    * Will need retries and error messages, etc.
+* Make calls using non-linked keys - in current implementation the new_funds_request call and record_send calls have to be made by the corresponding payee or payer specified in the call. This means that the data is disclosed and the owner signature makes it easy to trace the signer's FIO Address. With this approach privacy-minded users can choose to use different private keys to sign these calls instead of keys which can trace back to their FIO Address. Why discounted:
+  * Does not offer privacy by design
+  * Makes looking up requests harder
+  * Using a separate key may be cumbersome for some
+  * May require wallet implementation
+* Randomize FIO Addresses - in this approach, a record is placed by the known party on the blockchain (request placed by payee, reject by payer, record send by payer), but the counter party is disclosed together with X number of other randomly selected FIO Addresses. Why discounted:
+  * Depending on the activity of the other members in the random group, the recipient may still have to inspect a large number of requests. For example, what is Alice is paired in a group with Amazon, which has million requests.
 
 ### Why do we encrypt a NBPA with three secret keys?
 Assuming we want to offer the flexibility to users to decide which user can see which NBPA, this was meant to be an alternative to encrypting NBPA for each user separately. For example, if a user has placed 20 NBPAs on the FIO Chain for Payer 1 and they now wanted to give the same access to Payer 2, they would need to place 20 new entries on the FIO Chain. With secret keys, they will place the 20 NBPAs once and then just give one secret key to Payer 1 and 1 secret key to Payer 2, reducing the amount of data that needs to be stored on chain.
@@ -796,17 +918,21 @@ Assuming we want to offer the flexibility to users to decide which user can see 
 We've considered using a SLIP-44 derivation path for those keys, but it does not seem like a good approach, because there would still need to be some index that matched the keys to records on the FIO blockchain.
 
 ## Implementation
-Pending
+Will be provided in a later stage of the FIP.
 
 ## Backwards compatibility
-To support backwards compatibility, every FIO Address will elect to be *private* or *public*.
+To support backwards compatibility, every FIO Address will elect a privacy option as follows:
+* 0 - FIO Address is public
+* 1 - FIO Address is private and FIO Requests to public FIO Addresses are allowed
+* 2 - FIO Address is private and FIO Requests to public FIO Addresses are not allowed
+All existing FIO Addresses will be set to 0 and all existing *public* functionality will continue to work as before. 
 
 The following is an interaction matrix of public user interactions:
-|Interaction|Public -> Public|Public -> Private|Private -> Public|Private -> Private|
-|---|---|---|---|---|
-|Send to FIO Address|As is|Private Address owner may still choose to publish public NBPAs. I they don't: error: no NBPA|As is|Friend workflow|
-|Request funds|As is|Error: recipient private|Error: association will be discolsed. Allow override.|Friend workflow|
-|Record OBT|As is|Error: recipient private|Error: association will be discolsed. Allow override.|Friend workflow|
+|Interaction|Public -> Public|Public -> Private|Private 1 -> Public|Private 2 -> Public|Private -> Private|
+|---|---|---|---|---|---|
+|Send to FIO Address|As is|As is if NBPA published|As is|As is|Friend workflow|
+|Request funds|As is|Not allowed|As is|Not allowed|Friend workflow|
+|Record OBT|As is|Not allowed|As is|Not allowed|Friend workflow|
 
 Note: this functionality not yet added to *Specification*
 
