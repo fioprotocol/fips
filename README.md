@@ -5,7 +5,15 @@ FIPs describe proposed changes to the FIO Protocol.
 ### Review FIPs
 Everyone is encouraged to review existing FIPs and provide feedback.
 ### Proposing a FIP
-Fork the repository and add your FIP to it with status *Draft*. See *Successful FIP includes* below for what a FIP should include. Reach out to the community and solicit feedback. Once you are ready submit a pull request to add your FIP to the main fips repo. Once repo custodians accepts your FIP, you can code the solution and submit pull request to relevant repo. Once the code has been pushed, the status will be changed to *Adopted*.
+#### FIP Process
+The proposal and development process for a FIP includes:
+
+* To propose a FIP, fork this repository and create a pull request for your FIP with status *Draft*. The FIP number can remain undetermined at this stage. See Successful FIP includes below for what a FIP should include.
+* Repo custodians will review the FIP PR and comment. Once comments have been addressed, the FIP will be merged to Master with the status *Draft*.
+* Reach out to the community and solicit feedback on your FIP.
+* Once you have updated your FIP based on community feedback, create another pull request with all of the updates along with a request to update the status to *Accepted*.
+* Once repo custodians accept your FIP, you can code your solution and submit pull requests to the relevant repo.
+* After the code has been merged and deployed to Mainnet, the status will be changed to *Final*.
 ### Discussing a FIP
 Create an issue describing the FIP or section of a FIP you would like to open up for discussion.
 
