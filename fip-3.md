@@ -802,8 +802,8 @@ Requests call polls for any actions taken by payer on the payee. Because status 
 }
 ```
 
-### Setting FIO Address privacy
-#### Set FIO Address private
+### FIO Address privacy
+#### Set FIO Address privacy options
 Sets your FIO Address privacy options.
 ##### New action: *setaddpriv*
 ##### New endpoint: /set_fio_address_privacy
@@ -851,6 +851,36 @@ Sets your FIO Address privacy options.
 {
 	"status": "OK",
 	"fee_collected": 2000000000
+}
+```
+#### Check FIO Address privacy
+Checks FIO Address privacy options.
+##### New endpoint: /privacy_check
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_address|Yes|String|FIO Address to check.|
+###### Example
+```
+{
+	"fio_address": "purse@alice"
+}
+```
+##### Processing
+* Request is validated per Exception handling.
+* Privacy option is returned
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|FIO Address not found|Supplied FIO Address cannot be found|404||||
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|privacy|Int|Privacy option is returned.|
+###### Example
+```
+{
+	"privacy": 1
 }
 ```
 
@@ -921,7 +951,9 @@ We've considered using a SLIP-44 derivation path for those keys, but it does not
 Will be provided in a later stage of the FIP.
 
 ## Backwards compatibility
-To support backwards compatibility, every FIO Address will elect a privacy option as follows:
+It is anticipated that both public (existing) and private FIO Addresses will cooexist simultenously indefinitely. It's also likely that some wallets would not implement the enhanced privacy features.
+
+Every FIO Address will elect a privacy option as follows:
 * 0 - FIO Address is public
 * 1 - FIO Address is private and FIO Requests to public FIO Addresses are allowed
 * 2 - FIO Address is private and FIO Requests to public FIO Addresses are not allowed
@@ -934,7 +966,7 @@ The following is an interaction matrix of public user interactions:
 |Request funds|As is|Not allowed|As is|Not allowed|Friend workflow|
 |Record OBT|As is|Not allowed|As is|Not allowed|Friend workflow|
 
-Note: this functionality not yet added to *Specification*
+All existing calls will function as is. All new calls for privacy users are designated with the priv_ prefix.
 
 ## Future considerations
 Isn't this enough?
