@@ -28,6 +28,7 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 ## Specification
 ### Cancel Funds Request
 #### New end point: *cancel_funds_request*
+#### New contract action canclrequest
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
