@@ -9,6 +9,28 @@ updated: 2020-04-17
 ---
 
 ## Abstract
+This FIP implements several new features to enhance privacy of the FIO Protocol.
+* FIO Address owners can now opt-in to higher level of privacy.
+* Friend List allows users to create a unique cryptographic index, which lets them exchange data (e.g. FIO Request, FIO Data) on the FIO chain without revealing that the users are interacting with each other.
+* NBPA mapping can now be encrypted and only accessible to authorized friends.
+
+Proposed new actions:
+|Action|Endpoint|Description|
+|---|---|---|
+|addfriend|priv_add_friend|Adds friend to Friend List|
+|removefriend|priv_remove_friend|Removes friend from Friend List|
+||priv_get_friend_list|Returns Friend List|
+||priv_check_friend_list|Checks if user is in Friend List|
+|privaddadr|priv_add_pub_address|Add encrypted NBPA to FIO Chain|
+|privganbpa|priv_grant_pub_address_access|Grants friend access to see NBPA|
+||priv_get_pub_address|Allows friend to retrieve NBPA they are authorized to see|
+|privfundsreq|priv_new_funds_request|Allows for creation of FIO Requests in privacy mode|
+|privrecsend|priv_record_send_action|Allows for recording of OBT Data or rejecting a FIO Request in privacy mode|
+||priv_get_received_fio_requests|Returns received FIO Request in privacy mode|
+||priv_get_sent_fio_requests|Returns sent FIO Requests in privacy mode|
+||priv_get_received_actions|Returns OBT Data or FIO Request rejections in privacy mode|
+|setaddpriv|set_fio_address_privacy|Sets privacy mode for FIO Address|
+||privacy_check|Checks privacy mode of FIO Address|
 
 ## Terminology
 * **Native Blockchain Public Address (NBPA)** - this is the public address on a native blockchain that is needed to send funds and is associated to the FIO Address using [/add_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/add-pub-address/add-pub-address-model)
