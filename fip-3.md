@@ -1,7 +1,7 @@
 ---
 fip: 3
 title: Provide ability to cancel a request for funds
-status:Draft
+status: Draft
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>
 created: 2020-04-16
@@ -34,7 +34,7 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 |---|---|---|---|
 |fio_request_id|Yes|Positive Int|Existing Funds request id|
 |max_fee|Yes|Max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
-|tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid 10% of the fee.See FIO Protocol#TPIDs for details. Set to empty if not known.|
+|tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid a percentage of the fee.See FIO Protocol Spec and Whitepaper for details of TPID. Set to empty if not known.|
 |actor|Yes|the FIO account of the canceller|FIO pub account owning this payee FIO Address.|
 ###### Example
 ```
@@ -78,8 +78,8 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 ```
 {
 	
-			"status": "cancelled",
-			"fee_collected": "0"		
+   "status": "cancelled",
+   "fee_collected": "0"		
 }
 ```
 ## Fees
@@ -97,9 +97,9 @@ Add a new fee to the system for cancel_fio_request, type 1, 600000000 SUF
 ###### Example
 ```
 {
-"fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
-"limit": 100,
-"offset": 0
+   "fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+   "limit": 100,
+   "offset": 0
 }
 ```
 ##### Processing
@@ -127,18 +127,18 @@ Add a new fee to the system for cancel_fio_request, type 1, 600000000 SUF
 ###### Example
 ```
 {
-"requests": [
-{
-"fio_request_id": "10",
-"payer_fio_address": "purse@alice",
-"payee_fio_address": "crypto@bob",
-"payer_fio_public_key": "FIO7167ErgCveJvuonvrEvVGhdWnkP4AEMfqvEd8s8raMkbbAXqhx",
-"payee_fio_public_key": "FIO7KGdMYj4ZMY2nUX9EaZu3G3GxZhTNXUq1tsNqC5rcP9rcmvWHq",
-"content": "...",
-"time_stamp": "2020-09-11T18:30:56"
-}
-],
-"more": 0
+   "requests": [
+   {
+      "fio_request_id": "10",
+      "payer_fio_address": "purse@alice",
+      "payee_fio_address": "crypto@bob",
+      "payer_fio_public_key": "FIO7167ErgCveJvuonvrEvVGhdWnkP4AEMfqvEd8s8raMkbbAXqhx",
+      "payee_fio_public_key": "FIO7KGdMYj4ZMY2nUX9EaZu3G3GxZhTNXUq1tsNqC5rcP9rcmvWHq",
+      "content": "...",
+      "time_stamp": "2020-09-11T18:30:56"
+   }
+   ],
+   "more": 0
 }
 ```
 

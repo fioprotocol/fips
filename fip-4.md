@@ -1,7 +1,7 @@
 ---
 fip: 4
 title: Provide ability to remove pub address from the FIO protocol for a user.
-status:Draft
+status: Draft
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>
 created: 2020-04-16
@@ -84,8 +84,8 @@ Presently the FIO API does not provide any way for a user to remove public addre
 ```
 {
 	
-			"status": "Ok",
-			"fee_collected": "0"		
+    "status": "Ok",
+    "fee_collected": "0"		
 }
 ```
 ## Fees
@@ -104,10 +104,10 @@ a new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bun
 ###### Example
 ```
 {
-"fio_address": "purse@alice",
-"max_fee": 0,
-"tpid": "rewards@wallet",
-"actor": "aftyershcu22"
+   "fio_address": "purse@alice",
+   "max_fee": 0,
+   "tpid": "rewards@wallet",
+   "actor": "aftyershcu22"
 }
 ```
 ##### Processing
@@ -138,9 +138,8 @@ a new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bun
 ###### Example
 ```
 {
-
-"status": "Ok",
-"fee_collected": "0"        
+   "status": "Ok",
+   "fee_collected": "0"        
 }
 ```
 ## Fees
