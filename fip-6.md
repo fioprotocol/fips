@@ -1,5 +1,5 @@
 ---
-fip: #6
+fip: 6
 title: Provide ability to deactivate FIO Addresses and Domains
 status: Draft
 type: Functionality
