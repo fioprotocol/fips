@@ -1,5 +1,5 @@
 ---
-fip: #
+fip: #6
 title: Provide ability to deactivate FIO Addresses and Domains
 status: Draft
 type: Functionality
@@ -10,8 +10,8 @@ updated:
 
 ## Abstract
 This FIP implements the following:
-* Allows FIO Address owners the ability to deactivate stale or unused addresses.
-* Allows FIO Domain owners the ability to set their domain as expired.
+* Adds the ability for FIO Address owners the ability to deactivate stale or unused addresses.
+* Adds the ability for FIO Domain owners the ability to set their domain as expired.
 * Adds new API end points for FIO Domain deactivation and FIO Address burn. 
 * Adds new fees for FIO Domain deactivation and FIO Address burn.
 
@@ -107,9 +107,9 @@ A new fee will be created for `deactivate_fio_address` . This fee will be of typ
 |FIO Domain not registered|FIO Domain is not registered|400|"fio_domain"|Value sent in, e.g. "alice"|"FIO Domain not registered"|
 |Not owner of FIO Domain|The signer does not own the domain|403||||
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
-|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "800000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
-|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "800000000"|"Fee exceeds supplied maximum"|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -126,7 +126,8 @@ A new fee will be created for `deactivate_fio_address` . This fee will be of typ
 A new fee will be created for `deactivate_fio_domain` . This fee will be of type 0 and should cost 800000000 SUF
 
 ## Rationale
-This allows for the continued use of the domain until the new owner registers during the grace period. If the domain does not receive a new owner in time, all FIO Addresses linked to that domain will be burned after their expirations.
+Some users might find it useful to have the ability to deactivate unused addresses or domains. This feature proposal will allow Address owners the ability to burn their addresses at any time. Domain owners that are looking to deactivate will have their expiration set to the current time. Setting this expiration allows for the continued use of the domain during a grace period until the new owner registers. If the domain does not receive a new owner in time, all FIO Addresses linked to that domain will be burned after their expirations but will not be able to be utilized.
+
 ## Implementation
 The following files will be affected during this implementation:
    * fio.address.cpp
