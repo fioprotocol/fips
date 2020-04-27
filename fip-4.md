@@ -21,8 +21,8 @@ Presently the FIO API does not provide any way for a user to remove public addre
 
 
 ## Specification
-### Remove FIO address
-#### New end point: *remove_fio_address* 
+### Remove pub address
+#### New end point: *remove_pub_address* 
 #### New action in fio address contract remaddress
 ##### Request
 |Parameter|Required|Format|Definition|
@@ -91,8 +91,8 @@ Presently the FIO API does not provide any way for a user to remove public addre
 ## Fees
 a new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bundled, bundle counter will be decremented 1 for each call.
 
-### Remove ALL FIO address
-#### New end point: *remove_fio_addresses* 
+### Remove ALL pub address
+#### New end point: *remove_all_pub_addresses* 
 #### New action in fio address contract remalladdr
 ##### Request
 |Parameter|Required|Format|Definition|
@@ -145,13 +145,9 @@ a new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bun
 ## Fees
 a new fee will be created remove_pub_addresses, type 1, 600000000 SUF, this is bundled, bundle counter will be decremented 1 for each call.
 
-## Rationale
-Custom end points were put in place to make interaction with FIO Protocol easier for developers by hiding the complexity of EOSIO tools. Enhancing the functionality is done for the same reason. Advanced tools such as *get_table* remains unchanged.
-
-We make the use of this to be similar to add pub address so as to keep the API familiar for developers (min of 1 max of 5)
-
-We will discuss how best to add an option to remove all with the team and add this into this FIP
 
 ## Implementation
 * Add new API end point for remove pub address
-  --modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code. Add new action (remaddress) to fio.address.cpp and fio.address.abi. dev test api endpoint and push action and resolve all issues (2 days)
+  --modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code. Add new action (remaddress) to fio.address.cpp and fio.address.abi. dev test api endpoint and push action and resolve all issues (1 days)
+  * Add new API end point for remove all pub addresses
+  --modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code. Add new action (remaddress) to fio.address.cpp and fio.address.abi. dev test api endpoint and push action and resolve all issues (1 days)
