@@ -1,6 +1,15 @@
 # FIO Improvements Proposals (FIPs)
 FIPs describe proposed changes to the FIO Protocol.
 
+## FIPs
+|FIP|Title|Status|
+|---|---|---|
+|[FIP-1](fip-1.md)|FIO Domain/FIO Address transfer and data purge|Accepted|
+|[FIP-2](fip-2.md)|Improvements to paging via API|Accepted|
+|[FIP-3](fip-3.md)|Provide ability to cancel a request for funds|Accepted|
+|[FIP-4](fip-4.md)|Provide ability to remove pub address from the FIO protocol for a user|Accepted|
+|[FIP-5](fip-5.md)|Enhanced privacy via friending|Draft|
+
 ## Contributing
 ### Review FIPs
 Everyone is encouraged to review existing FIPs and provide feedback.
