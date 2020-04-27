@@ -95,6 +95,8 @@ a new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bun
 #### New end point: *remove_all_pub_addresses* 
 #### New action in fio address contract remalladdr
 ##### Request
+this request will remove all fio addresses, with the exception of the FIO pub address.
+
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |fio_address|Yes|fio address, see FIO address validation rules.|FIO Address which will have public addresses removed.|
