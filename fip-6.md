@@ -352,6 +352,8 @@ it was decided to provide locked funds to the receiving account because of the f
   Add new API end point for get_locks
   --modify chain_plugin cpp and hpp to add new params and code. dev test api endpoint and resolve all issues (1 days)
   --Modify get_fio_balance to return balance and locked:numberlockedtokens. (4 hours)
+  Modify History plugin for lock_tokens, to ensure tx gets into block explorer (1 days)
+
   
   
   #### Testing Considerations
