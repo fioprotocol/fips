@@ -13,7 +13,7 @@ This FIP implements the following:
 * Adds configurable locking mechanism for FIO tokens which is usable by all users of FIO 
 * Locked tokens will have any number of lock periods, each period will have a duration and a percent to unlock after the duration. Durations will be processed relative to the locks creation time.
 * Users will be able to lock tokens within an account that they own (transfer is not required to lock tokens)
-* Users will be able to unlock an amount of tokens that are locked (when the lock is specified to be unlockable)
+* Users will be able to unlock an amount of tokens that are locked (when the lock is specified to be unlockable) this permits the lock to be used as a kind of secure account, adding a layer of protection for funds.
 * Users will be able to vote using locked tokens (when the lock is specified to be votable)
 * Adds a new endpoint which will support creation of locks that is called lock_tokens.
 * Adds a new endpoint which will support cleaning of the system by BPs and users that is called clean_lock_table.
@@ -63,7 +63,7 @@ a set of locking periods is defined for each lock. the locking periods define th
                         “duration”: 172800
                         “percent: 90.8
                       }, {
-                        “duration”: 86400
+                        “duration”: 259200
                         “percent: 8.0
                       }
                     ],
@@ -84,6 +84,7 @@ a set of locking periods is defined for each lock. the locking periods define th
 *  Verify the locking account has necessary balance.
 * verify that the fee for this does not exceed the max fee specified.
 * charge appropriate fee (this will be a bundled fee transaction, fee will be based on number of periods specified)
+* check for locking in the same account, if not then check for account creation, and perform transfer.
 * create entry in the locktokens table for these lock tokens.
 * verify tx does not exceed max transaction size.
 * increase RAM limit by 200+(60*number of lock periods) bytes
@@ -93,7 +94,7 @@ a set of locking periods is defined for each lock. the locking periods define th
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
 |Invalid receiver public key|Invalid format|400|"receiver_public_key"|value of public key|"Invalid Public Key"|
-|Invalid votable|Invalid format|400|"votable"|votable invalid|"Invalid votable value"|
+|Invalid votable|Invalid format|400|"votable"|votable value|"Invalid votable value"|
 |Lock Periods Invalid|less of equal to 0 duration specified on any lock period, or total percent does not sum to 100.0|400|"lock_periods"|Invalid Lock Periods |
 |Invalid Actor|Actor does not exist on chain|403|||"Invalid Actor"|
 |Insufficient balance| Actor does not have required amount of funds|400|"amount"|Value sent in, e.g. "100"|"Insufficient balance"|
@@ -103,12 +104,12 @@ a set of locking periods is defined for each lock. the locking periods define th
 |---|---|---|---|
 ||status|String|Ok|
 ||fee_collected|String|fee amount collected SUFs|
-|lock_id| string| the id of the lock that was created
+|lock_id| string| the id of the lock that was created|
 ###### Example
 ```
 {
-  "lock_id": 5
-  "status": "Ok",
+  "lock_id": "5"
+  "status": "OK",
   "fee_collected": 0		
 }
 ```
@@ -118,27 +119,33 @@ a new fee will be created for lock_tokens, 600000000 SUF per lock period, this i
 ## Specification
 ### UnLock tokens
 #### New end point: *unlock_tokens* 
-#### New action in new fio.lock contract unlocktoks
+#### New action in new fio.lock contract unlocktokens
 ##### Request
-When this request is processed, inputs will be verified,  the specified locks locking periods will be processed and the lock witll be updated,
+When this request is processed, inputs will be verified,  the specified locks locking periods will be processed and the lock will be updated,
 then the system will unlock the specified amount of tokens from the specified lock if the lock has the specified amount of tokens available in the remaining lock amount. 
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|lock_id|Yes| int64 id of the lock .|the lock upon which to perform unlocking.|
-|amount|Yes|SUF amount|amount of FIO to unlock|
+|lock_amounts|Yes| string json string of lockids and amounts .|JSON data specifying what locks and amounts.|
 |max_fee|Yes|max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
 |actor|Yes|FIO account name|FIO account for the signer|
+
+###### Lock amounts
+this is a list of id, amount pairs, specifying the id of each lock and the amount to unlock for the lock matching the id.
 ###### Example
 ```
 {
-  "lock_id": 1,
+"lock_amounts": [ {
+                    “id”: "5",
+                    “amount: 1000000000000
+                  }
+                ],
   "actor": "aftyershcu22",
-  "amount": 400000000000
   "max_fee": 40000000000
 }
 ```
 ##### Processing
 * require auth of the actor
+* Verify number of items in lock amounts, 1 or more.
 * Verify format and values for lock_id, amount, max_fee, actor. invalid input error if incorrect.
 * Verify the lock id exists in the locktokens table, error if none exist.
 * Verify the owner of the lock matches the actor. signature error if no match
@@ -155,6 +162,7 @@ then the system will unlock the specified amount of tokens from the specified lo
 |Invalid lock id|Invalid format|400|"lock_id"|lock id invalid|"Invalid Lock ID"|
 |Invalid Actor|Actor does not exist on chain|403|||"Invalid Actor"|
 |Insufficient lock balance| Lockdoes not have required amount of funds|400|"amount"|Value sent in, e.g. "100"|"Insufficient lock balance"|
+|Signature Error| owner of lock does not match actor specified|500|Signature Error|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
 ##### Response
 |Group|Parameter|Format|Definition|
@@ -169,21 +177,20 @@ then the system will unlock the specified amount of tokens from the specified lo
 }
 ```
 ## Fees
-a new fee will be created for lock_tokens type 2, 600000000 SUF per lock period, this is a mandatory fee.
+a new fee will be created for lock_tokens, 600000000 SUF per lock period, this is a mandatory fee.
 
 
-## Specification
 ### Clean lock table
 #### New end point: *clean_lock_table* 
 #### New action in new fio.lock contract cleanlocktbl
-, 
 ##### Request
+This request can be used by BPs to perform the cleanup of locks in a system wide fashion. 
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 
 
 ##### Processing
-* require auth fio system accounts.
+* require auth fio system accounts.account == fioio::MSIGACCOUNT || account == fioio::WRAPACCOUNT || account == fioio::SYSTEMACCOUNT || account == fioio::ASSERTACCOUNT || account == fioio::REQOBTACCOUNT || account == fioio::FeeContract || account == fioio::AddressContract || account == fioio::TPIDContract || account == fioio::TokenContract || account == fioio::TREASURYACCOUNT || account == fioio::FIOSYSTEMACCOUNT || account == fioio::FIOACCOUNT
 * read the locktokens table by remaining_locked_amount
 * if first entry has remaining locked amount > 0 throw no work exception.
 * traverse list until remaining locked amount > 0 or 50 entries removed.
@@ -194,26 +201,26 @@ a new fee will be created for lock_tokens type 2, 600000000 SUF per lock period,
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|No work|No items to remove.|403|||"No work"|
+|No work|No items to remove.|400|||"No work"|
 ##### Response
 |Group|Parameter|Format|Definition|
 |---|---|---|---|
 ||status|String|Ok|
-||removed_count|String|number of items removed|
+||removed_count|int64 |number of items removed|
 ###### Example
 ```
 {
    "status": "Ok",
-   "removed_count": "25"        
+   "removed_count": 25        
 }
 ```
 
-## Specification
 ### Clean locks
 #### New end point: *clean_locks* 
 #### New action in new fio.lock contract cleanlocks
 , 
 ##### Request
+This is an call that will will clean the no longer useful (granted) locks for the signing actor, this allows users to clean up their exisitng locks for better performance in transfer and voting.
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |actor|Yes|FIO account name|FIO account for the signer|
@@ -225,6 +232,7 @@ a new fee will be created for lock_tokens type 2, 600000000 SUF per lock period,
 * traverse all locks..
 * if entry has remaining locked amount > 0 leave this lock.
 * remove entry with remaining locked amount == 0
+* remove up to but not exceeding 100 locks.
 * throw no work error if no locks found to remove.
 * allow this to be called once per day.
 * return status ok and removed_count
@@ -240,16 +248,15 @@ a new fee will be created for lock_tokens type 2, 600000000 SUF per lock period,
 |Group|Parameter|Format|Definition|
 |---|---|---|---|
 ||status|String|Ok|
-||removed_count|String|number of items removed|
+||removed_count|int64|number of items removed|
 ###### Example
 ```
 {
 "status": "Ok",
-"removed_count": "25"        
+"removed_count": 25        
 }
 ```
 
-## Specification
 ### get locks
 #### New end point: *get_locks* 
 #### New action in new fio.lock contract getlocks
@@ -276,7 +283,7 @@ a new fee will be created for lock_tokens type 2, 600000000 SUF per lock period,
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|No results found|No items found.|403|||"No results"|
+|No results found|No items found.|400|fio_pub_key|value of pub key|"No results"|
 
 
 ##### Response
@@ -284,19 +291,21 @@ a new fee will be created for lock_tokens type 2, 600000000 SUF per lock period,
 |---|---|---|---|
 ||status|String|Ok|
 ||locks|String|json formatted list of locks|
+
+
 ###### Example
 ```
 {
   "locks": 
           [
            {
-            owner: edrgrdftrgyt
-            lock_amount: 1000,000000000
-            payouts_performed: 2
-            lock_id: 1
-            unlockable: 1
-            votable:1
-            periods: "lock_periods": [ {
+            "owner": "edrgrdftrgyt"
+            "lock_amount": 1000000000000
+            "payouts_performed": 2
+            "lock_id": 1
+            "unlockable": 1
+            "votable":1
+            "periods": "lock_periods": [ {
                                        “duration”: 86400
                                        “percent: 33.3
                                        },
@@ -309,8 +318,8 @@ a new fee will be created for lock_tokens type 2, 600000000 SUF per lock period,
                                        “percent: 33.3
                                        }
                                     ]
-           remaining_lock_amount : 333,333333333
-           timestamp:12344555
+           "remaining_lock_amount" : 333333333333
+           "timestamp":12344555
           }
          ],
   "more": 0
@@ -330,14 +339,14 @@ it was decided to provide locked funds to the receiving account because of the f
     make a new table locktokens
         int64 lockid   <primary index>     //this is the identifier of the lock
         name owner_account;   <secondary index>  //this is the account that owns the lock
-        int64_t lock_amount = 0;        //this is the amount of the lock
+        int64_t lock_amount = 0;        //this is the amount of the lock in FIO SUF
         int32_t payouts_performed = 0;  //this is the number of payouts performed thus far.
         int32 unlockable=0;   //this is the flag indicating if the lock is unlockable
         int32 votable = 0;   //this is the flag indicating if the lock is votable/proxy-able
         vector<lockperiods> periods;   // this is the locking periods for the lock
-        int64_t remaining_lock_amount = 0; <secondary index>  //this is the amount remaining in the lock,     get decremented as unlocking occurs.
+        int64_t remaining_lock_amount = 0; <secondary index>  //this is the amount remaining in the lock in FIO SUF,     get decremented as unlocking occurs.
         uint32_t timestamp = 0;   //this is the time of creation of the lock, locking periods are relative to this time.
-    struct lockperiods     //this is the definition of locking periods.
+        struct lockperiods     //this is the definition of locking periods.
         int64_t duration;   //this is the duration of the lock period, relative to the timestamp on the lock.
         double percent;   //this is the percent to unlock when the time period has passed.
         
