@@ -8,6 +8,10 @@ created: 2020-04-16
 updated: 
 ---
 
+## Background
+There is already a set of locks that have been created for FIO genesis, these locks were adequate for the main net launching process, and there is no need to change these locks. These locks and their behavior will remain entact. As we all know changing tables requires migration, and playback considerations and so we avoid this as possible going forward....The foundation has reqeusted the ability to perform the following operations. Transfer tokens to another account, and have these tokens be locked according to a set of unlocking periods. The locked tokens may be votable/proxy-able or not depending on the situation. Secondly it is seen as desirable to lock tokens (that are not presently locked) that are in my account, these locked tokens should be votable or not depending on how the account owner wants these tokens to influence the vote,  and these tokens can have an unlocking schedule/milestone, also I should be able to unlock any amount of the locked tokens necessary as my needs change. The design of these locks should provide a flexible way to permit the FIO genesis locks to function along with any number of locks of the new type in an account. The number of locks an account has should not be restricted other than the total of the locks cannot exceed the balance of the account. The locks schedule, votable attribute,  and unlockable attribute should be specified at lock creation to provide a flexible and configurable locking capability that does not impede any of the existing locks in the FIO protocol.  
+
+
 ## Abstract
 This FIP implements the following:
 * Adds configurable locking mechanism for FIO tokens which is usable by all users of FIO 
@@ -23,6 +27,7 @@ This FIP implements the following:
 * Modify the transfer of tokens and voting to perform the update of the locks for an account based on the specified periods.
 
 ## Motivation
+
 Presently the FIO API provides a fixed set of locked token types which have been used at FIO genesis, the types of locks and associated characteristics of locks were implemented in code without the ability to configure the locks without re-coding the locking logic. We make a new data model for a lock which consists of a set of locking periods which are relative to the time of creation of the lock, and flags relating to the lock (votable, unlockable). These new locks do not relate to the "main net" locks used to provide tokens to FIO investors and employees at FIO genesis. New locks and old locks will all be processed with equal precedence according to the rules for the lock. :
 * These new locks will be used by the FIO foundation to sell or grant FIO tokens.
 * These can be used by users of the protocol to lock tokens within their own accounts (to protect from spending, and also to protect against hacking into accounts)
