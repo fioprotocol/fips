@@ -5,13 +5,13 @@ status: Accepted
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>
 created: 2020-04-16
-updated: 
+updated: 2020-04-30
 ---
 
 ## Abstract
 This FIP implements the following:
-* Adds new API end point and contract action for remove pub address.
-
+* Adds new API end point and contract action to remove selected pub addresses.
+* Adds new API end point and contract action to remove all pub addresses.
 
 ## Motivation
 Presently the FIO API does not provide any way for a user to remove public address mappings for a user:
@@ -19,18 +19,17 @@ Presently the FIO API does not provide any way for a user to remove public addre
 * When a certain token is no longer supported
 * Whenever a user might desire to remove a certain mapping from state for privacy reasons.
 
-
 ## Specification
 ### Remove FIO address
-#### New end point: *remove_fio_address* 
+#### New end point: *remove_pub_address* 
 #### New action in fio address contract remaddress
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |fio_address|Yes|fio address, see FIO address validation rules.|FIO Address which will have public addresses removed.|
-|public_addresses|Yes|JSON Array. See public_addresses below. Min: 1 |The public address to be removed from the address mapping.|
+|public_addresses|Yes|JSON Array. See [/add_pub_address for details](https://developers.fioprotocol.io/api/api-spec/reference/add-pub-address/add-pub-address-model). Min: 1 |The public address to be removed from the address mapping.|
 |max_fee|Yes|max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
-|tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid 10% of the fee.See FIO Protocol#TPIDs for details. Set to empty if not known.|
+|tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid 10% of the fee. See FIO Protocol#TPIDs for details. Set to empty if not known.|
 |actor|Yes|FIO account name|FIO account for the signer, the account owning this payee FIO Address.|
 ###### Example
 ```
@@ -70,29 +69,29 @@ Presently the FIO API does not provide any way for a user to remove public addre
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid FIO address|Invalid format, or fio_address not found|400|"fio_address"|fio address invalid or not found|"Invalid FIO Address"|
-|Public addresses invalid|Public addresses contains information that does not exist, or does not match the on chain mappings|400|"public_addresses"|Invalid Public Addresses |
-|Fee exceeds maximum|fee exceeded the specified max|400|"max_fee"|fee exceeds max_fee specified|"Fee exceeds maximum"|
-|Invalid TPID|TPID is not empty or contains invalid FIO address|400|"tpid"|Value sent in is not empty and not a valid FIO Address format|"TPID must be empty or valid FIO address"|
+|Invalid FIO address|Invalid format, or fio_address not found|400|"fio_address"|Value sent in, e.g. "purse@alice"|"Invalid FIO Address"|
+|Public addresses invalid|Public addresses contains information that does not exist, or does not match the on chain mappings|400|"public_addresses"||"Invalid Public Addresses"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
 |Invalid Actor|Actor does not match payee FIO Address owner of request|403|||"Invalid Actor"|
 ##### Response
-|Group|Parameter|Format|Definition|
-|---|---|---|---|
-||status|String|Ok|
-||fee_collected|String|fee amount collected SUFs|
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|Ok|
+|fee_collected|String|fee amount collected SUFs|
 ###### Example
 ```
-{
-	
+{	
     "status": "Ok",
-    "fee_collected": "0"		
+    "fee_collected": 0		
 }
 ```
 ## Fees
-a new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bundled, bundle counter will be decremented 1 for each call.
+A new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bundled, bundle counter will be decremented 1 for each call.
 
 ### Remove ALL FIO address
-#### New end point: *remove_fio_addresses* 
+#### New end point: *remove_pub_addresses* 
 #### New action in fio address contract remalladdr
 ##### Request
 |Parameter|Required|Format|Definition|
@@ -126,9 +125,10 @@ a new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bun
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid FIO address|Invalid format, or fio_address not found|400|"fio_address"|fio address invalid or not found|"Invalid FIO Address"|
-|Fee exceeds maximum|fee exceeded the specified max|400|"max_fee"|fee exceeds max_fee specified|"Fee exceeds maximum"|
-|Invalid TPID|TPID is not empty or contains invalid FIO address|400|"tpid"|Value sent in is not empty and not a valid FIO Address format|"TPID must be empty or valid FIO address"|
+|Invalid FIO address|Invalid format, or fio_address not found|400|"fio_address"|Value sent in, e.g. "alice@purse"|"Invalid FIO Address"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
 |Invalid Actor|Actor does not match payee FIO Address owner of request|403|||"Invalid Actor"|
 ##### Response
 |Group|Parameter|Format|Definition|
@@ -139,11 +139,11 @@ a new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bun
 ```
 {
    "status": "Ok",
-   "fee_collected": "0"        
+   "fee_collected": 0        
 }
 ```
 ## Fees
-a new fee will be created remove_pub_addresses, type 1, 600000000 SUF, this is bundled, bundle counter will be decremented 1 for each call.
+A new fee will be created remove_pub_addresses, type 1, 600000000 SUF, this is bundled, bundle counter will be decremented 1 for each call.
 
 ## Rationale
 Custom end points were put in place to make interaction with FIO Protocol easier for developers by hiding the complexity of EOSIO tools. Enhancing the functionality is done for the same reason. Advanced tools such as *get_table* remains unchanged.
