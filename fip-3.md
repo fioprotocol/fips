@@ -87,7 +87,7 @@ Add a new fee to the system for cancel_fio_request, type 1, 600000000 SUF
 
 
 ### Get Cancelled Requests
-#### New end point: *get_cancelled_requests*
+#### New end point: *get_cancelled_fio_requests*
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
