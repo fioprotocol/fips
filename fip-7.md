@@ -5,22 +5,22 @@ status: Draft
 type: Functionality
 author: Casey Gardiner <casey@dapix.io>
 created: 2020-04-22
-updated: 
+updated: 2020-04-30
 ---
 
 ## Abstract
 This FIP implements the following:
-* Adds the ability for FIO Address owners the ability to set their address as expired.
+* Adds the ability for FIO Address owners the ability to burn an owned address.
 * Adds the ability for FIO Domain owners the ability to set their domain as expired.
-* Adds new API end points for FIO Domain and FIO Address deactivation.
-* Adds new fees for FIO Domain and FIO Address deactivation.
+* Adds new API end points for FIO Domain deactivation and FIO Address burning.
+* Adds new fees for FIO Domain deactivation and FIO Address burning.
 
 ## Motivation
-Presently the FIO Blockchain only burns and removes old addresses and domains once they reach their expiration date. Added functionality to remove these addresses and domains at any given time gives the owners flexibility.
+Presently the FIO Blockchain only burns and removes old addresses and domains once they reach their expiration date. Added functionality to remove these addresses and domains at any given time gives the owners flexibility. This feature proposal will allow Address owners the ability to burn their addresses at any time. Domain owners that are looking to deactivate will have their expiration set to the current time. Setting this expiration allows for the continued use of the domain during a grace period ( currently 90 days ). All FIO Addresses linked to that domain will be burned after their expirations but will not be able to be utilized. The domain will follow normal expired domain processes after the grace period. Once burned, a new domain owner may register the domain. 
 
 ## Specification
 ### Burn Addresses
-#### New end point: *deactivate_fio_address* 
+#### New end point: *burn_fio_address* 
 #### New action in new fio.address contract burnaddress
 ##### Request
 |Parameter|Required|Format|Definition|
@@ -127,7 +127,6 @@ A new fee will be created for `deactivate_fio_address`. This fee will not be bun
 A new fee will be created for `deactivate_fio_domain`. This fee will not be bundle eligible and should cost ~800000000 SUF.
 
 ## Rationale
-Some users might find it useful to have the ability to deactivate unused addresses or domains. This feature proposal will allow Address owners the ability to burn their addresses at any time. Domain owners that are looking to deactivate will have their expiration set to the current time. Setting this expiration allows for the continued use of the domain during a grace period until the new owner registers. If the domain does not receive a new owner in time, all FIO Addresses linked to that domain will be burned after their expirations but will not be able to be utilized.
 
 ## Implementation
 The following files will be affected during this implementation:
