@@ -5,7 +5,7 @@ status: Accepted
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>
 created: 2020-04-16
-updated: 
+updated: 2020-04-30
 ---
 
 ## Abstract
@@ -39,10 +39,10 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 ###### Example
 ```
 {
-	"fio_request_id": "27",
+	"fio_request_id": 27,
 	"max_fee": 40000000000,
 	"tpid": ""
-    "actor":"edrtfgtrthg "
+	"actor":"edrtfgtrthg"
 }
 ```
 ##### Processing
@@ -63,28 +63,25 @@ Presently the FIO API does not provide any way for a user to cancel a request fo
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid Request ID|Request ID not found|400|"fio_request_id"|Value sent in not found|"Invalid FIO Request ID"|
-|Invalid status|Request status is not pending|400|"fio_request_id"|"Only pending requests can be cancelled."|
-|Request ID|Request cannot be cancelled because status is sent to blockchain (2)|400|"fio_request_id"|request with status sent to blockchain cannot be cancelled |
+|Request not found|Request ID does not exist|400|"fio_request_id"|Value sent in, e.g. "10000000"|"No such FIO Request"|
+|Invalid status or format|Request's status is not pending or inavlid format|400|"fio_request_id"|Value sent in, e.g. "blah"|"Only pending requests can be cancelled."|
 |Fee exceeds maximum|fee exceeded the specified max|400|"max_fee"|fee exceeds max_fee specified|"Fee exceeds maximum"|
 |Invalid TPID|TPID is not empty or contains invalid FIO address|400|"tpid"|Value sent in is not empty and not a valid FIO Address format|"TPID must be empty or valid FIO address"|
 |Invalid actor|payee pub key hashed to account does not match actor FIO Address owner of request does not match actor|403|||"Invalid Actor"|
 ##### Response
-|Group|Parameter|Format|Definition|
-|---|---|---|---|
-||status|String|cancelled|
-||fee_collected|String|fee amount collected SUFs|
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|cancelled|
+|fee_collected|Int|Fee amount collected SUFs|
 ###### Example
 ```
-{
-	
+{	
    "status": "cancelled",
-   "fee_collected": "0"		
+   "fee_collected": 0		
 }
 ```
 ## Fees
-Add a new fee to the system for cancel_fio_request, type 1, 600000000 SUF
-
+Add a new fee to the system for cancel_fio_request: 600000000 SUF (uses 1 bundled transaction)
 
 ### Get Cancelled Requests
 #### New end point: *get_cancelled_fio_requests*
@@ -142,7 +139,6 @@ Add a new fee to the system for cancel_fio_request, type 1, 600000000 SUF
 }
 ```
 
-
 ## Rationale
 Custom end points are used within the FIO Protocol easier for developers by hiding the complexity of EOSIO tools. Enhancing the functionality is done for the same reason. Advanced tools such as *get_table* remains unchanged.
 We chose to permit the setting of a new status of cancelled whenever the status of the request is requested (in the present design this is when there is no entry in the fioreqstss table for this request)
@@ -154,5 +150,3 @@ We chose to permit the setting of a new status of cancelled whenever the status 
 * Modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code for the fetching of domains.  dev test and resolve all issues (1 day)
 * Add new check for cancelled request and error message 
 * Modify fio.request.obt.cpp sendobt action, add new error into processing of request id, dev test and resolve all issues. (4 hours)
-  
-
