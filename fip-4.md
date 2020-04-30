@@ -91,7 +91,7 @@ Presently the FIO API does not provide any way for a user to remove public addre
 A new fee will be created remove_pub_address, type 1, 600000000 SUF, this is bundled, bundle counter will be decremented 1 for each call.
 
 ### Remove ALL FIO address
-#### New end point: *remove_pub_addresses* 
+#### New end point: *remove_all_pub_addresses* 
 #### New action in fio address contract remalladdr
 ##### Request
 |Parameter|Required|Format|Definition|
