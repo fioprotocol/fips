@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-27
-updated: 2020-04-27
+updated: 2020-04-30
 ---
 
 ## Abstract
@@ -88,7 +88,7 @@ The content element is a packed and encrypted version of the following data stru
 ##### Processing
 * Request is validated per Exception handling.
 * Fee is collected
-* Content is placed on chain
+* Content is placed on chain. In addition to data provided in call, the FIO public key of Payer and Payee, must be stored to ensures they can know which private key to use to decrypt the data. It's possible that a single Payer-Payee pair can have multiple requests for the same chain-token pair.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -120,7 +120,14 @@ The content element is a packed and encrypted version of the following data stru
 Places encrypted Public Address for specific Chain/Token and FIO Address
 ##### New action: *grantpubadd*
 ##### New endpoint: /grant_pub_address_access
-##### New fee: grant_pub_address_access, bundle-eligible (uses 1 bundled transaction)
+##### New fee: grant_pub_address_access, bundle-eligible (uses 1 bundled transaction) per 90 days of time till expiration.
+The fee and bundled transaction is computed based on the amount of time in the expires field. The fee (or bundled transaction) is incremented every 90 days of time in expires. Example:
+* expires = 1 day -> 1 fee amount (or 1 bundled transaction)
+* expires = 90 days -> 1 fee amount (or 1 bundled transaction)
+* expires = 91 days -> 2 fee amount (or 2 bundled transaction)
+* expires = 180 days -> 2 fee amount (or 2 bundled transaction)
+The reason for this is that the cost goes up in relation to the expiration time, as that is the minimum amount of time the data has to be kept in state.
+
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -128,9 +135,9 @@ Places encrypted Public Address for specific Chain/Token and FIO Address
 |payee_fio_address|Yes|String, valid FIO Address|FIO Address of the payee. This address owns the Public Address and is receiving payment.|
 |chain_code|Yes|String|Chain code of Public Address being requested, not encrypted.|
 |token_code|Yes|String|Token code of Public Address being requested, not encrypted.|
-|pub_address|Yes|String|Encrypted public address. See [Encrypting FIO Data](https://developers.fioprotocol.io/wallet-integration-guide/encrypting-fio-data) for more information.|
+|pub_address|Yes|String, Min 16 characters, Max 192 characters|Encrypted public address. See [Encrypting FIO Data](https://developers.fioprotocol.io/wallet-integration-guide/encrypting-fio-data) for more information.|
 |expires|Yes|Int|Epoch time of when Public Address expires.|
-|pub_add_request_id|Yes|Int|ID of Public Address Request which initiated this grant. Maybe left blank if grant not result of request|
+|pub_add_request_id|Yes|Int|ID of Public Address Request which initiated this grant. Maybe left blank if grant not result of request.|
 |max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 |actor|Yes|12 character string|Valid actor of signer|
@@ -152,7 +159,8 @@ Places encrypted Public Address for specific Chain/Token and FIO Address
 ##### Processing
 * Request is validated per Exception handling.
 * Fee is collected
-* Content is placed on chain
+* Content is placed on chain. In addition to data provided in call, the FIO public key of Payer and Payee, must be stored to ensures they can know which private key to use to decrypt the data. It's possible that a single Payer-Payee pair can have multiple public addresses for the same chain-token pair.
+* If *pub_add_request_id* supplied, its status is changed to: *granted*
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -160,6 +168,7 @@ Places encrypted Public Address for specific Chain/Token and FIO Address
 |Invalid Payee FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address invalid or does not exist."|
 |Invalid chain format|Supplied chain code is not a valid format.|400|"chain_code"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Chain Code"|
 |Invalid token format|Supplied token code is not a valid format.|400|"token_code"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Token Code"|
+|Pub Address exceeds limits|pub_address field is less than min or more than max|400|"content"|Value sent in, e.g. "XXX"|"Requires min 16 max 192 size"|
 |Invalid expiration|Supplied expiration date is not valid or not in future.|400|"expires"|Value sent in, i.e. 1|"Invalid expires date"|
 |Invalid pub_add_request_id|Supplied pub_add_request_id not valid or does not exist.|400|"pub_add_request_id"|Value sent in, i.e. 1|"Invalid Request ID"|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
@@ -181,10 +190,68 @@ Places encrypted Public Address for specific Chain/Token and FIO Address
 }
 ```
 
+* reject_pub_add_request
+* cancel_pub_add_request
+
+### Modifications to existing API calls
+#### [/get_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/get-pub-address/get-pub-address)
+get_pub_address API call will be modified to optionally return public addresses encrypted for Payer.
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_address|Yes|String|Existing Field|
+|chain_code|Yes|String|Existing Field|
+|token_code|Yes|String|Existing Field|
+|payer_fio_address|No|String|**NEW OPTIONAL FIELD:** FIO Address of Payer. If supplied, a specific public address encrypted for Payer will be returned if available.|
+|pub_add_request_id|No|Int|**NEW OPTIONAL FIELD:** ID of Public Address Request. If supplied, a specific public addresses encrypted for Payer and matching provided Public Address Request will be returned if available.
+```
+{
+	"fio_address": "purse@alice",
+	"chain_code": "BTC",
+	"token_code": "BTC",
+	"payer_fio_address": "crypto@bob",
+	"pub_add_request_id": 100
+}
+```
+##### Processing
+* Request is validated per Exception handling.
+* Content is returned as in existing call supplemented with:
+	* If *payer_fio_address* and *pub_add_request_id* specified, return encrypted public address granted to Payer FIO Address with supplied ID of Public Address Request, provided expiration date has not passed.
+	* If *payer_fio_address* specified, return encrypted public address granted to Payer FIO Address irrespective of ID of Public Address Request, provided expiration date has not passed. If multiple exist, return the one added last.
+##### Exception handling
+In addition to existing.
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Invalid Payer FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address invalid or does not exist."|
+|Invalid or non-existant Public Address Request ID|Format of  Public Address Request ID not valid or Public Address Request ID and FIO Address combination does not exist.|400|"pub_add_request_id"|Value sent in, i.e. "100"|"Invalid Public Address Request ID."|
+|Address not found|Neither public nor encrypted address found.|404|||"Public address not found"|
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|public_address|String|Existing Field|
+|encrypted_public_address|String|**NEW OPTIONAL FIELD:** Encrypted Public Address based on request criteria.|
+###### Example
+```
+{
+	"public_address": "0xab5801a7d398351b8be11c439e05c5b3259aec9b",
+	"encrypted_public_address": "JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx"
+}
+```
+
+* get_pending_fio_requests
+* get_sent_fio_requests
+* get_cancelled_fio_requests
+
 ## Rationale
 Encrypting blockchain code.
 
+One vs multiple encrypted addresses.
+
 ## Implementation
+* Possible Public Address Request statuses:
+	* requested
+	* granted
+	* rejected
 
 ## Backwards Compatibility
 
