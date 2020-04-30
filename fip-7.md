@@ -72,7 +72,7 @@ Presently the FIO Blockchain only burns and removes old addresses and domains on
 }
 ```
 ###### New fee
-A new fee will be created for `deactivate_fio_address` . This fee will be of type 0 and should cost 400000000 SUF.
+A new fee will be created for `deactivate_fio_address`. This fee will not be bundle eligible and should cost ~400000000 SUF.
 
 ## Specification
 ### Dactivate Domain
@@ -124,7 +124,7 @@ A new fee will be created for `deactivate_fio_address` . This fee will be of typ
 }
 ```
 ## Fees
-A new fee will be created for `deactivate_fio_domain` . This fee will be of type 0 and should cost 800000000 SUF.
+A new fee will be created for `deactivate_fio_domain`. This fee will not be bundle eligible and should cost ~800000000 SUF.
 
 ## Rationale
 Some users might find it useful to have the ability to deactivate unused addresses or domains. This feature proposal will allow Address owners the ability to burn their addresses at any time. Domain owners that are looking to deactivate will have their expiration set to the current time. Setting this expiration allows for the continued use of the domain during a grace period until the new owner registers. If the domain does not receive a new owner in time, all FIO Addresses linked to that domain will be burned after their expirations but will not be able to be utilized.
