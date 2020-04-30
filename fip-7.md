@@ -72,7 +72,7 @@ Presently the FIO Blockchain only burns and removes old addresses and domains on
 }
 ```
 ###### New fee
-A new fee will be created for `deactivate_fio_address`. This fee will not be bundle eligible and should cost ~400000000 SUF.
+A new fee will be created for `burn_fio_address`. This fee will not be bundle eligible and should cost ~400000000 SUF.
 
 ## Specification
 ### Dactivate Domain
