@@ -16,7 +16,7 @@ This FIP implements the following:
 * Adds new fees for FIO Domain deactivation and FIO Address burning.
 
 ## Motivation
-Presently the FIO Blockchain only burns and removes old addresses and domains once they reach their expiration date. Added functionality to remove these addresses and domains at any given time gives the owners flexibility. This feature proposal will allow Address owners the ability to burn their addresses at any time. Domain owners that are looking to deactivate will have their expiration set to the current time. Setting this expiration allows for the continued use of the domain during a grace period ( currently 90 days ). All FIO Addresses linked to that domain will be burned after their expirations but will not be able to be utilized. The domain will follow normal expired domain processes after the grace period. Once burned, a new domain owner may register the domain. 
+Presently the FIO Blockchain only burns and removes old addresses and domains once they reach their expiration date. This feature proposal will allow address owners the ability to burn their addresses at any time and will allow domain owners that are looking to deactivate the domain to have their expiration set to the current time. Setting this expiration allows for the continued use of the domain during a grace period ( currently set to 90 days ). All FIO Addresses linked to that domain will be burned after their expirations but will not be able to be utilized. The domain will follow normal expired domain processes after the grace period. Once burned, a new domain owner may register the domain. If domain owner wishes to activate their domain after deactiviation, owners may call `/renew_fio_domain` and continue normal operation. 
 
 ## Specification
 ### Burn Addresses
@@ -127,6 +127,10 @@ A new fee will be created for `burn_fio_address`. This fee will not be bundle el
 A new fee will be created for `deactivate_fio_domain`. This fee will not be bundle eligible and should cost ~800000000 SUF.
 
 ## Rationale
+Adding the functionality to remove these addresses and setting domains to expired at any given time gives the owners flexibility. There are many reason why someone would want to burn their FIO Address/Domain:
+   * Business/Personal requirements
+   * Cost effectivness 
+   * Spam prevention
 
 ## Implementation
 The following files will be affected during this implementation:
