@@ -10,10 +10,10 @@ updated:
 
 ## Abstract
 This FIP implements the following:
-* Adds the ability for FIO Address owners the ability to deactivate stale or unused addresses.
+* Adds the ability for FIO Address owners the ability to set their address as expired.
 * Adds the ability for FIO Domain owners the ability to set their domain as expired.
-* Adds new API end points for FIO Domain deactivation and FIO Address burn. 
-* Adds new fees for FIO Domain deactivation and FIO Address burn.
+* Adds new API end points for FIO Domain and FIO Address deactivation.
+* Adds new fees for FIO Domain and FIO Address deactivation.
 
 ## Motivation
 Presently the FIO Blockchain only burns and removes old addresses and domains once they reach their expiration date. Added functionality to remove these addresses and domains at any given time gives the owners flexibility.
