@@ -75,9 +75,9 @@ Presently the FIO Blockchain only burns and removes old addresses and domains on
 A new fee will be created for `burn_fio_address`. This fee will not be bundle eligible and should cost ~400000000 SUF.
 
 ## Specification
-### Dactivate Domain
+### Dectivate Domain
 #### New end point: *deactivate_fio_domain* 
-#### New action in new fio.address contract setdomainexp
+#### New action in new fio.address contract deactdomain
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -106,6 +106,7 @@ A new fee will be created for `burn_fio_address`. This fee will not be bundle el
 |---|---|---|---|---|---|
 |Invalid FIO Domain format|FIO Domain format is not valid|400|"fio_domain"|Value sent in, e.g. "alice"|"Invalid FIO domain"|
 |FIO Domain not registered|FIO Domain is not registered|400|"fio_domain"|Value sent in, e.g. "alice"|"FIO Domain not registered"|
+|FIO Domain already expired|FIO Domain already expired|400|"fio_domain"|Value sent in, e.g. "alice"|"FIO Domain already expired"|
 |Not owner of FIO Domain|The signer does not own the domain|403||||
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "800000000"|"Insufficient funds to cover fee"|
