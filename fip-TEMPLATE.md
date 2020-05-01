@@ -31,58 +31,55 @@ An explanation of why the existing protocol specification is inadequate to addre
 ## Specification
 Detailed definition of what is being changed, e.g. actions, API end-points, processing logic, exception handling, fees, etc.
 
-Example:
+Recommended format for specification:
 
 ### Define Core Concept Here
-
 Descriptions, diagrams, etc.
 
 #### Major Concept Example
 More description about Major Concept
 ##### New action: *newaction*
 ##### New endpoint: /new_endpoint
-##### New fee: priv_newaction, bundle-eligible (uses 1 bundled transaction)
+##### New fee: new_endpoint, bundle-eligible (uses 1 bundled transaction)
 ##### Request
-
-(examples below, replace with your own)
-
+Describe what parameters are passed in. Example:
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |some_param|Yes|String|Human readable description here|
 |another_param|Yes|FIO public key|More descriptions|
-
-###### *content* format
-The content element is a packed and encrypted version of the following data structure:
+|complex_parameter|Encrypted blob|See complex_parameter below|
+###### *complex_parameter* format
+Use this convention for describing parameters which can have multiple nested parameters, e.g. a JSON array, or encrypted blob.
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|fio_address|Yes|String|FIO Address of the party being added.|
-|public_key|Yes|IO Public Key|FIO Public Key of the party being added.|
+|some_nested_param|Yes|String|Human readable description here|
+|another_nested_param|Yes|FIO public key|More descriptions|
 ###### Example
 ```
 {
-	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
-	"content": "...",
-	"max_fee": 0,
-	"tpid": "",
-	"actor": "aftyershcu22"
+	"some_param": "515184318471884685485465454464846864686484464694181384",
+	"another_param": 0,
+	"complex_parameter": "JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcY"
 }
 ```
 ##### Processing
-* Request is validated per Exception handling. Explicitly allowed:
-	* User does not need to have a FIO Address registered, as Friend List on a Public Key level
+Describe what exactly is happening once request is being processed. Example:
+* Request is validated per Exception handling.
 * Fee is collected
 * Content is placed on chain
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Key in Friend List|Supplied FIO Publick key is already in Friend List|400|"fio_public_key_hash"|Value sent in, i.e. "1000000000"|"FIO public key already in Friend List"|
+|Name the error condition, so it can be referenced|Describe what triggers the error|What is the HTTP error code which should be returned. Follow [400](https://developers.fioprotocol.io/api/api-spec/models/error-400), [403](https://developers.fioprotocol.io/api/api-spec/models/error-403), [404](https://developers.fioprotocol.io/api/api-spec/models/error-404) conventions.|For 400 type only, specify which field triggered this error.|For 400 type only, specify which value triggered this error.|Provide descriptive error message.|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
 ##### Response
+Describe what parameters are returned. Example:
 |Parameter|Format|Definition|
 |---|---|---|
+|name of parameter|Format of parameter|Description of what the parameter means.|
 |status|String|OK if successful|
 |fee_collected|Int|Amount of SUFs collected as fee|
 ###### Example
