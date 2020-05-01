@@ -286,7 +286,7 @@ Returns Public Address Requests for specified FIO Public Key.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|fio_public_key|Yes|String|FIO Public Key of of Payee.|
+|fio_public_key|Yes|String|FIO Public Key of Payee.|
 |limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
 |offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
 ###### Example
@@ -344,7 +344,7 @@ Returns Public Address Requests sent by specified FIO Public Key.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|fio_public_key|Yes|String|FIO Public Key of of Payee.|
+|fio_public_key|Yes|String|FIO Public Key of Payee.|
 |limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
 |offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
 ###### Example
@@ -405,7 +405,7 @@ Returns Public Address Requests sent by specified FIO Public Key and cancelled.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|fio_public_key|Yes|String|FIO Public Key of of Payee.|
+|fio_public_key|Yes|String|FIO Public Key of Payee.|
 |limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
 |offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
 ###### Example
@@ -506,11 +506,16 @@ In addition to existing.
 ```
 
 ## Rationale
-Encrypting blockchain code.
+### Encrypting of chain and token codes
+One may argue that *chain_code* and *token_code* in Public Address Request and corresponding Release Public Address should be encrypted. As stated in ***Motivation***, this FIP focuses on protecting the Public Address only to eliminate complexity. Encrypting *chain_code* and *token_code* would make it harder for wallets to look-up public addresses. They would have to either fetch all public addresses and decrypt them to find the one they need, or a new *chain_code* and *token_code* indexes would have to be created similar to how [FIP-5 allowed adding of friends](fip-5.md#adding-a-friend-to-a-friend-list). Both approached seemed too complex.
 
-One vs multiple encrypted addresses.
+### One vs. multiple addresses per chain
+This FIP proposes the ability to release multiple Public Addresses for the same chain/token to the same FIO Address, provided the request ID is different. This is intentional and offers the Payer the flexibility to request different Public Addresses for different purposes as specified in the encrypted content of the request. For example, an exchnage may choose to release a different Public Address for each of their customers, even if the Payer is the same entity. The increased complexity does not outweigh the benefits.
 
-no id required
+### Support for generic release
+This FIP supports the ability for the Payee to release a Public Address to a Payer, without that Payer first having to request it. This  allows the Payee to proactively create a list of FIO Addresses they trust and release Public Addresses only to those users, without them even knowing that the Payee is not publicly sharing their Public Addresses. The increased complexity does not outweigh the benefits.
+
+Burning expired requests
 
 ## Implementation
 * Possible Public Address Request statuses:
