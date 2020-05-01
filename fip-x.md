@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-27
-updated: 2020-04-30
+updated: 2020-05-01
 ---
 
 ## Abstract
@@ -88,7 +88,7 @@ The content element is a packed and encrypted version of the following data stru
 ##### Processing
 * Request is validated per Exception handling.
 * Fee is collected or bundled transaction decremented.
-* Content is placed on chain. In addition to data provided in call, the FIO public key of Payer and Payee, must be stored to ensures they can know which private key to use to decrypt the data. It's possible that a single Payer-Payee pair can have multiple requests for the same chain-token pair.
+* Content is placed on chain. In addition to data provided in call, the FIO Public Key of Payer and Payee, must be stored to ensures they can know which private key to use to decrypt the data. It's possible that a single Payer-Payee pair can have multiple requests for the same chain-token pair.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -101,7 +101,7 @@ The content element is a packed and encrypted version of the following data stru
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not owner of FIO Address|The signer does not own the Payer FIO Address|403:invalid_signature||||
+|Not owner of FIO Address|The signer does not own the Payer FIO Address|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -130,13 +130,13 @@ The reason for this is that the cost goes up in relation to the expiration time,
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|payer_fio_address|Yes|String, valid FIO Address|FIO Address of the payer. This address receive the Public Address and initiate the payment.|
+|payer_fio_address|Yes|String, valid FIO Address|FIO Address of the payer. This address receives the Public Address and initiate the payment.|
 |payee_fio_address|Yes|String, valid FIO Address|FIO Address of the payee. This address owns the Public Address and is receiving payment.|
 |chain_code|Yes|String|Chain code of Public Address being requested, not encrypted.|
 |token_code|Yes|String|Token code of Public Address being requested, not encrypted.|
 |pub_address|Yes|String, Min 16 characters, Max 192 characters|Encrypted public address. See [Encrypting FIO Data](https://developers.fioprotocol.io/wallet-integration-guide/encrypting-fio-data) for more information.|
 |expires|Yes|Int|Epoch time of when Public Address expires.|
-|pub_add_request_id|Yes|Int|ID of Public Address Request which initiated this grant. Maybe left blank if grant not result of request.|
+|pub_add_request_id|Yes|Int|ID of Public Address Request which initiated this grant. Maybe left blank if release not result of request.|
 |max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 |actor|Yes|12 character string|Valid actor of signer|
@@ -158,7 +158,7 @@ The reason for this is that the cost goes up in relation to the expiration time,
 ##### Processing
 * Request is validated per Exception handling.
 * Fee is collected or bundled transaction decremented.
-* Content is placed on chain. In addition to data provided in call, the FIO public key of Payer and Payee, must be stored to ensures they can know which private key to use to decrypt the data. It's possible that a single Payer-Payee pair can have multiple public addresses for the same chain-token pair.
+* Content is placed on chain. In addition to data provided in call, the FIO Public Key of Payer and Payee, must be stored to ensures they can know which private key to use to decrypt the data. It's possible that a single Payer-Payee pair can have multiple public addresses for the same chain-token pair.
 * If *pub_add_request_id* supplied, its status is changed to: *granted*
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
@@ -174,8 +174,8 @@ The reason for this is that the cost goes up in relation to the expiration time,
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not owner of FIO Address|The signer does not own the Payee FIO Address|403:invalid_signature||||
-|Not payee in associated request|The payee FIO Address in pub_add_request_id request is not owned by signer|403:invalid_signature||||
+|Not owner of FIO Address|The signer does not own the Payee FIO Address|403|||Type: invalid_signature|
+|Not payee in associated request|The payee FIO Address in pub_add_request_id request is not owned by signer|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -221,7 +221,7 @@ Allows Payee to mark Public Address Request as rejected, so that Payer is notifi
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not payee in associated request|The signer is not the Payee of the coresponding Pub Address Request|403:invalid_signature||||
+|Not payee in associated request|The signer is not the Payee of the corresponding Pub Address Request|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -267,7 +267,7 @@ Allows Payer to mark Public Address Request as cancelled, if they changed their 
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not payer in associated request|The signer is not the Payer of the coresponding Pub Address Request|403:invalid_signature||||
+|Not payer in associated request|The signer is not the Payer of the corresponding Pub Address Request|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -278,6 +278,186 @@ Allows Payer to mark Public Address Request as cancelled, if they changed their 
 {
 	"status": "cancelled",
 	"fee_collected": 2000000000
+}
+```
+#### Get Pending Public Address Requests
+Returns Public Address Requests for specified FIO Public Key.
+##### New endpoint: /get_pending_pub_address_request
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key|Yes|String|FIO Public Key of of Payee.|
+|limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
+###### Example
+```
+{
+	"fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+	"limit": 100,
+	"offset": 0
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Return *limit* Public Address Requests starting at *offset* where payee FIO Public Key is *fio_public_key* and status is requested. The query should be looking for the Payee FIO Public Key inserted at the time of request. Do not translate FIO Public Key to FIO Address and search by FIO Address.
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Empty list|No pending Public Address Requests|404|||"No pending Public Address Requests"|
+##### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+|requests|pub_add_request_id|Int|ID of Public Address Request|
+|requests|payee_fio_address|String|FIO Address of the payee. Request was sent to this FIO Address.|
+|requests|payer_fio_address|String|FIO Address of the payer. Request was sent from this FIO Address.|
+|requests|chain_code|String|Chain code of Public Address being requested, not encrypted.|
+|requests|token_code|String|Token code of Public Address being requested, not encrypted.|
+|requests|content|String|Encrypted blob. See Public Address Request above.|
+||more|Int|Number of results remaining|
+###### Example
+```
+{
+	"requests": [
+		{
+			"pub_add_request_id": 100,
+			"payee_fio_address": "purse@alice",
+			"payer_fio_address": "crypto@bob",
+			"chain_code": "BTC",
+			"token_code": "BTC",
+			"content": "JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx6snciwhOvYtBlN7MWKavxWV3XGAJHBrQxxcHQGW0rtCZM4KzVYYqXWMzihN6mRGDqxGALc="
+		},
+		{
+			"pub_add_request_id": 101,
+			"payee_fio_address": "purse@susan",
+			"payer_fio_address": "crypto@bob",
+			"chain_code": "ETH",
+			"token_code": "ETH",
+			"content": "whOvYtBlN7MWKavxWV3XGAJHBrQxxcHQGW0rtCZM4KzVYYqXWMzihN6mRGDqxGALc=JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx6snci"
+		}
+	],
+	"more": 0
+}
+```
+#### Get Sent Public Address Requests
+Returns Public Address Requests sent by specified FIO Public Key.
+##### New endpoint: /get_sent_pub_address_request
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key|Yes|String|FIO Public Key of of Payee.|
+|limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
+###### Example
+```
+{
+	"fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+	"limit": 100,
+	"offset": 0
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Return *limit* Public Address Requests starting at *offset* where payer FIO Public Key is *fio_public_key*. The query should be looking for the Payer FIO Public Key inserted at the time of request. Do not translate FIO Public Key to FIO Address and search by FIO Address.
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Empty list|No Public Address Requests|404|||"No Public Address Requests"|
+##### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+|requests|pub_add_request_id|Int|ID of Public Address Request|
+|requests|payee_fio_address|String|FIO Address of the payee. Request was sent to this FIO Address.|
+|requests|payer_fio_address|String|FIO Address of the payer. Request was sent from this FIO Address.|
+|requests|chain_code|String|Chain code of Public Address being requested, not encrypted.|
+|requests|token_code|String|Token code of Public Address being requested, not encrypted.|
+|requests|content|String|Encrypted blob. See Public Address Request above.|
+|requests|status|String|Status of request.|
+||more|Int|Number of results remaining|
+###### Example
+```
+{
+	"requests": [
+		{
+			"pub_add_request_id": 100,
+			"payee_fio_address": "purse@alice",
+			"payer_fio_address": "crypto@bob",
+			"chain_code": "BTC",
+			"token_code": "BTC",
+			"content": "JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx6snciwhOvYtBlN7MWKavxWV3XGAJHBrQxxcHQGW0rtCZM4KzVYYqXWMzihN6mRGDqxGALc=",
+			"status": "requested"
+		},
+		{
+			"pub_add_request_id": 101,
+			"payee_fio_address": "purse@susan",
+			"payer_fio_address": "crypto@bob",
+			"chain_code": "ETH",
+			"token_code": "ETH",
+			"content": "whOvYtBlN7MWKavxWV3XGAJHBrQxxcHQGW0rtCZM4KzVYYqXWMzihN6mRGDqxGALc=JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx6snci",
+			"status": "granted"
+		}
+	],
+	"more": 0
+}
+```
+#### Get Cancelled Public Address Requests
+Returns Public Address Requests sent by specified FIO Public Key and cancelled.
+##### New endpoint: /get_cancelled_pub_address_request
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_key|Yes|String|FIO Public Key of of Payee.|
+|limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
+###### Example
+```
+{
+	"fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+	"limit": 100,
+	"offset": 0
+}
+```
+##### Processing
+* Request is validated per Exception handling
+* Return *limit* Public Address Requests starting at *offset* where payer FIO Public Key is *fio_public_key* and status is cancelled. The query should be looking for the Payer FIO Public Key inserted at the time of request. Do not translate FIO Public Key to FIO Address and search by FIO Address.
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Empty list|No Cancelled Public Address Requests|404|||"No Cancelled Public Address Requests"|
+##### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+|requests|pub_add_request_id|Int|ID of Public Address Request|
+|requests|payee_fio_address|String|FIO Address of the payee. Request was sent to this FIO Address.|
+|requests|payer_fio_address|String|FIO Address of the payer. Request was sent from this FIO Address.|
+|requests|chain_code|String|Chain code of Public Address being requested, not encrypted.|
+|requests|token_code|String|Token code of Public Address being requested, not encrypted.|
+|requests|content|String|Encrypted blob. See Public Address Request above.|
+|requests|status|String|Status of request.|
+||more|Int|Number of results remaining|
+###### Example
+```
+{
+	"requests": [
+		{
+			"pub_add_request_id": 100,
+			"payee_fio_address": "purse@alice",
+			"payer_fio_address": "crypto@bob",
+			"chain_code": "BTC",
+			"token_code": "BTC",
+			"content": "JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx6snciwhOvYtBlN7MWKavxWV3XGAJHBrQxxcHQGW0rtCZM4KzVYYqXWMzihN6mRGDqxGALc=",
+			"status": "cancelled"
+		},
+		{
+			"pub_add_request_id": 101,
+			"payee_fio_address": "purse@susan",
+			"payer_fio_address": "crypto@bob",
+			"chain_code": "ETH",
+			"token_code": "ETH",
+			"content": "whOvYtBlN7MWKavxWV3XGAJHBrQxxcHQGW0rtCZM4KzVYYqXWMzihN6mRGDqxGALc=JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx6snci",
+			"status": "cancelled"
+		}
+	],
+	"more": 0
 }
 ```
 ### Modifications to existing API calls
@@ -324,10 +504,6 @@ In addition to existing.
 	"encrypted_public_address": "JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx"
 }
 ```
-
-* get_pending_fio_requests
-* get_sent_fio_requests
-* get_cancelled_fio_requests
 
 ## Rationale
 Encrypting blockchain code.
