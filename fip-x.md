@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-27
-updated: 2020-05-01
+updated: 2020-05-04
 ---
 
 ## Abstract
@@ -512,12 +512,15 @@ One may argue that *chain_code* and *token_code* in Public Address Request and c
 ### One vs. multiple addresses per chain
 This FIP proposes the ability to release multiple Public Addresses for the same chain/token to the same FIO Address, provided the request ID is different. This is intentional and offers the Payer the flexibility to request different Public Addresses for different purposes as specified in the encrypted content of the request. For example, an exchnage may choose to release a different Public Address for each of their customers, even if the Payer is the same entity. The increased complexity does not outweigh the benefits.
 
-### Support for generic release
+### Public address release without Request
 This FIP supports the ability for the Payee to release a Public Address to a Payer, without that Payer first having to request it. This  allows the Payee to proactively create a list of FIO Addresses they trust and release Public Addresses only to those users, without them even knowing that the Payee is not publicly sharing their Public Addresses. The increased complexity does not outweigh the benefits.
 
-Burning expired requests
+### Burning expired requests
+Public address release records should be purged from the state file as soon as the expiration date passes. However, since a seperate FIP is underway to Address state file retantion rules, purging is not being included in this FIP.
 
 ## Implementation
+Will be defined during later stage of the FIP.
+
 * Possible Public Address Request statuses:
 	* requested
 	* granted
@@ -525,5 +528,22 @@ Burning expired requests
 	* cancelled
 
 ## Backwards Compatibility
+This FIP fits nicely into the current FIO Protocol. Wallets may choose to adopt new API methods to extend the functionality, but until they do, existing functionality will not break for them.
+
+[/get_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/get-pub-address/get-pub-address) is the only existing API method being modified, but only a new response element is added, so wallets currently implementing this call should not be affected.
 
 ## Future considerations
+### Stealth Addresses
+The notion of Stealth Addresses has been contemplated since the early days of FIO Protocol as a middle ground between public disclosures of address mappings and 1-to-1 encryption. It would allow a Payee to publish a Public Address mapping encrypted with a key appended to the FIO Address. For example:
+* Bob would append a new string to his FIO Address, e.g. secret.bob@crypto
+* Bob would encrypt his BTC Public Address using his *secret + FIO Public Key*
+* Bob would place his encrypted mapping using a modified **Release Public Address** method
+* Bob would publish his Stealth Address to a small group of users
+* When those users entered the Stealth Address, their wallets would:
+	* Parse the string to get *secret* and FIO Address
+	* Hash FIO Address using secret
+	* Submit hash using a modified **get_pub_address** method
+	* Obtain encrypted Public Address and FIO Public Address
+	* Decrypt Public Address using *secret + FIO Public Key*
+	
+Stealth Addresses are not being recommended as part of this FIP primarily to reduce complexity.
