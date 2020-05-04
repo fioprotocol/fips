@@ -37,8 +37,8 @@ When Bob Releases Public Address, he would also specify how long that Public Add
 Typical sequence of events:
 1. Alice wants to send Bob 1 BTC and types his FIO Address: bob@hodl in the send area of her wallet.
 1. The wallet checks the blockchain for any mappings for chain_code: BTC, token_code: BTC for bob@hodl using existing [/get_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/get-pub-address/get-pub-address) method.
-1. Since Bob does not make any Public Address public, the blockchain returns a "Public address not found".
-1. Alice's wallet automatically recommends she requests Public Address from Bob. She accepts the suggestion and the wallet submits Public Address Request for chain_code: BTC, token_code: BTC to bob@hodl.
+1. Since Bob chose to not make any Public Address available unencrypted, the blockchain returns a "Public address not found".
+1. Alice's wallet automatically recommends she Requests Public Address from Bob. She accepts the suggestion and her wallet submits Public Address Request for chain_code: BTC, token_code: BTC to bob@hodl.
 1. Bob receives the request in the existing FIO Requests section of the wallet and with a tap places encrypted BTC Public Address for Alice for a period of 1 month using Release Public Address method.
 1. Alice can see all her existing Public Address requests in her wallet together with the status and public address (until expiration). The wallet may also monitor specific requests and show a notification once Public Address is released.
 1. Alice selects the FIO Address of Payee and executes a transaction.
@@ -126,7 +126,6 @@ The fee and bundled transaction is computed based on the amount of time in the e
 * expires = 90 days -> 1 fee amount (or 1 bundled transaction)
 * expires = 91 days -> 2 fee amount (or 2 bundled transaction)
 * expires = 180 days -> 2 fee amount (or 2 bundled transaction)
-The reason for this is that the cost goes up in relation to the expiration time, as that is the minimum amount of time the data has to be kept in state.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -299,7 +298,7 @@ Returns Public Address Requests for specified FIO Public Key.
 ```
 ##### Processing
 * Request is validated per Exception handling
-* Return *limit* Public Address Requests starting at *offset* where payee FIO Public Key is *fio_public_key* and status is requested. The query should be looking for the Payee FIO Public Key inserted at the time of request. Do not translate FIO Public Key to FIO Address and search by FIO Address.
+* Return *limit* Public Address Requests starting at *offset* where payee FIO Public Key is *fio_public_key* and status is *requested*. The query should be looking for the Payee FIO Public Key inserted at the time of request. Do not translate FIO Public Key to FIO Address and search by FIO Address.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -418,7 +417,7 @@ Returns Public Address Requests sent by specified FIO Public Key and cancelled.
 ```
 ##### Processing
 * Request is validated per Exception handling
-* Return *limit* Public Address Requests starting at *offset* where payer FIO Public Key is *fio_public_key* and status is cancelled. The query should be looking for the Payer FIO Public Key inserted at the time of request. Do not translate FIO Public Key to FIO Address and search by FIO Address.
+* Return *limit* Public Address Requests starting at *offset* where payer FIO Public Key is *fio_public_key* and status is *cancelled*. The query should be looking for the Payer FIO Public Key inserted at the time of request. Do not translate FIO Public Key to FIO Address and search by FIO Address.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -470,7 +469,7 @@ get_pub_address API call will be modified to optionally return public addresses 
 |chain_code|Yes|String|Existing Field|
 |token_code|Yes|String|Existing Field|
 |payer_fio_address|No|String|**NEW OPTIONAL FIELD:** FIO Address of Payer. If supplied, a specific public address encrypted for Payer will be returned if available.|
-|pub_add_request_id|No|Int|**NEW OPTIONAL FIELD:** ID of Public Address Request. If supplied, a specific public addresses encrypted for Payer and matching provided Public Address Request will be returned if available.
+|pub_add_request_id|No|Int|**NEW OPTIONAL FIELD:** ID of Public Address Request. If supplied, a specific public address encrypted for Payer and matching provided Public Address Request will be returned if available.
 ```
 {
 	"fio_address": "purse@alice",
@@ -483,8 +482,8 @@ get_pub_address API call will be modified to optionally return public addresses 
 ##### Processing
 * Request is validated per Exception handling.
 * Content is returned as in existing call supplemented with:
-	* If *payer_fio_address* and *pub_add_request_id* specified, return encrypted public address granted to Payer FIO Address with supplied ID of Public Address Request, provided expiration date has not passed.
-	* If *payer_fio_address* specified, return encrypted public address granted to Payer FIO Address irrespective of ID of Public Address Request, provided expiration date has not passed. If multiple exist, return the one added last.
+	* If *payer_fio_address* and *pub_add_request_id* specified, return encrypted public address granted to Payer FIO Address with supplied ID of Public Address Request, provided expiration date has not passed. If none exist *encrypted_public_address* will be empty.
+	* If *payer_fio_address* specified, return encrypted public address granted to Payer FIO Address irrespective of ID of Public Address Request, provided expiration date has not passed. If multiple exist, return the one added last. If none exist *encrypted_public_address* will be empty.
 ##### Exception handling
 In addition to existing.
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
@@ -507,25 +506,28 @@ In addition to existing.
 
 ## Rationale
 ### Encrypting of chain and token codes
-One may argue that *chain_code* and *token_code* in Public Address Request and corresponding Release Public Address should be encrypted. As stated in ***Motivation***, this FIP focuses on protecting the Public Address only to eliminate complexity. Encrypting *chain_code* and *token_code* would make it harder for wallets to look-up public addresses. They would have to either fetch all public addresses and decrypt them to find the one they need, or a new *chain_code* and *token_code* indexes would have to be created similar to how [FIP-5 allowed adding of friends](fip-5.md#adding-a-friend-to-a-friend-list). Both approached seemed too complex.
+One may argue that *chain_code* and *token_code* in Public Address Request and corresponding Release Public Address should be encrypted. As stated in ***Motivation***, to eliminate complexity this FIP focuses on only protecting the Public Address. Encrypting *chain_code* and *token_code* would make it harder for wallets to look-up public addresses. They would have to either fetch all public addresses and decrypt them to find the one they need, or a new *chain_code* and *token_code* indexes would have to be created similar to how [FIP-5 allowed adding of friends](fip-5.md#adding-a-friend-to-a-friend-list). Both approached seemed too complex.
+
+### Time-based fee
+This FIP introduces a new concept of a fee which is based on the anticipated duration the state file will have to retain associated data. With most other methods, the associated content may be eliminated from the chain based on arbitrary timelines, e.g. FIO Request older than 90 days will be purged (separate FIP is underway to Address state file retention rules). However, since expiration date of Public Address is not limited, the user may specify extremely long period of time when the data could not be purged. As an alternative to capping maximum duration of expiration, a new fee type is being introduced which is charged based on that duration. This fee may be used in other methods as well, e.g. duration of locks in [FIP-6](fip-6.md) (Provide locked token capability for use by foundation and FIO users).
 
 ### One vs. multiple addresses per chain
-This FIP proposes the ability to release multiple Public Addresses for the same chain/token to the same FIO Address, provided the request ID is different. This is intentional and offers the Payer the flexibility to request different Public Addresses for different purposes as specified in the encrypted content of the request. For example, an exchnage may choose to release a different Public Address for each of their customers, even if the Payer is the same entity. The increased complexity does not outweigh the benefits.
+This FIP proposes the ability to release multiple Public Addresses for the same chain/token to the same FIO Address, provided the request ID is different. This is intentional and offers the Payer the flexibility to request different Public Addresses for different purposes as specified in the encrypted content of the request. For example, an exchange may choose to release a different Public Address for each of their customers, even if the Payer is the same entity. The increased complexity does not outweigh the benefits.
 
-### Public address release without Request
+### Public Address release without Request
 This FIP supports the ability for the Payee to release a Public Address to a Payer, without that Payer first having to request it. This  allows the Payee to proactively create a list of FIO Addresses they trust and release Public Addresses only to those users, without them even knowing that the Payee is not publicly sharing their Public Addresses. The increased complexity does not outweigh the benefits.
 
 ### Burning expired requests
-Public address release records should be purged from the state file as soon as the expiration date passes. However, since a seperate FIP is underway to Address state file retantion rules, purging is not being included in this FIP.
+Public address release records should be purged from the state file as soon as the expiration date passes. However, since a separate FIP is underway to Address state file retention rules, purging is not being included in this FIP.
 
 ## Implementation
 Will be defined during later stage of the FIP.
 
-* Possible Public Address Request statuses:
-	* requested
-	* granted
-	* rejected
-	* cancelled
+Possible Public Address Request statuses:
+* requested
+* granted
+* rejected
+* cancelled
 
 ## Backwards Compatibility
 This FIP fits nicely into the current FIO Protocol. Wallets may choose to adopt new API methods to extend the functionality, but until they do, existing functionality will not break for them.
@@ -535,7 +537,7 @@ This FIP fits nicely into the current FIO Protocol. Wallets may choose to adopt 
 ## Future considerations
 ### Stealth Addresses
 The notion of Stealth Addresses has been contemplated since the early days of FIO Protocol as a middle ground between public disclosures of address mappings and 1-to-1 encryption. It would allow a Payee to publish a Public Address mapping encrypted with a key appended to the FIO Address. For example:
-* Bob would append a new string to his FIO Address, e.g. secret.bob@crypto
+* Bob would append a new string to his FIO Address, e.g. secret.bob@hodl
 * Bob would encrypt his BTC Public Address using his *secret + FIO Public Key*
 * Bob would place his encrypted mapping using a modified **Release Public Address** method
 * Bob would publish his Stealth Address to a small group of users
@@ -547,3 +549,10 @@ The notion of Stealth Addresses has been contemplated since the early days of FI
 	* Decrypt Public Address using *secret + FIO Public Key*
 	
 Stealth Addresses are not being recommended as part of this FIP primarily to reduce complexity.
+
+### Is this FIP a steppingstone to FIP-5?
+One may argue that this FIP should be a steppingstone towards full implementation of [FIP-5](fip-5.md). The rationale being, this FIP adds some privacy protections, while FIP-5 adds a lot more.
+
+Although, technically that's possible, FIP-5 reinvents how data for most content is stored on the FIO Chain in order to preserve privacy of counterparties, and when implemented will require new *privacy* calls to be built alongside most existing calls, including calls recommended above.
+
+This FIP is therefore not a logical steppingstone to get to FIP-5 and should be considered as alternative instead.
