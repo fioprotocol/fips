@@ -9,16 +9,15 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-3](fip-3.md)|Provide ability to cancel a request for funds|Accepted|
 |[FIP-4](fip-4.md)|Provide ability to remove pub address from the FIO protocol for a user|Accepted|
 |[FIP-5](fip-5.md)|Enhanced privacy via friending|Draft|
+|[FIP-6](fip-6.md)|Provide locked token capability for use by foundation and FIO users|Draft|
+|[FIP-7](fip-7.md)|Provide ability to deactivate FIO Addresses and Domains|Draft|
 
 ## Contributing
 ### Review FIPs
 Everyone is encouraged to review existing FIPs and provide feedback.
-### Proposing a FIP
-#### FIP Process
-The proposal and development process for a FIP includes starting with the fip-TEMPLATE.md format:
-
-* If you're not yet sure if your idea should be part of FIO as a FIP, start by opening a Github issue and create your FIP draft there first to ask for feedback from the community.
-* To propose a FIP, fork this repository and create a pull request for your FIP with status *Draft*. The FIP number can remain undetermined at this stage. Use the fip-TEMPLATE.md file as your starting point and see Successful FIP includes below for what a FIP should include. Use existing FIPs as examples.
+### New FIP Process
+* If you're not yet sure if your idea should a FIP, start by opening a Github issue and create your FIP draft there first to ask for feedback from the community.
+* To propose a FIP, fork this repository and create a pull request for your FIP with status *Draft*. The FIP number can remain undetermined at this stage. Use the [fip-TEMPLATE.md](fip-TEMPLATE.md) file as your starting point and see [Successful FIP includes](fips#successful-fip-includes) for what a FIP should contain. Also, use existing FIPs as examples.
 * Repo custodians will review the FIP PR and comment. Once comments have been addressed, the FIP will be merged to Master with the status *Draft*.
 * Reach out to the community and solicit feedback on your FIP.
 * Continue to update your FIP based on community feedback and submit pull requests as needed. Once you feel the community has contributed and the FIP is ready, creare a pull request to update the status to *Accepted*.
