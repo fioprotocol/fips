@@ -15,21 +15,21 @@ FIPs describe proposed changes to the FIO Protocol.
 Everyone is encouraged to review existing FIPs and provide feedback.
 ### Proposing a FIP
 #### FIP Process
-The proposal and development process for a FIP includes:
+The proposal and development process for a FIP includes starting with the fip-TEMPLATE.md format:
 
-* To propose a FIP, fork this repository and create a pull request for your FIP with status *Draft*. The FIP number can remain undetermined at this stage. See Successful FIP includes below for what a FIP should include.
+* If you're not yet sure if your idea should be part of FIO as a FIP, start by opening a Github issue and create your FIP draft there first to ask for feedback from the community.
+* To propose a FIP, fork this repository and create a pull request for your FIP with status *Draft*. The FIP number can remain undetermined at this stage. Use the fip-TEMPLATE.md file as your starting point and see Successful FIP includes below for what a FIP should include. Use existing FIPs as examples.
 * Repo custodians will review the FIP PR and comment. Once comments have been addressed, the FIP will be merged to Master with the status *Draft*.
 * Reach out to the community and solicit feedback on your FIP.
-* Once you have updated your FIP based on community feedback, create another pull request with all of the updates along with a request to update the status to *Accepted*.
+* Continue to update your FIP based on community feedback and submit pull requests as needed. Once you feel the community has contributed and the FIP is ready, creare a pull request to update the status to *Accepted*.
 * Once repo custodians accept your FIP, you can code your solution and submit pull requests to the relevant repo.
 * After the code has been merged and deployed to Mainnet, the status will be changed to *Final*.
 ### Discussing a FIP
-Create an issue describing the FIP or section of a FIP you would like to open up for discussion.
+Create an issue describing the FIP or section of a FIP you would like to open up for discussion. Assign it to the author of that FIP.
 
 ## FIP Type
 * Core - improvements requiring a consensus fork
 * Functionality - adds or modifies functionality without need for consensus fork
-* RFC - Describes a design issue, or provides general guidelines or information to the FIO community, but does not propose a new feature.
 
 ## FIP Status
 * Draft - a FIP that is open for consideration.
