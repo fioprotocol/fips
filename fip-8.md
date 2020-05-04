@@ -1,5 +1,5 @@
 ---
-fip: X
+fip: 8
 title: Public Address Request
 status: Draft
 type: Functionality
