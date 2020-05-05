@@ -1,17 +1,12 @@
 ---
 fip: 6
-title: Provide locked token capability for use by foundation and FIO users
+title: Token locking
 status: Draft
 type: Functionality
-author: Ed Rotthoff <ed@dapix.io>
+author: Ed Rotthoff <ed@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-16
-updated: 
+updated: 2020-05-05
 ---
-
-## Background
-There is already a set of locks that have been created for FIO genesis, these locks were adequate for the main net launching process, and there is no need to change these locks. These locks and their behavior will remain entact. As we all know changing tables requires migration, and playback considerations and so we avoid this as possible going forward....The foundation has reqeusted the ability to perform the following operations. Transfer tokens to another account, and have these tokens be locked according to a set of unlocking periods. The locked tokens may be votable/proxy-able or not depending on the situation. Secondly it is seen as desirable to lock tokens (that are not presently locked) that are in the token owners account, these locked tokens should be votable or not depending on how the account owner wants these tokens to influence the vote,  and these tokens can have an unlocking schedule/milestone, also the token owner should be able to unlock any amount of the locked tokens necessary as their needs change. The design of these locks should provide a flexible way to permit the FIO genesis locks to function along with any number of locks of the new type in an account. The number of locks an account has should not be restricted other than the total of the locks cannot exceed the balance of the account. The locks schedule, votable attribute,  and unlockable attribute should be specified at lock creation to provide a flexible and configurable locking capability that does not impede any of the existing locks in the FIO protocol.  Each record in the lock table identifies the amount of the lock, locks can be added as much as the user wishes until the amount to be locked is more than the remaining balance. Locked tokens can be voted as long as the lock is made votable and the account in question has bundled tx remaining, or the amount of the fee in the unlocked balance. If the user votes for example, and the bundle vote count is expired, then if the balance of the account does not meet the required fees the user will not be able to vote or do other actions on the blockchain. The unlocked balance of the user account is equal to the amount of all the locks the user has of all kinds minus the balance in the account. 
-
-
 ## Abstract
 This FIP implements the following:
 * Adds configurable locking mechanism for FIO tokens which is usable by all users of FIO 
@@ -27,16 +22,28 @@ This FIP implements the following:
 * Modify the transfer of tokens and voting to perform the update of the locks for an account based on the specified periods.
 
 ## Motivation
+The FIO Protocol includes [token locking functionality](https://kb.fioprotocol.io/fio-token/token-distribution#lockups-and-restrictions), which was built specifically to accommodate complex requirements for locking tokens [minted at Mainnet](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-at-mainnet). This functionality was not intended to be available post Mainnet.
 
-Presently the FIO API provides a fixed set of locked token types which have been used at FIO genesis, the types of locks and associated characteristics of locks were implemented in code without the ability to configure the locks without re-coding the locking logic. We make a new data model for a lock which consists of a set of locking periods which are relative to the time of creation of the lock, and flags relating to the lock (votable, unlockable). These new locks do not relate to the "main net" locks used to provide tokens to FIO investors and employees at FIO genesis. New locks and old locks will all be processed with equal precedence according to the rules for the lock. :
-* These new locks will be used by the FIO foundation to sell or grant FIO tokens.
-* These can be used by users of the protocol to lock tokens within their own accounts (to protect from spending, and also to protect against hacking into accounts)
-* These new locks can be used by FIO users to transfer locked tokens to other users.
-* There should be maintenance calls provided to clean up state for the locks that are paid out.
-* Multiple locks may be specified on a single account as long as the locks do not exceed the balance of the account. When a lock is added to an account the unlocked balance is checked to determine if the lock is to be permitted.
-* The older type of locks used at main net genesis can co-exist with these new locks in accounts that already have a genesis token grant. both will be handled correctly.
+However, there is a need to allow token locking post Mainnet for two primary use cases:
+* The Foundation desires the ability to lock tokens it grants or sells to others.
+* FIO token holders may be interested in locking tokens for security or other purposes.
 
 ## Specification
+### Overview
+#### What is locked?
+When the lock action is executed, the target account (hashed from provided Public Key) is subject to the lock, but only for the specified amount, meaning an account can have both locked and unlocked tokens. If lock action is targetting a different account then the signing actor, a transfer for the amount being locked is required, meaning User A cannot lock tokens in account of User B, but User A can send User B locked tokens.
+#### What variables defne a lock?
+To allow for most flexibility when tokens are locked the following variables define the type of lock:
+* **Votable** - when set to 1, 100% of tokens can be voted, even when locked.
+* **Unlockable** - when set to 1, the tokens can be unlocked by the account owner on demand.
+* **Lock periods** - one or many time intervals at which specified percentage of tokens is unlocked.
+#### What actions are disallowed for locked tokens in account?
+* [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) - when a transfer is initiated, only unlocked tokens in account can be transferred.
+* [voteproducer](https://developers.fioprotocol.io/api/api-spec/reference/vote-producer/vote-producer-model)
+	* If *votable* set to 0 only unlocked tokens are counted in vote.
+	* If *votable* set to 1 all tokens in account are counted in vote, even when locked.
+* Payment of fee. When fee is collected, only unlocked tokens may be used to pay for that fee. Bundled transactions can always be used, even when all tokens are locked.
+
 ### Lock tokens
 #### New end point: *lock_tokens* 
 #### New action in new fio.lock contract locktokens
@@ -51,10 +58,8 @@ When this request is processed, tokens will be transferred to the specified rece
 |amount|Yes|amount SUFs| The amount of tokens to lock in SUFs|
 |max_fee|Yes|max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
 |actor|Yes|FIO account name|FIO account for the signer|
-
 ###### Lock Periods
 a set of locking periods is defined for each lock. the locking periods define the duration of the period, which is relative to the creation time of the lock, and a percent to unlock when the duration expires, durations are processed in the order specified with the earliest durations being first and the latest durations being last in the list of durations. Each percent is specified as a decimal percent.
-
 ###### Example
 ```
 {
@@ -133,7 +138,6 @@ then the system will unlock the specified amount of tokens from the specified lo
 |lock_amounts|Yes| string json string of lockids and amounts .|JSON data specifying what locks and amounts.|
 |max_fee|Yes|max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
 |actor|Yes|FIO account name|FIO account for the signer|
-
 ###### Lock amounts
 this is a list of id, amount pairs, specifying the id of each lock and the amount to unlock for the lock matching the id.
 ###### Example
@@ -184,7 +188,6 @@ this is a list of id, amount pairs, specifying the id of each lock and the amoun
 ## Fees
 a new fee will be created for lock_tokens, 600000000 SUF per lock period, this is a mandatory fee.
 
-
 ### Clean lock table
 #### New end point: *clean_lock_table* 
 #### New action in new fio.lock contract cleanlocktbl
@@ -192,8 +195,6 @@ a new fee will be created for lock_tokens, 600000000 SUF per lock period, this i
 This request can be used by BPs to perform the cleanup of locks in a system wide fashion. 
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-
-
 ##### Processing
 * require auth fio system accounts.account == fioio::MSIGACCOUNT || account == fioio::WRAPACCOUNT || account == fioio::SYSTEMACCOUNT || account == fioio::ASSERTACCOUNT || account == fioio::REQOBTACCOUNT || account == fioio::FeeContract || account == fioio::AddressContract || account == fioio::TPIDContract || account == fioio::TokenContract || account == fioio::TREASURYACCOUNT || account == fioio::FIOSYSTEMACCOUNT || account == fioio::FIOACCOUNT
 * read the locktokens table by remaining_locked_amount
@@ -201,7 +202,6 @@ This request can be used by BPs to perform the cleanup of locks in a system wide
 * traverse list until remaining locked amount > 0 or 50 entries removed.
 * remove entry with remaining locked amound == 0
 * return status ok and removed_count
-
 ##### Response
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
@@ -223,14 +223,11 @@ This request can be used by BPs to perform the cleanup of locks in a system wide
 ### Clean locks
 #### New end point: *clean_locks* 
 #### New action in new fio.lock contract cleanlocks
-, 
 ##### Request
 This is an call that will will clean the no longer useful (granted) locks for the signing actor, this allows users to clean up their exisitng locks for better performance in transfer and voting.
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |actor|Yes|FIO account name|FIO account for the signer|
-
-
 ##### Processing
 * require auth actor.
 * read the locktokens table by the specified account
@@ -241,14 +238,12 @@ This is an call that will will clean the no longer useful (granted) locks for th
 * throw no work error if no locks found to remove.
 * allow this to be called once per day.
 * return status ok and removed_count
-
 ##### Response
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
 |No work|No items to remove.|400|||"No work"|
 |time violation|time between calls exceeded.|400|||"Time violation"|
-
 ##### Response
 |Group|Parameter|Format|Definition|
 |---|---|---|---|
@@ -265,15 +260,12 @@ This is an call that will will clean the no longer useful (granted) locks for th
 ### get locks
 #### New end point: *get_locks* 
 #### New action in new fio.lock contract getlocks
-, 
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |fio_public_key|Yes|fio public key, see FIO public key validation rules.|FIO public key to search locks.|
 |offset|no|number greater or equal 0.|offset at which to begin results|
 |limit|no|number greater than 0|number of results to display|
-
-
 ##### Processing
 * hash the pub key.
 * get the account from the fio account mapping
@@ -283,21 +275,16 @@ This is an call that will will clean the no longer useful (granted) locks for th
 * add each lock to the results.
 * provide paging for results.
 * return list of locks.
-
 ##### Response
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
 |No results found|No items found.|400|fio_pub_key|value of pub key|"No results"|
-
-
 ##### Response
 |Group|Parameter|Format|Definition|
 |---|---|---|---|
 ||status|String|Ok|
 ||locks|String|json formatted list of locks|
-
-
 ###### Example
 ```
 {
@@ -331,13 +318,10 @@ This is an call that will will clean the no longer useful (granted) locks for th
 }
 ```
 
-
 ## Rationale
 it was decided to provide locked funds to the receiving account because of the following reasons.
 1) This places the security and ownership of the locked funds in the hands of the receiver instead of a FIO system account.
 2) Since we have already learned how to effectively integrate the necessary logic to manage locked funds within transfer and voting within FIO, we can easily and reliably add this logic for these locks.
-
-
 
 ## Implementation
 * make a new system contract called fio.lock.
@@ -368,23 +352,18 @@ it was decided to provide locked funds to the receiving account because of the f
   --Modify get_fio_balance to return balance and locked:numberlockedtokens. (4 hours)
   Modify History plugin for lock_tokens, to ensure tx gets into block explorer (1 days)
 
-  
-  
-  #### Testing Considerations
-  * Create a lock verify the schedule is obeyed :  1 locking period, multiple locking periods.
-  * Add a new lock to an account that already has a genesis token grant.
-  * Make a votable lock, vote for producers.
-  * Make a votable lock, proxy this accounts vote to another, verify voting power.
-  * Make an unlockable lock, lock and unlock funds in this account and verify spend.
-  * Make multiple locks on one account. Verify locks are processed correctly.
-  
-  
-     
-     
-     
-     
-     
-     
-    
-    
-  
+#### Testing Considerations
+* Create a lock verify the schedule is obeyed :  1 locking period, multiple locking periods.
+* Add a new lock to an account that already has a genesis token grant.
+* Make a votable lock, vote for producers.
+* Make a votable lock, proxy this accounts vote to another, verify voting power.
+* Make an unlockable lock, lock and unlock funds in this account and verify spend.
+* Make multiple locks on one account. Verify locks are processed correctly.
+
+
+
+
+## CLEANUP QUESTIONS
+1. What's the purpose of *Unlockable*, if there is no waiting period? If a key is compromised, the attacker just has one extra action to run. Or was the assumption that the user would place unlock permission under the conrol of another account/key?
+1. We should not allow locking of accounts of others, even if it's only for the amount you send them. I think we should require that target account is either self or does not exist.
+1. I see no reason for 2 clean token actions. In fact, I think we should punt this till FIP on state management and not have any for now.
