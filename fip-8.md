@@ -5,10 +5,27 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-27
-updated: 2020-05-04
+updated: 2020-05-05
 ---
 
 ## Abstract
+This FIP implements the concept of Public Address Request, which allows Payer to request Public Address from Payee prior to send, and for Payee to release that Public Address to the Payer in an encrypted way. It further allows the Payer to allow that Public Address to be used in the future without the need for a Public Address Request for every send.
+
+Proposed new actions:
+|Action|Endpoint|Description|
+|---|---|---|
+|newpubaddreq|new_pub_address_request|Requests Public Address for specific chain/token from a FIO Address.|
+|relpubadd|release_pub_address|Places encrypted Public Address for specific Chain/Token and FIO Address on-chain.|
+|rejectaddreq|reject_pub_address_request|Allows Payee to mark Public Address Request as rejected, so that Payer is notified and Payee can only fetch pending requests in the future.|
+|canceladdreq|cancel_pub_address_request|Allows Payer to mark Public Address Request as cancelled, if they changed their mind. This can only be done while request is pending.|
+||get_pending_pub_address_request|Returns Public Address Requests for specified FIO Public Key.|
+||get_sent_pub_address_request|Returns Public Address Requests sent by specified FIO Public Key.|
+||get_cancelled_pub_address_request|Returns Public Address Requests sent by specified FIO Public Key and cancelled.|
+
+Modified actions:
+|Action|Endpoint|Description|
+|---|---|---|
+||get_pub_address|Modified to optionally return public addresses encrypted for Payer.|
 
 ## Terminology
 * **Public Address** - this is the Public Address on a native blockchain that is needed to send funds and is associated to the FIO Address using [/add_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/add-pub-address/add-pub-address-model)
