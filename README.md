@@ -11,6 +11,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-5](fip-5.md)|Enhanced privacy via friending|Draft|
 |[FIP-6](fip-6.md)|Provide locked token capability for use by foundation and FIO users|Draft|
 |[FIP-7](fip-7.md)|Provide ability to deactivate FIO Addresses and Domains|Draft|
+|[FIP-8](fip-8.md)|Public Address Request|Draft|
 
 ## Contributing
 ### Review FIPs
