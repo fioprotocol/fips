@@ -31,7 +31,7 @@ However, there is a need to allow token locking post Mainnet for two primary use
 ## Specification
 ### Overview
 #### What is locked?
-When the lock action is executed, the target account (hashed from provided Public Key) is subject to the lock, but only for the specified amount, meaning an account can have both locked and unlocked tokens. If lock action is targetting a different account then the signing actor, a transfer for the amount being locked is required, meaning User A cannot lock tokens in account of User B, but User A can send User B locked tokens.
+When the lock action is executed, the target account (hashed from provided FIO Public Key) is subject to the lock, but only for the specified amount, meaning an account can have both locked and unlocked tokens. If lock action is targetting a different account then the signing actor, that account must not exist and will be created and funds will be transferred to that account.
 #### What variables defne a lock?
 To allow for most flexibility when tokens are locked the following variables define the type of lock:
 * **Votable** - when set to 1, 100% of tokens can be voted, even when locked.
@@ -43,62 +43,70 @@ To allow for most flexibility when tokens are locked the following variables def
 	* If *votable* set to 0 only unlocked tokens are counted in vote.
 	* If *votable* set to 1 all tokens in account are counted in vote, even when locked.
 * Payment of fee. When fee is collected, only unlocked tokens may be used to pay for that fee. Bundled transactions can always be used, even when all tokens are locked.
-
+#### How are tokens unlocked?
+The accounting of all types locked tokens will be updated whenever transfer or voteproducer, or unlock are called by a user, so tokens will be unlocked whenever these calls are invoked. Users may have as many locks as they wish providing the sum of the locks does not exceed the balance of the account.
 ### Lock tokens
+Locks tokens in designated account per provided lock schedule.
 #### New end point: *lock_tokens* 
 #### New action in new fio.lock contract locktokens
 ##### Request
-When this request is processed, tokens will be transferred to the specified receiver public key from the actor account if these accounts are different, if they are the same, no transfer will take place, these tokens wil be locked, they can be voted if the lock specifies they are votable, they cannot be used for fees, or transferred until unlocked according to the specified schedule or unlocked (if the lock is unlockable). locked and unlocked funds may be intermixed within an accountthe unlocked funds will be usable as normal within the FIO protocol  (so fees can come from bundled transactions, and from these intermingled fees) . The accounting of all types locked tokens will be updated whenever transfer or voteproducer, or unlock are called by a user, so tokens will be unlocked whenever these calls are invoked. Users may have as many locks as they wish providing the sum of the locks does not exceed the balance of the account.
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|receiver_public_key|Yes|fio public key, see FIO public key validation rules.|FIO public key which will receive the locked tokens.|
-|votable|Yes|0 is not votable, 1 is votable.|This indicates if the locked amount is votable.|
+|lock_public_key|Yes|Valid FIO Public Key|FIO public key for account to be locked.|
+|votable|Yes|0 is not votable, 1 is votable.|This indicates if the locked amount is votable while locked.|
 |unlockable|Yes|0 is not unlockable, 1 is unlockable.|This indicates if the lock is unlockable.|
-|lock_periods|Yes|JSON Array of periods. See periods below. Min: 1, must total 100% |The locking periods for this token lock.|
-|amount|Yes|amount SUFs| The amount of tokens to lock in SUFs|
-|max_fee|Yes|max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
-|actor|Yes|FIO account name|FIO account for the signer|
-###### Lock Periods
-a set of locking periods is defined for each lock. the locking periods define the duration of the period, which is relative to the creation time of the lock, and a percent to unlock when the duration expires, durations are processed in the order specified with the earliest durations being first and the latest durations being last in the list of durations. Each percent is specified as a decimal percent.
+|unlock_periods|Yes|JSON Array of lock periods. See unlock_periods below. Min: 1, sum of percentage in all periods is 100%, duration in each period is greater than 0|Schedule by which tokens become unlocked.|
+|amount|Yes|Int|The amount of tokens to lock in SUFs|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### unlock_periods
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|duration|Yes|Epoch time|Time from lock creation to when unlock of coresponding percentage occurs.|
+|percent|Yes|Percentage float|Percentage of locked tokens that unlock after coresponding duration lapsed.|
 ###### Example
 ```
 {
-    "receiver_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
-    "votable":0,
-    "unlockable":0,
-    "lock_periods": [ {
-                        “duration”: 86400
-                        “percent: 1.2
-                      }, {
-                        “duration”: 172800
-                        “percent: 90.8
-                      }, {
-                        “duration”: 259200
-                        “percent: 8.0
-                      }
-                    ],
-    "actor": "aftyershcu22",
-    "amount": 40000000000000
-    "max_fee": 40000000000
+	"lock_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
+	"votable": 0,
+	"unlockable": 0,
+	"unlock_periods": [
+		{
+			"duration": 86400,
+			"percent": 1.2
+		},
+		{
+			"duration": 172800,
+			"percent": 90.8
+		},
+		{
+			"duration": 259200,
+			"percent": 8.0
+		}
+	],
+	"amount": 40000000000000,
+	"max_fee": 40000000000,
+	"tpid": "rewards@wallet",
+	"actor": "aftyershcu22"
 }
 ```
 ##### Processing
-* require auth of the actor
-* Verify the receiver public key.
-* Verify the votable value.
-* Verify the lock periods
-      Minimum of 1
-      check that total is 100%. 
-      check that duration is greater than 0
-* Create account if account does not yet exist for the receiver public key
-*  Verify the locking account has necessary balance.
-* verify that the fee for this does not exceed the max fee specified.
-* charge appropriate fee (this will be a bundled fee transaction, fee will be based on number of periods specified)
-* check for locking in the same account, if not then check for account creation, and perform transfer.
-* create entry in the locktokens table for these lock tokens.
-* verify tx does not exceed max transaction size.
-* increase RAM limit by 200+(60*number of lock periods) bytes
-* Return status json containing status (ok), and fee charged.
+* Request is validated per Exception handling
+	* Require auth of the actor
+	* Lock period verifictaion
+		* Minimum of 1 period
+		* Sum of percentage in all periods is 100%
+		* Duration in each period is greater than 0
+	* Verify the locking account has necessary balance.
+	* Verify that the fee for this does not exceed the max fee specified.
+	* Verify tx does not exceed max transaction size.
+* Create account if account does not yet exist for the lock public key
+* Charge appropriate fee or deduct bundled transaction
+* Perform transfer, if not same account.
+* Create entry in the locktokens table for these lock tokens.
+* Increase RAM limit by 200 + (60 * number of lock periods) bytes
+* Return response
 ##### Response
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
@@ -188,75 +196,6 @@ this is a list of id, amount pairs, specifying the id of each lock and the amoun
 ## Fees
 a new fee will be created for lock_tokens, 600000000 SUF per lock period, this is a mandatory fee.
 
-### Clean lock table
-#### New end point: *clean_lock_table* 
-#### New action in new fio.lock contract cleanlocktbl
-##### Request
-This request can be used by BPs to perform the cleanup of locks in a system wide fashion. 
-|Parameter|Required|Format|Definition|
-|---|---|---|---|
-##### Processing
-* require auth fio system accounts.account == fioio::MSIGACCOUNT || account == fioio::WRAPACCOUNT || account == fioio::SYSTEMACCOUNT || account == fioio::ASSERTACCOUNT || account == fioio::REQOBTACCOUNT || account == fioio::FeeContract || account == fioio::AddressContract || account == fioio::TPIDContract || account == fioio::TokenContract || account == fioio::TREASURYACCOUNT || account == fioio::FIOSYSTEMACCOUNT || account == fioio::FIOACCOUNT
-* read the locktokens table by remaining_locked_amount
-* if first entry has remaining locked amount > 0 throw no work exception.
-* traverse list until remaining locked amount > 0 or 50 entries removed.
-* remove entry with remaining locked amound == 0
-* return status ok and removed_count
-##### Response
-##### Exception handling
-|Error condition|Trigger|Type|fields:name|fields:value|Error message|
-|---|---|---|---|---|---|
-|No work|No items to remove.|400|||"No work"|
-##### Response
-|Group|Parameter|Format|Definition|
-|---|---|---|---|
-||status|String|Ok|
-||removed_count|int64 |number of items removed|
-###### Example
-```
-{
-   "status": "Ok",
-   "removed_count": 25        
-}
-```
-
-### Clean locks
-#### New end point: *clean_locks* 
-#### New action in new fio.lock contract cleanlocks
-##### Request
-This is an call that will will clean the no longer useful (granted) locks for the signing actor, this allows users to clean up their exisitng locks for better performance in transfer and voting.
-|Parameter|Required|Format|Definition|
-|---|---|---|---|
-|actor|Yes|FIO account name|FIO account for the signer|
-##### Processing
-* require auth actor.
-* read the locktokens table by the specified account
-* traverse all locks..
-* if entry has remaining locked amount > 0 leave this lock.
-* remove entry with remaining locked amount == 0
-* remove up to but not exceeding 100 locks.
-* throw no work error if no locks found to remove.
-* allow this to be called once per day.
-* return status ok and removed_count
-##### Response
-##### Exception handling
-|Error condition|Trigger|Type|fields:name|fields:value|Error message|
-|---|---|---|---|---|---|
-|No work|No items to remove.|400|||"No work"|
-|time violation|time between calls exceeded.|400|||"Time violation"|
-##### Response
-|Group|Parameter|Format|Definition|
-|---|---|---|---|
-||status|String|Ok|
-||removed_count|int64|number of items removed|
-###### Example
-```
-{
-"status": "Ok",
-"removed_count": 25        
-}
-```
-
 ### get locks
 #### New end point: *get_locks* 
 #### New action in new fio.lock contract getlocks
@@ -323,6 +262,12 @@ it was decided to provide locked funds to the receiving account because of the f
 1) This places the security and ownership of the locked funds in the hands of the receiver instead of a FIO system account.
 2) Since we have already learned how to effectively integrate the necessary logic to manage locked funds within transfer and voting within FIO, we can easily and reliably add this logic for these locks.
 
+
+### Changes made to FIP after accepting as Draft
+1. Removed clean token actions. This is consistant with our strategy Pre-Mainnet and in FIP (e.g. [FIP-8](https://github.com/fioprotocol/fips/blob/master/fip-8.md#burning-expired-requests) of not removing things from state, except when required for functionality (e.g. burn expired domains). I think we need a comprehensive approach to what gets removed when and how across all contracts. This way we do not end up with different strategy for removing locks and different for removing requests. There is alreday FIP planned to address this.
+1. Locking of existing accounts not owned by signer will not be allowed, even if it's only for the amount being sent. Locks can only be applied to new account or account owned by signer. The reason being it can change an account of a user without that user's knowledge or consent. For example a User A may send 1 locked token to User B, without User B consenting to it. Now user B has locked tokens intermingled with unlocked tokens and that impacts their total and available token balance display, but they can't do anything about it.
+1. Added TPID to lock_accounts. TPID should always be present on transactions expected to be exposed to users to encourgae implementation by wallets.
+
 ## Implementation
 * make a new system contract called fio.lock.
     make a new table locktokens
@@ -360,10 +305,6 @@ it was decided to provide locked funds to the receiving account because of the f
 * Make an unlockable lock, lock and unlock funds in this account and verify spend.
 * Make multiple locks on one account. Verify locks are processed correctly.
 
-
-
-
-## CLEANUP QUESTIONS
-1. What's the purpose of *Unlockable*, if there is no waiting period? If a key is compromised, the attacker just has one extra action to run. Or was the assumption that the user would place unlock permission under the conrol of another account/key?
-1. We should not allow locking of accounts of others, even if it's only for the amount you send them. I think we should require that target account is either self or does not exist.
-1. I see no reason for 2 clean token actions. In fact, I think we should punt this till FIP on state management and not have any for now.
+## PENDING
+1. Change get_balance
+1. What's the purpose of *Unlockable*, if there is no waiting period? If a key is compromised, the attacker just has one extra action to run. Or was the assumption that the user would place unlock permission under the conrol of another account/key? Maybe better to start periods on first unlock.
