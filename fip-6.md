@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-16
-updated: 2020-05-05
+updated: 2020-05-07
 ---
 ## Abstract
 This FIP implements the following:
@@ -51,6 +51,7 @@ Locks tokens in designated account per provided lock schedule.
 ##### New end point: *lock_tokens* 
 ##### New action in new fio.lock contract locktokens
 ##### New fee: lock_tokens, 300000000 per unlock period + 300000000 per 90 days of longest duration.
+##### RAM increase: 200 + (60 * number of lock periods) bytes
 Example:
 ```
 "unlock_periods": [
@@ -125,9 +126,8 @@ The fee will be: (3 unlock_periods * 300000000) + (1 90-day period in 259200 sec
 * Charge appropriate fee or deduct bundled transaction
 * Perform transfer, if not same account.
 * Create entry in the locktokens table for these lock tokens.
-* Increase RAM limit by 200 + (60 * number of lock periods) bytes
+* Increase RAM
 * Return response
-##### Response
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -155,13 +155,13 @@ The fee will be: (3 unlock_periods * 300000000) + (1 90-day period in 259200 sec
 }
 ```
 
-## Specification
-### UnLock tokens
-#### New end point: *unlock_tokens* 
-#### New action in new fio.lock contract unlocktokens
+#### Unlock tokens
+Unlocks tokens per lock schedule.
+##### New end point: *unlock_tokens* 
+##### New action in new fio.lock contract unlocktokens
+##### New fee: unlock_tokens: 300000000
+##### RAM increase: none
 ##### Request
-When this request is processed, inputs will be verified,  the specified locks locking periods will be processed and the lock will be updated,
-then the system will unlock the specified amount of tokens from the specified lock if the lock has the specified amount of tokens available in the remaining lock amount. 
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |lock_amounts|Yes| string json string of lockids and amounts .|JSON data specifying what locks and amounts.|
@@ -182,6 +182,10 @@ this is a list of id, amount pairs, specifying the id of each lock and the amoun
 }
 ```
 ##### Processing
+
+When this request is processed, inputs will be verified,  the specified locks locking periods will be processed and the lock will be updated,
+then the system will unlock the specified amount of tokens from the specified lock if the lock has the specified amount of tokens available in the remaining lock amount. 
+
 * require auth of the actor
 * Verify number of items in lock amounts, 1 or more.
 * Verify format and values for lock_id, amount, max_fee, actor. invalid input error if incorrect.
@@ -217,9 +221,9 @@ this is a list of id, amount pairs, specifying the id of each lock and the amoun
 ## Fees
 a new fee will be created for lock_tokens, 600000000 SUF per lock period, this is a mandatory fee.
 
-### get locks
-#### New end point: *get_locks* 
-#### New action in new fio.lock contract getlocks
+#### get locks
+##### New end point: *get_locks* 
+##### New action in new fio.lock contract getlocks
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -288,11 +292,16 @@ it was decided to provide locked funds to the receiving account because of the f
 1. Removed clean token actions. This is consistant with our strategy Pre-Mainnet and in FIP (e.g. [FIP-8](https://github.com/fioprotocol/fips/blob/master/fip-8.md#burning-expired-requests) of not removing things from state, except when required for functionality (e.g. burn expired domains). I think we need a comprehensive approach to what gets removed when and how across all contracts. This way we do not end up with different strategy for removing locks and different for removing requests. There is alreday FIP planned to address this.
 1. Locking of existing accounts not owned by signer will not be allowed, even if it's only for the amount being sent. Locks can only be applied to new account or account owned by signer. The reason being it can change an account of a user without that user's knowledge or consent. For example a User A may send 1 locked token to User B, without User B consenting to it. Now user B has locked tokens intermingled with unlocked tokens and that impacts their total and available token balance display, but they can't do anything about it.
 1. Added TPID to lock_accounts. TPID should always be present on transactions expected to be exposed to users to encourgae implementation by wallets.
+1. Added variable fee based on both number of locks and the longest duration.
 
 #### Pending
 1. Change get_balance
 1. What's the purpose of *Unlockable*, if there is no waiting period? If a key is compromised, the attacker just has one extra action to run. Or was the assumption that the user would place unlock permission under the conrol of another account/key? Maybe better to start periods on first unlock.
 1. accounting of all types locked tokens will be updated whenever transfer or voteproducer. Why should we only do it on unlock?
+1. Do we need a fee on unlock?
+1. Do we need a RAM bump on unlock?
+1. Why does unlock require lock ID and amount. Shouldn't it jsut unlock all locks?
+1. Should we even allow multiple locks, should there be a max?
 
 ## Implementation
 * make a new system contract called fio.lock.
