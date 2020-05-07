@@ -45,10 +45,30 @@ To allow for most flexibility when tokens are locked the following variables def
 * Payment of fee. When fee is collected, only unlocked tokens may be used to pay for that fee. Bundled transactions can always be used, even when all tokens are locked.
 #### How are tokens unlocked?
 The accounting of all types locked tokens will be updated whenever transfer or voteproducer, or unlock are called by a user, so tokens will be unlocked whenever these calls are invoked. Users may have as many locks as they wish providing the sum of the locks does not exceed the balance of the account.
-### Lock tokens
+### New actions
+#### Lock tokens
 Locks tokens in designated account per provided lock schedule.
-#### New end point: *lock_tokens* 
-#### New action in new fio.lock contract locktokens
+##### New end point: *lock_tokens* 
+##### New action in new fio.lock contract locktokens
+##### New fee: lock_tokens, 300000000 per unlock period + 300000000 per 90 days of longest duration.
+Example:
+```
+"unlock_periods": [
+	{
+		"duration": 86400,
+		"percent": 1.2
+	},
+	{
+		"duration": 172800,
+		"percent": 90.8
+	},
+	{
+		"duration": 259200,
+		"percent": 8.0
+	}
+]
+```
+The fee will be: (3 unlock_periods * 300000000) + (1 90-day period in 259200 seconds * 300000000) = 600000000
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -63,7 +83,7 @@ Locks tokens in designated account per provided lock schedule.
 ###### unlock_periods
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|duration|Yes|Epoch time|Time from lock creation to when unlock of coresponding percentage occurs.|
+|duration|Yes|Int|Seconds from lock creation to when unlock of coresponding percentage occurs.|
 |percent|Yes|Percentage float|Percentage of locked tokens that unlock after coresponding duration lapsed.|
 ###### Example
 ```
@@ -111,28 +131,29 @@ Locks tokens in designated account per provided lock schedule.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid receiver public key|Invalid format|400|"receiver_public_key"|value of public key|"Invalid Public Key"|
-|Invalid votable|Invalid format|400|"votable"|votable value|"Invalid votable value"|
-|Lock Periods Invalid|less of equal to 0 duration specified on any lock period, or total percent does not sum to 100.0|400|"lock_periods"|Invalid Lock Periods |
-|Invalid Actor|Actor does not exist on chain|403|||"Invalid Actor"|
-|Insufficient balance| Actor does not have required amount of funds|400|"amount"|Value sent in, e.g. "100"|"Insufficient balance"|
+|Invalid lock public key|Specified public key is not valid FIO format.|400|"lock_public_key"|Value sent in, e.g. "notakey"|"Invalid Public Key."|
+|Account already exist|Account hashed down from Public Key alreday exists AND is not the signing actor.|400|"lock_public_key"|Value sent in, e.g. "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj"|"Tokens can only be locked on actor's or new account."|
+|Invalid votable|Value sent in is not 0 or 1|400|"votable"|Value sent in, e.g. "-100"|"Invalid votable value."|
+|Invalid unlockable|Value sent in is not 0 or 1|400|"unlockable"|Value sent in, e.g. "-100"|"Invalid unlockable value."|
+|Invalid unlock periods|See *Lock period verifictaion* in *Processing*|400|"unlock_periods"|"Invalid unlock_periods."|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
 ##### Response
-|Group|Parameter|Format|Definition|
-|---|---|---|---|
-||status|String|Ok|
-||fee_collected|String|fee amount collected SUFs|
-|lock_id| string| the id of the lock that was created|
+|Parameter|Format|Definition|
+|---|---|---|
+|lock_id|Int|ID of lock created.|
+|status|String|OK if successful|
+|fee_collected|Int|Amount of SUFs collected as fee|
 ###### Example
 ```
 {
-  "lock_id": "5"
-  "status": "OK",
-  "fee_collected": 0		
+	"lock_id": 5,
+	"status": "OK",
+	"fee_collected": 0
 }
 ```
-## Fees
-a new fee will be created for lock_tokens, 600000000 SUF per lock period, this is a mandatory fee.
 
 ## Specification
 ### UnLock tokens
@@ -268,6 +289,11 @@ it was decided to provide locked funds to the receiving account because of the f
 1. Locking of existing accounts not owned by signer will not be allowed, even if it's only for the amount being sent. Locks can only be applied to new account or account owned by signer. The reason being it can change an account of a user without that user's knowledge or consent. For example a User A may send 1 locked token to User B, without User B consenting to it. Now user B has locked tokens intermingled with unlocked tokens and that impacts their total and available token balance display, but they can't do anything about it.
 1. Added TPID to lock_accounts. TPID should always be present on transactions expected to be exposed to users to encourgae implementation by wallets.
 
+#### Pending
+1. Change get_balance
+1. What's the purpose of *Unlockable*, if there is no waiting period? If a key is compromised, the attacker just has one extra action to run. Or was the assumption that the user would place unlock permission under the conrol of another account/key? Maybe better to start periods on first unlock.
+1. accounting of all types locked tokens will be updated whenever transfer or voteproducer. Why should we only do it on unlock?
+
 ## Implementation
 * make a new system contract called fio.lock.
     make a new table locktokens
@@ -304,7 +330,3 @@ it was decided to provide locked funds to the receiving account because of the f
 * Make a votable lock, proxy this accounts vote to another, verify voting power.
 * Make an unlockable lock, lock and unlock funds in this account and verify spend.
 * Make multiple locks on one account. Verify locks are processed correctly.
-
-## PENDING
-1. Change get_balance
-1. What's the purpose of *Unlockable*, if there is no waiting period? If a key is compromised, the attacker just has one extra action to run. Or was the assumption that the user would place unlock permission under the conrol of another account/key? Maybe better to start periods on first unlock.
