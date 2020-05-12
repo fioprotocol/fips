@@ -1,56 +1,76 @@
 ---
 fip: 7
-title: Provide ability to deactivate FIO Addresses and Domains
+title: Provide ability to burn FIO Address
 status: Draft
 type: Functionality
-author: Casey Gardiner <casey@dapix.io>
+author: Casey Gardiner <casey@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-22
-updated: 2020-04-30
+updated: 2020-05-12
 ---
 
 ## Abstract
-This FIP implements the following:
-* Adds the ability for FIO Address owners the ability to burn an owned address.
-* Adds the ability for FIO Domain owners the ability to set their domain as expired.
-* Adds new API end points for FIO Domain deactivation and FIO Address burning.
-* Adds new fees for FIO Domain deactivation and FIO Address burning.
+This FIP implements the ability for owners to burn their FIO Addresses.
+
+Proposed new actions:
+|Action|Endpoint|Description|
+|---|---|---|
+|burnaddress|burn_fio_address|Burns FIO Address.|
 
 ## Motivation
-Presently the FIO Blockchain only burns and removes old addresses and domains once they reach their expiration date. This feature proposal will allow address owners the ability to burn their addresses at any time and will allow domain owners that are looking to deactivate the domain to have their expiration set to the current time. Setting this expiration allows for the continued use of the domain during a grace period ( currently set to 90 days ). All FIO Addresses linked to that domain will be burned after their expirations but will not be able to be utilized. The domain will follow normal expired domain processes after the grace period. Once burned, a new domain owner may register the domain. If domain owner wishes to activate their domain after deactiviation, owners may call `/renew_fio_domain` and continue normal operation. 
+Presently the FIO Chain [burns (removes from state)](/api/api-spec/reference/burn-expired/burn-expired-model) FIO Addresses [after grace period following their expiration dates](https://kb.fioprotocol.io/fio-protocol/fio-addresses/bundling-and-fees#failure-to-pay-renewal-fees).
+
+An owner should be able to burn their FIO Address ahead of expiration, if they no longer wish to use it and want to purge all associated data. There are many reasons why someone would want to burn their FIO Address:
+   * Business/Personal requirements
+   * Cost effectiveness 
+   * Spam prevention
 
 ## Specification
-### Burn Addresses
-#### New end point: *burn_fio_address* 
-#### New action in new fio.address contract burnaddress
+### Overview
+Burning FIO Address acts the same way as [/burn_expired](/api/api-spec/reference/burn-expired/burn-expired-model), meaning it removes the FIO Address and associated content except that action is applied only to provided address and can occur ahead of expiration.
+
+When an address is burned it becomes immediately available for others to register it.
+
+No refund of registration/renewal fee is offered for burning a FIO Address ahead of its expiration date.
+### New actions
+#### Burn FIO Addresses
+Burns FIO Address.
+##### New end point: *burn_fio_address* 
+##### New action in new fio.address contract: burnaddress
+##### New fee: burn_fio_address: 400000000, bundle-eligible (uses 1 bundled transaction)
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|fio_address|Yes|FIO Address, see FIO Address validation rules.|FIO Address that is being requested to burn.|
-|actor|Yes|FIO account name|FIO account for the signer, the account owning this FIO Address.|
-|max_fee|Yes|max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
-|tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid 10% of the fee.See FIO Protocol#TPIDs for details. Set to empty if not known.|
-
+|fio_address|Yes|Valid FIO Address|FIO Address to burn.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer.|
 ###### Example
 ```
 {
-    "fio_address": "purse@alice",
-    "actor": "aftyershcu22",
-    "max_fee": 400000000,
-    "tpid": "rewards@wallet"
+	"fio_address": "purse@alice",
+	"max_fee": 400000000,
+	"tpid": "rewards@wallet",
+	"actor": "aftyershcu22"
 }
 ```
 ##### Processing
-* Require auth of the actor
 * Request is validated per Exception handling.
-* Removes the fio_address from the fionames table.
-* Removes the TPID entry inside the tpid index table. 
-* Return status json containing status (ok), and fee charged.
+    * Require auth of the actor
+    * Verify transaction does not exceed max transaction size.
+	* Verify that the fee for this does not exceed the max fee specified.
+* FIO Address is removed:
+    * Removes the fio_address from the fionames table.
+    * Removes the TPID entry inside the tpid index table. 
+    * All entries associated with this address in the keynames table will be removed.
+    * The account on the fio chain, and the binding for this account in the eosionames table will remain.
+    * Also remaining will be all requests for funds that have this address as a payee or payer will remain in the fioreqctxts index table    
+* Fee is charged.
+* Return status json containing status (OK), and fee charged.
 ##### Response
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
 |Invalid FIO Address format|FIO Address format is not valid|400|"fio_address"|Value sent in, e.g. "purse@alice"|"Invalid FIO Address"|
-|Not owner of FIO Address|The signer does not own the address|403||||
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "400000000"|"Insufficient funds to cover fee"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "400000000"|"Fee exceeds supplied maximum"|
@@ -58,80 +78,30 @@ Presently the FIO Blockchain only burns and removes old addresses and domains on
 |FIO Address not registered|FIO Address is not registered|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address not registered"|
 |FIO Address is active producer|Supplied FIO Address is registered as producer and is_active = 1|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address is active producer. Unregister first."|
 |FIO Address is proxy|Supplied FIO Address is registered as proxy|400|"fio_address"|Value sent in, e.g. "purse@alice"|"FIO Address is proxy. Unregister first."|
-
+|Not owner of FIO Address|The signer does not own the address|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
-|status|String|Ok|
+|status|String|OK|
 |fee_collected|String|fee amount collected SUFs|
 ###### Example
 ```
 {
-    "status": "Ok",
-    "fee_collected": "400000000"		
+	"status": "OK",
+	"fee_collected": "400000000"
 }
 ```
-###### New fee
-A new fee will be created for `burn_fio_address`. This fee will not be bundle eligible and should cost ~400000000 SUF.
-
-## Specification
-### Dectivate Domain
-#### New end point: *deactivate_fio_domain* 
-#### New action in new fio.address contract deactdomain
-##### Request
-|Parameter|Required|Format|Definition|
-|---|---|---|---|
-|fio_domain|Yes|FIO Domain, see FIO Domain validation rules.|FIO domain that is being requested to burn.|
-|actor|Yes|FIO account name|FIO account for the signer, the account owning this FIO Domain.|
-|max_fee|Yes|max fee SUFs|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
-|tpid|Yes|FIO Address of TPID, See FIO Address validation rules|FIO Address of the wallet which generates this transaction. This FIO Address will be paid 10% of the fee.See FIO Protocol#TPIDs for details. Set to empty if not known.|
-
-###### Example
-```
-{
-    "fio_domain": "alice",
-    "actor": "aftyershcu22",
-    "max_fee": 800000000,
-    "tpid": "rewards@wallet"
-}
-```
-##### Processing
-* Require auth of the actor.
-* Request is validated per Exception handling.
-* Sets fio_domain expiration date inside the domains table to now().
-* Return status json containing status (ok), and fee charged.
-##### Response
-##### Exception handling
-|Error condition|Trigger|Type|fields:name|fields:value|Error message|
-|---|---|---|---|---|---|
-|Invalid FIO Domain format|FIO Domain format is not valid|400|"fio_domain"|Value sent in, e.g. "alice"|"Invalid FIO domain"|
-|FIO Domain not registered|FIO Domain is not registered|400|"fio_domain"|Value sent in, e.g. "alice"|"FIO Domain not registered"|
-|FIO Domain already expired|FIO Domain already expired|400|"fio_domain"|Value sent in, e.g. "alice"|"FIO Domain already expired"|
-|Not owner of FIO Domain|The signer does not own the domain|403||||
-|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
-|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "800000000"|"Insufficient funds to cover fee"|
-|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
-|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "800000000"|"Fee exceeds supplied maximum"|
-##### Response
-|Parameter|Format|Definition|
-|---|---|---|
-|status|String|Ok|
-|fee_collected|String|fee amount collected SUFs|
-###### Example
-```
-{
-    "status": "Ok",
-    "fee_collected": "800000000"        
-}
-```
-## Fees
-A new fee will be created for `deactivate_fio_domain`. This fee will not be bundle eligible and should cost ~800000000 SUF.
-
 ## Rationale
-Adding the functionality to remove these addresses and setting domains to expired at any given time gives the owners flexibility. There are many reason why someone would want to burn their FIO Address/Domain:
-   * Business/Personal requirements
-   * Cost effectivness 
-   * Spam prevention
+Since burn addresses already exists in the protocol, this implementation will mirror what's alreday developed.
+
+Ability to accelerate the expiration of domains was considered but abandoned as it would create a potential conflict with owners of FIO Addresses on that domain, which may want to renew the domain to keep their address active. [See discusion](https://github.com/fioprotocol/fips/issues/42).
+
+RAM increase is not required as this action only removes from state.
+
+### Changes made to FIP after accepting as Draft
+1. Removed ability to accelerate expiration of domains
+1. Added ability to use bundled transaction
+1. Removed RAM increase.
 
 ## Implementation
 The following files will be affected during this implementation:
@@ -142,4 +112,8 @@ The following files will be affected during this implementation:
    
 The fio.address smart contact, Clio, and the chain plugin are all required to be updated. The proposer will update to current fio version with the new clio and chain_plugin updates. They will then propose the msig for the fio.address contact to the active Block Producers. It is suggested that the top 21 Block Producers vote for the fees of the two new endpoints before the execution of the msig.
 
-On execution [RAM of signer will be increased](https://developers.fioprotocol.io/fio-protocol/resource-management#ram-limits) by 512 bytes.
+## Backwards Compatibility
+This is a new action and there is no impact on existing functionality.
+
+## Future considerations
+Revisit the ability to renew FIO Domain and consider adding ability to transfer ownership at some point after the domain expired and before it is burned.
