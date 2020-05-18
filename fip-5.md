@@ -1,26 +1,26 @@
 ---
 fip: 5
-title: Enhanced privacy via friending
+title: Enhanced privacy
 status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-09
-updated: 2020-04-17
+updated: 2020-05-18
 ---
 
+## Terminology
+* **Native Blockchain Public Address (NBPA)** - this is the public address on a native blockchain that is needed to send funds and is associated to the FIO Address using [/add_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/add-pub-address/add-pub-address-model)
+* **Payee** - is the user receiving funds. In the Send scenario, this is the user who places NBPA on the FIO Chain and allows Payer to see it so that the Payer can send funds using this NBPA. In Request scenario, this is the user sending a FIO Request.
+* **Payer** - is the user sending funds using FIO Address. In the Send scenario, Payer will type a FIO Address in wallet, that wallet will look up the corresponding NBPA on native blockchain and transaction will be executed. In Request scenario, Payer will repons to a FIO Request sent by Payee.
+* **Sender** - is the user sending a transaction on the FIO Chain to another user (Receiver)
+* **Receiver** - is the user receiving a transaction on the FIO Chain from another user (Sender)
+
 ## Abstract
-This FIP implements several new features to enhance privacy of the FIO Protocol.
-* FIO Address owners can now opt-in to higher level of privacy.
-* Friend List allows users to create a unique cryptographic index, which lets them exchange data (e.g. FIO Request, FIO Data) on the FIO chain without revealing that the users are interacting with each other.
-* NBPA mapping can now be encrypted and only accessible to authorized friends.
+This FIP implements new features to enhance privacy of the FIO Protocol. It extends the existing FIO Data encryption scheme to include NBPAa and in addition introduces a new way to exchange FIO Requests, FIO Data, and NBPAs in way, which obfuscates the fact that the users are interacting with each other.
 
 Proposed new actions:
 |Action|Endpoint|Description|
 |---|---|---|
-|addfriend|priv_add_friend|Adds friend to Friend List|
-|removefriend|priv_remove_friend|Removes friend from Friend List|
-||priv_get_friend_list|Returns Friend List|
-||priv_check_friend_list|Checks if user is in Friend List|
 |privaddadr|priv_add_pub_address|Add encrypted NBPA to FIO Chain|
 |privganbpa|priv_grant_pub_address_access|Grants friend access to see NBPA|
 ||priv_get_pub_address|Allows friend to retrieve NBPA they are authorized to see|
@@ -32,211 +32,41 @@ Proposed new actions:
 |setaddpriv|set_fio_address_privacy|Sets privacy mode for FIO Address|
 ||privacy_check|Checks privacy mode of FIO Address|
 
-## Terminology
-* **Native Blockchain Public Address (NBPA)** - this is the public address on a native blockchain that is needed to send funds and is associated to the FIO Address using [/add_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/add-pub-address/add-pub-address-model)
-* **Payee** - is the user receiving funds. In the Send scenario, this is the user who places NBPA on the FIO Chain and allows Payer to see it so that the Payer can send funds using this NBPA. In Request scenario, this is the user sending a FIO Request.
-* **Payer** - is the user sending funds using FIO Address. In the Send scenario, Payer will type a FIO Address in wallet, that wallet will look up the corresponding NBPA on native blockchain and transaction will be executed. In Request scenario, Payer will repons to a FIO Request sent by Payee.
-* **Sender** - is the user sending a transaction on the FIO Chain to another user (Receiver)
-* **Receiver** - is the user receiving a transaction on the FIO Chain from another user (Sender)
-
 ## Motivation
 Even though contents of FIO Requests and OBT Records is already encrypted, there are two other areas where privacy of the FIO Protocol can be improved:
+* Anytime a FIO Request or OBT Record is stored on chain, the FIO Addresses of both parties are stored unencrypted. This allows blockchain observers to:
+  * Associate FIO Addresses transacting with each other, even though the details of those transactions are private
 * NBPAs mapped to FIO Addresses are stored on-chain unencrypted. This allows blockchain observers to:
   * Associate NBPAs to identifiable FIO Addresses
   * Associate NBPAs on different blockchains belonging to a single individual/entity through a common FIO Address
-* Anytime a FIO Request or OBT Record is stored on chain, the FIO Addresses of both parties are stored unencrypted. This allows blockchain observers to:
-  * Associate FIO Addresses transacting with each other, even though the details of those transactions are private
 
 ## Specification
-### Friend List
-The core concept which accomplishes above objectives is a Friend List. When two users are friends, one can encrypt information (NBPA mappings, FIO Request, FIO Data, etc.) and put them on the chain in a structure which enables only the other party to find it and only the two parties to decrypt it.
+### Search Index
+Today when data is exchanged on the FIO Chain (FIO Requests, FIO Data) FIO Addresses and FIO Public Keys of both parties are attached to each record. This is done because:
+* **Sender** - account data (e.g. FIO Public Address) of the signer has to be visible for the blockchain to validate the transaction.
+* **Receiver** - there needs to be a way for the receiver to know that there is data on the blockchain for them to receive. Today the Receiver uses their FIO Public Key to query for data, therefore the Sendeer has to include this in the transaction they expect the Receiver to receive.
 
-This concept will allow the following:
-* Place FIO Request, OBT Record on the blockchain with only one party visible by an observer.
-* Place NBPAs mappings on the blockchain with only one party visible by an observer.
+In order to obfuscate that Sender and Receiver are interacting, only one party's information has to be encrypted. Obfuscating Sender's data is difficult without changing the architecture of the blockchain to a more complex privacy chain architecture. Obfuscating the Receiver's data is easy, but it makes it challanging for the Receiver to identify transactions on the chain that contain informationn for them.
 
+To solve this challange, this FIP introduces the concept of **Search Index**. This index uses [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) and can be derived by both Sender and Receiver and requires their own private key and the other party's public key.
+
+#### Sender derives Receiver's Search Index to include on sent transactions
+* Sender wants to derive Search Index for Receiver and types their FIO Address into their wallet
+* Sender's wallet fetches FIO Public Key associated with FIO Address entered
+* Sender's wallet uses Receiver's FIO Private Key and Receiver's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
+* Receiver's FIO Public Key is hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector to create Receiver's Search Index.
+
+![](images/Diagram-Deriving-Search-Index.PNG)
+
+#### Receiver derives their own Search Index to look for transactions to them
+* Receiver wants to derive their own Search Index and types Sender's FIO Address into their wallet
+* Receiver's wallet fetches FIO Public Key associated with FIO Address entered
+* Receiver's wallet uses Receiver's FIO Private Key and Sender's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
+* Receiver's FIO Public Key is hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector to create Receiver's Search Index.
+ 
 It is important to note that Friend List will exist between FIO Public Keys, not FIO Addresses, as past transactions should not be readable by the new owner of the FIO Address. This has the following consequences:
 * Once user transfers their FIO Address to another public key (even if they control it), they will lose their whitelist. That is already a moot point, since they will not be able to decrypt the data anyway.
 * Once whitelist is established it exists between all FIO Addresses owned by either party.
-
-#### Adding a friend to a Friend List
-* Receiver wants to allow Sender to send transactions to Receiver and types FIO Address into their wallet
-* Receiver's wallet fetches FIO Public Key associated with FIO Address entered
-* Receiver's wallet uses Receiver's FIO Private Key and Sender's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
-* Receiver's wallet records on the blockchain:
-  * Sender's FIO Address and FIO Public Key encrypted symmetrically with Receiver's FIO Private Key. This will be used by Receiver to be able to restore their Friend List from wallet seed phrases without relying on local storage.
-  * Sender's FIO Public Key hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector. This will be used as a **Look-up Index** by Sender to check if they are on whitelist or to identify a transaction that is intended for them.
- 
-![](images/Diagram-Adding-to-Friend-List.PNG)
-
-#### Checking a Friend List
-The Sender can check if they have been added to the Receiver's Friend List by hashing their own FIO Public Key using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector.
- 
-![](images/Diagram-Checking-Friend-List.PNG)
-
-### Friend List actions
-The following is a list of all new contract actions and endpoint added.
-#### Add to Friend List
-Adds user to Friend List.
-##### New action: *addfriend*
-##### New endpoint: /priv_add_friend
-##### New fee: priv_add_friend, bundle-eligible (uses 1 bundled transaction)
-##### Request
-|Parameter|Required|Format|Definition|
-|---|---|---|---|
-|fio_public_key_hash|Yes|String|FIO Public Key of party being added hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector. This will be used as a look-up index by Sender to check if they are on Friend List.|
-|content|Yes|FIO public key|Encrypted blob. See below. This will be used by the owner of Friend List to be able to restore their Friend List from wallet seed phrases without relying on local storage.|
-|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
-|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
-|actor|Yes|12 character string|Valid actor of signer|
-###### *content* format
-The content element is a packed and encrypted version of the following data structure:
-|Parameter|Required|Format|Definition|
-|---|---|---|---|
-|fio_address|Yes|String|FIO Address of the party being added.|
-|public_key|Yes|IO Public Key|FIO Public Key of the party being added.|
-###### Example
-```
-{
-	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
-	"content": "...",
-	"max_fee": 0,
-	"tpid": "",
-	"actor": "aftyershcu22"
-}
-```
-##### Processing
-* Request is validated per Exception handling. Explicitly allowed:
-	* User does not need to have a FIO Address registered, as Friend List on a Public Key level
-* Fee is collected
-* Content is placed on chain
-##### Exception handling
-|Error condition|Trigger|Type|fields:name|fields:value|Error message|
-|---|---|---|---|---|---|
-|Key in Friend List|Supplied FIO Publick key is already in Friend List|400|"fio_public_key_hash"|Value sent in, i.e. "1000000000"|"FIO public key already in Friend List"|
-|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
-|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
-|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
-|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-##### Response
-|Parameter|Format|Definition|
-|---|---|---|
-|status|String|OK if successful|
-|fee_collected|Int|Amount of SUFs collected as fee|
-###### Example
-```
-{
-	"status": "OK",
-	"fee_collected": 2000000000
-}
-```
-#### Remove from Friend List
-Removes user from Friend List.
-##### New action: *removefriend*
-##### New endpoint: /priv_remove_friend
-##### New fee: priv_remove_friend, bundle-eligible (uses 1 bundled transaction)
-##### Request
-|Parameter|Required|Format|Definition|
-|---|---|---|---|
-|fio_public_key_hash|Yes|String|FIO Public Key of party being removed hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector.|
-|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
-|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
-|actor|Yes|12 character string|Valid actor of signer|
-###### Example
-```
-{
-	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
-	"max_fee": 0,
-	"tpid": "",
-	"actor": "aftyershcu22"
-}
-```
-##### Processing
-* Request is validated per Exception handling
-* Fee is collected
-* Record is removed from chain
-##### Exception handling
-|Error condition|Trigger|Type|fields:name|fields:value|Error message|
-|---|---|---|---|---|---|
-|Key not in Friend List|Supplied FIO Publick key is not in Friend List|400|"fio_public_key_hash"|Value sent in, i.e. "1000000000"|"FIO public key not in Friend List"|
-|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
-|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
-|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
-|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-##### Response
-|Parameter|Format|Definition|
-|---|---|---|
-|status|String|OK if successful|
-|fee_collected|Int|Amount of SUFs collected as fee|
-###### Example
-```
-{
-	"status": "OK",
-	"fee_collected": 2000000000
-}
-```
-#### Get Friend List.
-Returns Friend List.
-##### New endpoint: /priv_get_friend_list
-##### Request
-|Parameter|Required|Format|Definition|
-|---|---|---|---|
-|fio_public_key|Yes|FIO public|FIO public key of owner.|
-|limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
-|offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
-###### Example
-```
-{
-	"fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
-	"limit": 100,
-	"offset": 0
-}
-```
-##### Exception handling
-|Error condition|Trigger|Type|fields:name|fields:value|Error message|
-|---|---|---|---|---|---|
-|Empty list|No items in friend list|404||"No items in friend list"|
-##### Response
-|Group|Parameter|Format|Definition|
-|---|---|---|---|
-|friends|fio_public_key_hash|String|See Add to Friend List|
-|friends|content|String|See Add to Friend List|
-||more|Int|Number of remaining results|
-###### Example
-```
-{
-    "friends": [
-        {
-            "fio_public_key_hash": "515184318471884685485465454464846864686484464694181384",
-            "content": "...",
-        }
-    ],
-    "more": 0
-}
-```
-#### Check Friend List.
-Checks if a user is in a Friend's list. Can be called by either party.
-##### New endpoint: /priv_check_friend_list
-##### Request
-|Parameter|Required|Format|Definition|
-|---|---|---|---|
-|fio_public_key_hash|Yes|FIO public|See Add to Friend List|
-###### Example
-```
-{
-	"fio_public_key_hash": "515184318471884685485465454464846864686484464694181384"
-}
-```
-##### Response
-|Parameter|Format|Definition|
-|---|---|---|
-|is_friend|Int|1 - in Friend's List; 0 - not in Friend's List|
-###### Example
-```
-{
-	"is_friend": 1
-}
-```
 
 ### NBPA mappings
 In existing implementation, NBPAs are placed on FIO Chain unencrypted. Friend List functionality can be leveraged to store NBPAs privately.
