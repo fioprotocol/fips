@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-09
-updated: 2020-05-18
+updated: 2020-05-19
 ---
 
 ## Terminology
@@ -19,6 +19,7 @@ updated: 2020-05-18
 This FIP implements new features to enhance privacy of the FIO Protocol. It extends the existing FIO Data encryption scheme to include NBPAa and in addition introduces a new way to exchange FIO Requests, FIO Data, and NBPAs in way, which obfuscates the fact that the users are interacting with each other.
 
 Proposed new actions:
+
 |Action|Endpoint|Description|
 |---|---|---|
 |privaddadr|priv_add_pub_address|Add encrypted NBPA to FIO Chain|
@@ -48,7 +49,7 @@ Today when data is exchanged on the FIO Chain (FIO Requests, FIO Data) FIO Addre
 
 In order to obfuscate that Sender and Receiver are interacting, only one party's information has to be encrypted. Obfuscating Sender's data is difficult without changing the architecture of the blockchain to a more complex privacy chain architecture. Obfuscating the Receiver's data is easy, but it makes it challanging for the Receiver to identify transactions on the chain that contain informationn for them.
 
-To solve this challange, this FIP introduces the concept of **Search Index**. This index uses [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) and can be derived by both Sender and Receiver and requires their own private key and the other party's public key.
+To solve this challenge, this FIP introduces the concept of **Search Index**. This index uses [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) and can be derived by both Sender and Receiver and requires their own private key and the other party's public key.
 
 #### Sender derives Receiver's Search Index to include on sent transactions
 * Sender wants to derive Search Index for Receiver and types their FIO Address into their wallet
