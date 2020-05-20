@@ -5,13 +5,13 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-09
-updated: 2020-05-19
+updated: 2020-05-20
 ---
 
 ## Terminology
 * **Native Blockchain Public Address (NBPA)** - this is the public address on a native blockchain that is needed to send funds and is associated to the FIO Address using [/add_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/add-pub-address/add-pub-address-model)
 * **Payee** - is the user receiving funds. In the Send scenario, this is the user who places NBPA on the FIO Chain and allows Payer to see it so that the Payer can send funds using this NBPA. In Request scenario, this is the user sending a FIO Request.
-* **Payer** - is the user sending funds using FIO Address. In the Send scenario, Payer will type a FIO Address in wallet, that wallet will look up the corresponding NBPA on native blockchain and transaction will be executed. In Request scenario, Payer will repond to a FIO Request sent by Payee.
+* **Payer** - is the user sending funds using FIO Address. In the Send scenario, Payer will type a FIO Address in wallet, that wallet will look up the corresponding NBPA on native blockchain and transaction will be executed. In Request scenario, Payer will respond to a FIO Request sent by Payee.
 * **Sender** - is the user sending a transaction on the FIO Chain to another user (Receiver)
 * **Receiver** - is the user receiving a transaction on the FIO Chain from another user (Sender)
 
@@ -859,11 +859,20 @@ An attemp to send record_obt_data to to FIO Address (payer) with privacy set to 
 The following section describes the steps a wallet would have to take to implement functionality described in this FIP.
 
 ## Rationale
+### Friend List
+The core of this FIP was originally the concept of Friend List. Users would add each other to their Friend List, which was stored on chain. This concept was later abandoned for the following reasons:
+* A Friend's List implies that both parties have taken action to establish a relationship, when the chain allows atomic actions to be executed without both parties friending each other. Examples:
+  * Alice can grant access to NBPA to Bob without Bob having to do anything. Further Bob can look-up that NBPA and execute a send without friending Alice.
+  * Alice can unilaterally monitor for FIO Requests from Bob and Bob can initiate the request without having to friend Alice. Now, Bob will not be able to see a response to that request unless he chooses to monitor Alice's Search Index.
+* It reduces the complexity of this FIP and the associated wallet implementation. 
+
+Friend List had the added benefit of allowing users to easily restore their Friend List and associated Search Indexes from seed phrases. In lieu of that, ability to backup Search Indexes has been added.
+
 ### Complexity tradeoffs
 Privacy on a public blockchain is a complex problem. The Dapix team has spent several weeks in 2019 brainstorming solutions with number of experts. Without a doubt, the solution contemplated in this FIP is adding significant complexity to the blockchain and for the integrators, even though it is planned that a lot of the complexity will be eliminated in the SDKs.
 
 Complexity could be reduced if certain privacy requirements are relaxed. Specifically:
-1. Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet, i.e. by typing in a FIO Address. [FIP-8](fip-8.md) descibes an approach, which follows this path, albeit slightly modified, and recommends Request for Public Address.
+1. Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet, i.e. by typing in a FIO Address. [FIP-8](fip-8.md) describes an approach, which follows this path, albeit slightly modified, and recommends Request for Public Address.
 1. If #1 is accepted, FIO Request status can additionally be made public, which would push request filtering, such as "show only pending requests" to the blockchain API, instead of having it done inside wallet/SDK.
 1. Eliminate the flexibility of allowing users multi-level encryption of NBPAs. Only address-level encryption would be supported, which would basically mean that once someone is your friend, they will get access to all keys you have shared for any FIO Address you grant them access to.
 
