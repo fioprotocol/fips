@@ -21,30 +21,30 @@ This FIP implements several new features to enhance privacy of the FIO Protocol:
 * It introduces a new way to exchange FIO Requests, FIO Data, and NBPAs, which obfuscates the fact that the users are interacting with each other.
 * It consolidates [record_obt_data](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model) and [reject_funds_request](https://developers.fioprotocol.io/api/api-spec/reference/reject-funds-request/reject-funds-request-model) into a single priv_record_send_action as to further obfuscate the action which was taken on a FIO Request.
 
-The introduced functions will coexist with existing functions to ensure backwards compatibility.
+The introduced actions will coexist with existing actions to ensure backwards compatibility.
 
 Proposed new actions:
 
 |Action|Endpoint|Description|
 |---|---|---|
-|privaddadr|priv_add_pub_address|Add encrypted NBPA to FIO Chain|
-|privganbpa|priv_grant_pub_address_access|Grants friend access to see NBPA|
-||priv_get_pub_address|Allows friend to retrieve NBPA they are authorized to see|
-|privfundsreq|priv_new_funds_request|Allows for creation of FIO Requests in privacy mode|
-|privrecsend|priv_record_send_action|Allows for recording of OBT Data or rejecting a FIO Request in privacy mode|
-||priv_get_received_fio_requests|Returns received FIO Request in privacy mode|
-||priv_get_sent_fio_requests|Returns sent FIO Requests in privacy mode|
-||priv_get_received_actions|Returns OBT Data or FIO Request rejections in privacy mode|
-|setaddpriv|set_fio_address_privacy|Sets privacy mode for FIO Address|
-||privacy_check|Checks privacy mode of FIO Address|
+|privaddadr|priv_add_pub_address|Add encrypted NBPA to FIO Chain.|
+|privganbpa|priv_grant_pub_address_access|Grants user access to see NBPA.|
+||priv_get_pub_address|Allows user to retrieve NBPA they are authorized to see.|
+|privfundsreq|priv_new_funds_request|Allows for creation of FIO Requests using new, privacy-enhancing, mode.|
+|privrecsend|priv_record_send_action|Allows for recording of OBT Data or rejecting a FIO Request using new, privacy-enhancing, mode.|
+||priv_get_received_fio_requests|Returns FIO Request received using new, privacy-enhancing, mode.|
+||priv_get_sent_fio_requests|Returns FIO Requests sent using new, privacy-enhancing, mode.|
+||priv_get_received_actions|Returns OBT Data or FIO Request rejections using new, privacy-enhancing, mode.|
+|setaddpriv|set_fio_address_privacy|Sets privacy mode for FIO Address.|
+||privacy_check|Checks privacy mode of FIO Address.|
 
 ## Motivation
 Even though contents of FIO Requests and OBT Records is already encrypted, there are two other areas where privacy of the FIO Protocol can be improved:
 * Anytime a FIO Request or OBT Record is stored on chain, the FIO Addresses of both parties are stored unencrypted. This allows blockchain observers to:
-  * Associate FIO Addresses transacting with each other, even though the details of those transactions are private
+  * Associate FIO Addresses transacting with each other, even though the details of those transactions are private.
 * NBPAs mapped to FIO Addresses are stored on-chain unencrypted. This allows blockchain observers to:
-  * Associate NBPAs to identifiable FIO Addresses
-  * Associate NBPAs on different blockchains belonging to a single individual/entity through a common FIO Address
+  * Associate NBPAs to identifiable FIO Addresses.
+  * Associate NBPAs on different blockchains belonging to a single individual/entity through a common FIO Address.
 
 ## Specification
 ### Search Index
@@ -54,11 +54,11 @@ Today when data is exchanged on the FIO Chain (FIO Requests, FIO Data) FIO Addre
 
 In order to obfuscate that Sender and Receiver are interacting, one party's information has to be encrypted. Obfuscating Sender's data is difficult without changing the architecture of the blockchain to a more complex privacy chain architecture. Obfuscating the Receiver's data is easy, but it makes it challenging for the Receiver to identify transactions on the chain that contain information for them.
 
-To solve this challenge, this FIP introduces the concept of **Search Index**. This index uses [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) and can be derived by both Sender and Receiver without any on-chain interaction as it only requires their own private key and the other party's public key.
+To solve this challenge, this FIP introduces the concept of a **Search Index**. This index uses [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange) and can be derived by both Sender and Receiver without any on-chain interaction as it only requires their own private key and the other party's public key.
 
 #### How is Search Index derived
 * Sender wants to derive Search Index for Receiver and types their FIO Address into their wallet.
-* Sender's wallet fetches FIO Public Key associated with FIO Address entered.
+* Sender's wallet fetches FIO Public Key associated with the FIO Address entered.
 * Sender's wallet uses Sender's FIO Private Key and Receiver's FIO Public Key to derive a shared secret (Secret) using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
 * Receiver's FIO Public Key is hashed using [Hash Function A](https://github.com/fioprotocol/fiojs/blob/3b3604bb148043dfb7e7c2982f4146a59d43afbe/src/tests/encryption-fio.test.ts#L65) and Secret as initialization vector to create Receiver's Search Index.
 
@@ -67,15 +67,105 @@ To solve this challenge, this FIP introduces the concept of **Search Index**. Th
 #### How is Search Index used
 A user derives a Search Index using counter-party's FIO Public Key, when they are placing data on chain. A user derives a Search Index using their own FIO Public Key, when they are looking for data placed on chain by their counter-party.
 
-|Scenario|How used by Sender|How used by Receiver|
+|Scenario|How used by Payer|How used by Payee|
 |---|---|---|
-|Sender makes NBPA available to receiver|Sender places NBPA encrypted on chain with Search Index so Receiver can find.|Receiver looks for Search Index when looking for NBPA.|
-|Sender sends FIO Request to Receiver|Sender places FIO Request on chain with Search Index so Receiver can find.|Receiver looks for Search Index when looking for FIO Requests|
-|Sender responds to FIO Request|Sender places Send Action on chain with Search Index so Receiver can find.|Receiver looks for Search Index when looking for Send Actions.|
+|Payee makes NBPA available to Payer|Payee places NBPA encrypted on chain with Payer's Search Index.|Payer looks for their Search Index when looking for NBPA.|
+|Payee sends FIO Request to Payer|Payee places FIO Request on chain with Payer's Search Index.|Payer looks for their Search Index when looking for FIO Requests.|
+|Payer responds to FIO Request|Payer places Send Action on chain with Payee's Search Index.|Payee looks for their Search Index when looking for Send Actions.|
 
 It is important to note that the Search Index is derived from Public Keys and not FIO Addresses, yet for usability reasons user will use FIO Addresses to identify each other. This has the following consequences:
 * Once user transfers their FIO Address to another public key (even if they control it), they will lose their established connections. That is already a moot point, since they will not be able to decrypt the data anyway.
 * Once established, connections exist between all FIO Addresses owned by either party.
+
+### Search Index actions
+The following is a list of new contract actions and endpoint added to support Search Indexes.
+#### Backup Search Indexes.
+This action stores back-up of FIO Addresses, where associated Search Index should be monitored for incoming FIO Requests and FIO Data. This is an optional action and is intended to allow wallets that rely on seed phrase recovery to be able to fully restore FIO functionality.
+##### New action: *bkupsrchidxs*
+##### New endpoint: /priv_backup_search_indexes
+##### New fee: priv_backup_search_indexes, bundle-eligible (uses 1 bundled transaction) per incremental 1,000 bytes
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_public_address|Yes|FIO Address|FIO Address for which data is being backed-up.|
+|content|Yes|FIO public key|Encrypted blob. See below.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### *content* format
+The content element is a **packed** and encrypted symmetrically with owner's FIO Private Key:
+|Group|Parameter|Required|Format|Definition|
+|---|---|---|---|---|
+|search_indexes||Yes|Array|Array of Search Indexes|
+|search_indexes|search_index|Yes|string|Search Index of counter-party.|
+|search_indexes|fio_address|Yes|String|FIO Address of counter-party.|
+|search_indexes|public_key|Yes|FIO Public Key|FIO Public Key of counter-party.|
+###### Example
+```
+{
+	"fio_public_address": "purse@alice",
+	"content": "...",
+	"max_fee": 0,
+	"tpid": "",
+	"actor": "aftyershcu22"
+}
+```
+##### Processing
+* Request is validated per Exception handling.
+* Fee is collected
+  * The fee is collected based on incremental size. For example if user was already storing 10,000 bytes and the new size is 11,000 bytes, they will be charged for 1,000 bytes.
+* Content is placed on chain. The content replaces the currently stored value.
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payee_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Domain expired."|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Not owner of FIO Address|The signer does not own the FIO Address|403|||Type: invalid_signature|
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if successful|
+|fee_collected|Int|Amount of SUFs collected as fee|
+###### Example
+```
+{
+	"status": "OK",
+	"fee_collected": 2000000000
+}
+```
+
+#### Get Search Index Back-up.
+Returns Search Index Backup.
+##### New endpoint: /priv_get_search_index_backup
+##### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_address|Yes|FIO Address|FIO Address of owner.|
+###### Example
+```
+{
+	"fio_address": "purse@alice"
+}
+```
+##### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|No backup|No backup for supplied FIO Address|404|||"No backup found."|
+##### Response
+|Parameter|Format|Definition|
+|---|---|---|
+|content|String|See Backup Search Indexes|
+###### Example
+```
+{
+    "content": "..."
+}
+```
 
 ### NBPA mappings
 In existing implementation, NBPAs are placed on FIO Chain unencrypted. Once this FIP is implemented, users will have an option to place it encrypted for specific users.
@@ -85,7 +175,7 @@ In order to offer the most flexibility to users and to reduce the amount of cont
 * Chain level secret key – used to encrypt all NBPAs for a particular chain (i.e. Ethereum).
 * NBPA level secret key – only used to encrypt one NBPA.
 
-NBPA level secret key can decrypt just one NBPA. Chain level secret key can decrypt current public addresses for specific chain and all future NBPAs for that chain published by the owner. FIO Address level secret key can decrypt all NBPAs associated with that FIO Address. The FIO Address owner can then decide which of these decrypt keys to make available to which friend by placing them on the FIO Chain encrypted.
+NBPA level secret key can decrypt just one NBPA. Chain level secret key can decrypt current NBPA for specific chain and all future NBPAs for that chain published by the owner. FIO Address level secret key can decrypt all NBPAs associated with that FIO Address. The FIO Address owner can then decide which of these decrypt keys to make available to which user by placing them on the FIO Chain encrypted and tagged with Payer's Search Index.
 
 #### Placing NBPA on chain
 Each NBPA will be encrypted using three unique secret keys. Method of deriving secret keys (where + is string concatenation):
@@ -95,7 +185,7 @@ HMAC('sha256', WalletSecret, 'FIO Address level secret key') == NBPA level secre
 HMAC('sha256', WalletSecret, 'Blockchain level secret key') == Blockchain level secret key
 HMAC('sha256', WalletSecret, ''NBPA secret key' + AddressPublicKey) == NBPA level secret key
 ```
-The NBA will then be placed on the FIO Chain using new action as three distinct encrypted blobs. The data includes:
+The NBPA will then be placed on the FIO Chain using new action as three distinct encrypted blobs. The data includes:
 * Chain code
 * NBPA encrypted with FIO Address level secret key - this secret will be used to encrypt all NBPAs placed by that FIO Address
 * NBPA encrypted with Chain level secret key - this secret will be used to encrypt all NBPAs of a particular chain, e.g. Ethereum.
@@ -105,15 +195,15 @@ The NBA will then be placed on the FIO Chain using new action as three distinct 
 
 #### Placing secret decrypt key on chain
 A secret key is placed on the FIO Chain for specific Payer using new action. The data includes:
-* Search Index
+* Payer's Search Index
 * Chain code (if secret key is chain level)
 * Key ID (if secret key is for specific key)
 * Token code
-* Secret Key encrypted asymmetrically using the friend’s public key to derive shared secret using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
+* Secret Key encrypted asymmetrically using the Payer’s public key to derive shared secret using [Diffie-Hellman Key Exchange scheme](https://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange).
 
 #### Looking up NBPA
 Payer looks for NBPA using:
-* Search Index
+* Their own Search Index
 * FIO Address
 * Chain code
 * Token code
@@ -146,7 +236,7 @@ The blockchain will look for secret key with provided Search Index and chain and
   * GHI - Payer 2 decrypts NBPA with Secret 3
 
 ### NBPA mappings actions
-The following is a list of all new contract actions and endpoint added.
+The following is a list of new contract actions and endpoint added to support encrypted NBPAs.
 #### Add NBPA.
 Adds NBPA to chain.
 ##### New action: *privaddadr*
@@ -155,7 +245,7 @@ Adds NBPA to chain.
 ##### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
-|fio_address|Yes|String|FIO Address for which NBPA is being added.|
+|payee_fio_address|Yes|FIO Address|FIO Address for which NBPA is being added.|
 |public_addresses|Yes|JSON Array. See public_addresses below Min: 1 item Max: 5 items|
 |max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
@@ -171,7 +261,7 @@ Adds NBPA to chain.
 ###### Example
 ```
 {
-	"fio_address": "purse@alice",
+	"payee_fio_address": "purse@alice",
 	"public_addresses": [
 		{
 			"chain_code": "BTC",
@@ -200,16 +290,16 @@ Adds NBPA to chain.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
-|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payee_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Domain expired."|
 |Invalid chain format|Supplied chain code is not a valid format.|400|"chain_code"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Chain Code"|
 |Invalid token format|Supplied token code is not a valid format.|400|"token_code"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Token Code"|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not owner of FIO Address|The signer does not own the FIO Address|403||||
-|FIO Address not found|Supplied FIO Address cannot be found|404||||
+|Not owner of FIO Address|The signer does not own the FIO Address|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -234,6 +324,7 @@ Grants NBPA access to specific user by placing a decrypt secret for them.
 |---|---|---|---|
 |payer_search_index|Yes|String|Search Index of user being granted access.|
 |decrypt_keys|Yes|JSON Array. See decrypt_keys below Min: 1 item Max: 5 items|
+|payee_fio_address|Yes|FIO Address|FIO Address which is associated with NBPA and which will be charged bundled transaction.|
 |max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 |actor|Yes|12 character string|Valid actor of signer|
@@ -259,6 +350,7 @@ Grants NBPA access to specific user by placing a decrypt secret for them.
 			"decrypt_key": "GUzY0kzw61nFChs9EWVear5oHNRLQRci2qbv4kQQNztg8JY6Q3atEnKYrcdfDWr4HzmXx23hDfZfWbw4LjwyFSlZyOqc6z3G"
 		}
 	],
+	"payee_fio_address": "purse@alice",
 	"max_fee": 0,
 	"tpid": "rewards@wallet",
 	"actor": "aftyershcu22"
@@ -271,6 +363,9 @@ Grants NBPA access to specific user by placing a decrypt secret for them.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payee_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Domain expired."|
 |Invalid level format|Supplied level not a valid format.|400|"level"|Value sent in, i.e. "something|"Invalid level."|
 |Invalid chain format|Supplied chain code is not a valid format.|400|"level_index"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Chain Code"|
 |Invalid nbpa id format|Supplied nbpa id is not valid or key does not belong to signer.|400|"level_index"|Value sent in, i.e. "BTC!@#$%^&\*()"|"Invalid Chain Code"|
@@ -278,6 +373,7 @@ Grants NBPA access to specific user by placing a decrypt secret for them.
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Not owner of FIO Address|The signer does not own the FIO Address|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -390,8 +486,9 @@ This is a new construct which returns all send actions, e.g. request rejections 
 The Payee's wallet is responsible for putting together all requests from get_sent_fio_requests with their associated statuses
 
 ### FIO Request and FIO Data actions
-Private New Funds Request.
+The following is a list of new contract actions and endpoint added to support encrypted FIO Request and FIO Data.
 #### New funds request
+Creates nen Funds Request using privacy method.
 ##### New action: *privfundsreq*
 ##### New endpoint: /priv_new_funds_request 
 ##### New fee: priv_new_funds_request, bundle-eligible (uses 2 bundled transaction)
@@ -424,14 +521,14 @@ Private New Funds Request.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address invalid or does not exist."|
-|FIO Address expired|Supplied FIO Address has expired|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
-|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payee_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payee_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payee_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payee_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Domain expired."|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not owner of FIO Address|The signer does not own the FIO Address|403||||
+|Not owner of FIO Address|The signer does not own the FIO Address|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -480,14 +577,14 @@ This action is made to record information about a send transaction. Because cont
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address invalid or does not exist."|
-|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
-|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Domain expired."|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not owner of FIO Address|The signer does not own the FIO Address|403||||
+|Not owner of FIO Address|The signer does not own the FIO Address|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -524,7 +621,7 @@ Requests call polls for any FIO Requests sent to the Payer by a specified Payee.
 ```
 ##### Processing
 * Request is validated per Exception handling
-* Return *limit* FIO Requests starting at *offset* where payee in *lookup_indexes_for_payer*.
+* Return *limit* FIO Requests starting at *offset* where payee in *payer_search_indexes*.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -641,7 +738,7 @@ Requests call polls for any actions taken by Payer in respect to the Payee, i.e.
 		{
 			"payer_fio_address": "crypto@bob",
 			"payer_fio_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
-			"payee_search_indexes": "515184318471884685485465454464846864686484464694181384",
+			"payee_search_index": "515184318471884685485465454464846864686484464694181384",
 			"content": "..."
 		}
 	],
@@ -680,14 +777,14 @@ Allows the FIO Address owner to disallow FIO Request or FIO Data to be sent to t
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Address expired."|
-|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"FIO Domain expired."|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Domain expired."|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not owner of FIO Address|The signer does not own the FIO Address|403||||
-|FIO Address not found|Supplied FIO Address cannot be found|404||||
+|Not owner of FIO Address|The signer does not own the FIO Address|403|||Type: invalid_signature|
 ##### Response
 |Parameter|Format|Definition|
 |---|---|---|
@@ -750,20 +847,23 @@ Should now return privacy for all FIO Addresses
 An attempt to send new_funds_request to FIO Address (payer) with privacy set to 1 should result in:
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|FIO Address private|Public FIO Requests not allowed|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"Public FIO Requests not allowed."|
+|FIO Address private|Public FIO Requests not allowed|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"Public FIO Requests not allowed."|
 
 #### record_obt_data
 An attemp to send record_obt_data to to FIO Address (payer) with privacy set to 1 should result in:
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|FIO Address private|Public OBT records not allowed|400|"payer_fio_address"|Value sent in, i.e. "alice@purse"|"Public OBT records not allowed."|
+|FIO Address private|Public OBT records not allowed|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"Public OBT records not allowed."|
+
+### Wallet integration effort
+The following section describes the steps a wallet would have to take to implement functionality described in this FIP.
 
 ## Rationale
 ### Complexity tradeoffs
 Privacy on a public blockchain is a complex problem. The Dapix team has spent several weeks in 2019 brainstorming solutions with number of experts. Without a doubt, the solution contemplated in this FIP is adding significant complexity to the blockchain and for the integrators, even though it is planned that a lot of the complexity will be eliminated in the SDKs.
 
 Complexity could be reduced if certain privacy requirements are relaxed. Specifically:
-1. Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet, i.e. by typing in a FIO Address.
+1. Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet, i.e. by typing in a FIO Address. [FIP-8](fip-8.md) descibes an approach, which follows this path, albeit slightly modified, and recommends Request for Public Address.
 1. If #1 is accepted, FIO Request status can additionally be made public, which would push request filtering, such as "show only pending requests" to the blockchain API, instead of having it done inside wallet/SDK.
 1. Eliminate the flexibility of allowing users multi-level encryption of NBPAs. Only address-level encryption would be supported, which would basically mean that once someone is your friend, they will get access to all keys you have shared for any FIO Address you grant them access to.
 
@@ -794,6 +894,10 @@ Will be provided in a later stage of the FIP.
 
 ## Backwards compatibility
 Users can simultaneously use new private actions as well as public actions except that if FIO Address owner has set their FIO Address to privacy to 1, FIO Requests and FIO Data to that Address will not be allowed.
+
+get_fio_names and get_fio_addresses are modified, but only in response, where a new field is added.
+
+new_funds_request and record_obt_data are modified, but only new type of error is being added.
 
 ## Future considerations
 None
