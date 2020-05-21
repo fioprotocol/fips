@@ -1,11 +1,11 @@
 ---
 fip: 7
 title: Provide ability to burn FIO Address
-status: Draft
+status: Accepted
 type: Functionality
 author: Casey Gardiner <casey@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-22
-updated: 2020-05-12
+updated: 2020-05-21
 ---
 
 ## Abstract
