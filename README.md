@@ -9,8 +9,8 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-3](fip-3.md)|Provide ability to cancel a request for funds|Accepted|
 |[FIP-4](fip-4.md)|Provide ability to remove pub address from the FIO protocol for a user|Accepted|
 |[FIP-5](fip-5.md)|Enhanced privacy via friending|Draft|
-|[FIP-6](fip-6.md)|Transfer locked tokens|Draft|
-|[FIP-7](fip-7.md)|Provide ability to burn FIO Address|Draft|
+|[FIP-6](fip-6.md)|Transfer locked tokens|Accepted|
+|[FIP-7](fip-7.md)|Provide ability to burn FIO Address|Accepted|
 |[FIP-8](fip-8.md)|Public Address Request|Draft|
 
 ## Contributing
