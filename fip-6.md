@@ -1,11 +1,11 @@
 ---
 fip: 6
 title: Transfer locked tokens
-status: Draft
+status: Accepted
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-16
-updated: 2020-05-07
+updated: 2020-05-20
 ---
 ## Abstract
 This FIP implements he ability to transfer tokens to a new account and lock those tokens on a pre-defined schedule.
