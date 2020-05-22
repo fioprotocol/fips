@@ -69,11 +69,11 @@ To solve this challenge, this FIP introduces the concept of a **Search Index**. 
 #### How is Search Index used
 A user derives a Search Index using counter-party's FIO Public Key, when they are placing data on chain. A user derives a Search Index using their own FIO Public Key, when they are looking for data placed on chain by their counter-party.
 
-|Scenario|How used by Payer|How used by Payee|
+|Scenario|How used by Payee|How used by Payer|
 |---|---|---|
 |Payee makes NBPA available to Payer|Payee places NBPA encrypted on chain with Payer's Search Index.|Payer looks for their Search Index when looking for NBPA.|
 |Payee sends FIO Request to Payer|Payee places FIO Request on chain with Payer's Search Index.|Payer looks for their Search Index when looking for FIO Requests.|
-|Payer responds to FIO Request|Payer places Send Action on chain with Payee's Search Index.|Payee looks for their Search Index when looking for Send Actions.|
+|Payer responds to FIO Request|Payee looks for their Search Index when looking for Send Actions.|Payer places Send Action on chain with Payee's Search Index.|
 
 It is important to note that the Search Index is derived from Public Keys and not FIO Addresses, yet for usability reasons user will use FIO Addresses to identify each other. This has the following consequences:
 * Once user transfers their FIO Address to another public key (even if they control it), they will lose their established connections. That is already a moot point, since they will not be able to decrypt the data anyway.
