@@ -495,7 +495,7 @@ The Payee's wallet is responsible for putting together all requests from get_sen
 ### FIO Request and FIO Data actions
 The following is a list of new contract actions and endpoint added to support encrypted FIO Request and FIO Data.
 #### New funds request
-Creates nen Funds Request using privacy method.
+Creates new Funds Request using privacy method.
 ##### New action: *privfundsreq*
 ##### New endpoint: /priv_new_funds_request 
 ##### New fee: priv_new_funds_request, bundle-eligible (uses 2 bundled transaction)
