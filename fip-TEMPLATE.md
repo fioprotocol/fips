@@ -34,20 +34,21 @@ Detailed definition of what is being changed, e.g. actions, API end-points, proc
 Recommended format for specification:
 
 ### Define Core Concept Here
-Descriptions, diagrams, etc.
+Overview, descriptions, diagrams, etc.
 
-#### Major Concept Example
-More description about Major Concept
+#### Major Concept Actions
+Define propossed new actions and endpoint.
 ##### New action: *newaction*
 ##### New endpoint: /new_endpoint
 ##### New fee: new_endpoint, bundle-eligible (uses 1 bundled transaction)
+##### RAM increase: define if this actrrion needs to increase users RAM and if so by how much. See [Resource Management](https://developers.fioprotocol.io/fio-protocol/resource-management) for more details.
 ##### Request
 Describe what parameters are passed in. Example:
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |some_param|Yes|String|Human readable description here|
 |another_param|Yes|FIO public key|More descriptions|
-|complex_parameter|Encrypted blob|See complex_parameter below|
+|complex_parameter|Yes|Encrypted blob|See complex_parameter below|
 ###### *complex_parameter* format
 Use this convention for describing parameters which can have multiple nested parameters, e.g. a JSON array, or encrypted blob.
 |Parameter|Required|Format|Definition|
@@ -89,6 +90,8 @@ Describe what parameters are returned. Example:
 	"fee_collected": 2000000000
 }
 ```
+#### Changes to existing actions
+If there are any changes to existing actions or endpoints define them here.
 
 ## Rationale
 The rationale fleshes out the specification by describing what motivated the design and why particular design decisions were made.
