@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-09
-updated: 2020-05-20
+updated: 2020-05-22
 ---
 
 ## Terminology
@@ -27,6 +27,8 @@ Proposed new actions:
 
 |Action|Endpoint|Description|
 |---|---|---|
+|bkupsrchidxs|priv_backup_search_indexes|Stores back-up of FIO Addresses and Search Indexes|
+||priv_get_search_index_backup|Returns Search Index Backup.|
 |privaddadr|priv_add_pub_address|Add encrypted NBPA to FIO Chain.|
 |privganbpa|priv_grant_pub_address_access|Grants user access to see NBPA.|
 ||priv_get_pub_address|Allows user to retrieve NBPA they are authorized to see.|
@@ -80,7 +82,10 @@ It is important to note that the Search Index is derived from Public Keys and no
 ### Search Index actions
 The following is a list of new contract actions and endpoint added to support Search Indexes.
 #### Backup Search Indexes.
-This action stores back-up of FIO Addresses, where associated Search Index should be monitored for incoming FIO Requests and FIO Data. This is an optional action and is intended to allow wallets that rely on seed phrase recovery to be able to fully restore FIO functionality.
+Stores back-up of FIO Addresses and Search Indexes, where:
+* Associated Search Index should be monitored for incoming FIO Requests and FIO Data.
+* Search index has been granted access to NBPAs
+This is an optional action and is intended to allow wallets that rely on seed phrase recovery to be able to fully restore FIO functionality.
 ##### New action: *bkupsrchidxs*
 ##### New endpoint: /priv_backup_search_indexes
 ##### New fee: priv_backup_search_indexes, bundle-eligible (uses 1 bundled transaction) per incremental 1,000 bytes
@@ -100,6 +105,8 @@ The content element is a **packed** and encrypted symmetrically with owner's FIO
 |search_indexes|search_index|Yes|string|Search Index of counter-party.|
 |search_indexes|fio_address|Yes|String|FIO Address of counter-party.|
 |search_indexes|public_key|Yes|FIO Public Key|FIO Public Key of counter-party.|
+|search_indexes|sharing_nbpa|Yes|Int|0 - Not sharing NBPA; 1 - Sharing NBPA|
+|search_indexes|monitoring|Yes|Int|0 - Not monitoring FIO Address; Monitoring FIO Address|
 ###### Example
 ```
 {
@@ -855,9 +862,6 @@ An attemp to send record_obt_data to to FIO Address (payer) with privacy set to 
 |---|---|---|---|---|---|
 |FIO Address private|Public OBT records not allowed|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"Public OBT records not allowed."|
 
-### Wallet integration effort
-The following section describes the steps a wallet would have to take to implement functionality described in this FIP.
-
 ## Rationale
 ### Friend List
 The core of this FIP was originally the concept of Friend List. Users would add each other to their Friend List, which was stored on chain. This concept was later abandoned for the following reasons:
@@ -899,7 +903,64 @@ Assuming we want to offer the flexibility to users to decide which user can see 
 We've considered using a SLIP-44 derivation path for those keys, but it does not seem like a good approach, because there would still need to be some index that matched the keys to records on the FIO blockchain.
 
 ## Implementation
+### Blockchain core
 Will be provided in a later stage of the FIP.
+* Add RAM increases.
+
+### Expected wallet integration
+The following section describes the steps a wallet would have to take to implement functionality described in this FIP.
+#### Sharing NBPAs privately with Payers
+##### UX Changes
+A collection of screens allowing user to share the NBPAs with Payers by typing in their FIO Address will need to be added. Options for implementation could include:
+1. Adding an *Address Book* of users with whom connection is established.
+   1. Access *Address Book*.
+   1. Add/remove FIO Addresses to/from *Address Book*.
+   1. Connecting user to wallets, which privately shares NBPA with them.
+1. Adding a *Connect Wallets Privately* flow parallel to the existing *[Connect Wallets Publicly](https://developers.fioprotocol.io/wallet-integration-guide/sample-wallet-ux#connect-7)* flow.
+   1. Access *Connect Wallets Privately*
+   1. Type FIO Address of Payer
+   1. Connecting FIO Addresses to wallets, which privately shares NBPA with them.
+##### SDK/Wallet's core code
+* New actions and endpoints
+  * priv_add_pub_address
+  * priv_grant_pub_address_access
+  * priv_get_pub_address
+* Local storage of Payer information (FIO Address, FIO Public Key, Search Index). Wallet would be expected to store these values locally and optionally back-up using priv_backup_search_indexes to enable easy restore from seed phrases.
+#### Submitting new private FIO Request
+##### UX Changes
+The wallet will need to enable the user to request funds using the new private FIO Request. Presumably a single user may want to interact with users using the private method as well as the pubic method. Therefore ability to support both types of FIO Requests will need to be supported.
+1. No impact on UX. If the wallet implemented the *Address Book*, the choice could be made automatic based existence of Payer FIO Address in the *Address Book*
+1. The FIO Request may have a Public/Private toggle.
+##### SDK/Wallet's core code
+* New actions and endpoints
+  * priv_new_funds_request
+##### Responding to FIO Requests and recording FIO Data
+##### UX Changes
+No impact on UX. If the wallet implemented the *Address Book* or *Connect Wallets Privately*, the choice for how to record data would be made transparently based on entries there.
+##### SDK/Wallet's core code
+* Add support for priv_record_send_action
+##### Accessing FIO Data
+##### UX Changes
+No impact on UX. If the wallet implemented the *Address Book* or *Connect Wallets Privately*, the choice would be made transparently based on entries there.
+##### SDK/Wallet's core code
+* Retrieving sent FIO Requests
+  * Add support for priv_get_sent_fio_requests
+  * The user may potentially also use public FIO Requests, so data from priv_get_sent_fio_requests and get_sent_fio_requests will have to be combined.
+* Retrieving received FIO Requests
+  * Add support for priv_get_received_fio_requests
+    * The *Address Book* or *Connect Wallets Privately* list will have to be iterated for monitored Search Indexes and those will need to be sent to retrieve list of received FIO Requests.
+  * Since status is obfuscated, the wallet will need to obtain all inbound FIO Requests and store them locally. They may query for only new requests when user opens the wallet.
+  * The user may potentially also use public FIO Requests, so data from priv_get_received_fio_requests and get_pending_fio_requests will have to be combined.
+* Retrieving Send Actions
+  * Add support for priv_get_received_actions
+    * The *Address Book* or *Connect Wallets Privately* list will have to be iterated for monitored Search Indexes and those will need to be sent to retrieve list of received actions.
+  * Since details are obfuscated, the wallet will need to obtain all Send Actions and store them locally. They may query for only new requests when user opens the wallet.
+* Combining FIO Data locally. Since the details of FIO Request and Send Actions are encrypted, the wallet will need to iterate both lists, decrypt the content and associate FIO Requests to Send Actions in order to know the status and to obtain OBT Data.
+##### Settting Address Privacy Option
+##### UX Changes
+The wallet should allow the user to set a flag on the FIO Address to disallow public FIO Requests if the user wants to protect their privacy from inbound requests.
+##### SDK/Wallet's core code
+* Add support for set_fio_address_privacy and privacy_check
 
 ## Backwards compatibility
 Users can simultaneously use new private actions as well as public actions except that if FIO Address owner has set their FIO Address to privacy to 1, FIO Requests and FIO Data to that Address will not be allowed.
