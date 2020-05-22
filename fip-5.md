@@ -872,6 +872,15 @@ The core of this FIP was originally the concept of Friend List. Users would add 
 
 Friend List had the added benefit of allowing users to easily restore their Friend List and associated Search Indexes from seed phrases. In lieu of that, ability to backup Search Indexes has been added.
 
+#### Second thought
+After removing the Friend List and adding the back-up option instead, the author came to a realization that it may be beneficial for the following use case:
+* Alice initiates a new public FIO Request to Bob.
+* Bob receives the FIO Request and wants to switch to private interactions, so he adds Alice to his Address Book.
+* He also approves the FIO Request, but his wallet does not know if it needs to record data in a public or private way. It does not know if Alice added him to her Address Book and is monitoring Bob's private requests.
+* A week later Alice is sending another FIO Request to Bob. Alice's wallet does not know if Bob has added Alice to his Address Book and therefore it should send a private request, or if it should send a public request.
+
+The Friending functionality allows for the other party to check if they have been added to the Private List and therefore is it safe to interact in a private way. Perhaps a better approach is to retain the Friend List functionality and rename it to Address Book.
+
 ### Complexity tradeoffs
 Privacy on a public blockchain is a complex problem. The Dapix team has spent several weeks in 2019 brainstorming solutions with number of experts. Without a doubt, the solution contemplated in this FIP is adding significant complexity to the blockchain and for the integrators, even though it is planned that a lot of the complexity will be eliminated in the SDKs.
 
@@ -907,7 +916,7 @@ We've considered using a SLIP-44 derivation path for those keys, but it does not
 Will be provided in a later stage of the FIP.
 * Add RAM increases.
 
-### Expected wallet integration
+### Expected wallet implementation
 The following section describes the steps a wallet would have to take to implement functionality described in this FIP.
 #### Sharing NBPAs privately with Payers
 ##### UX Changes
@@ -937,6 +946,8 @@ The wallet will need to enable the user to request funds using the new private F
 ##### Responding to FIO Requests and recording FIO Data
 ##### UX Changes
 No impact on UX. If the wallet implemented the *Address Book* or *Connect Wallets Privately*, the choice for how to record data would be made transparently based on entries there.
+
+It may make sense to add ability to *Add User to Address Book* in this step. This will simplify the process of populating the Address Book and would ensure that future data exchange can be made private.
 ##### SDK/Wallet's core code
 * Add support for priv_record_send_action
 ##### Accessing FIO Data
