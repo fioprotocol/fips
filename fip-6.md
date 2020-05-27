@@ -250,7 +250,7 @@ An approach was considered to lock tokens in smart contract instead of in accoun
 
 ## Implementation
 **May need to be revised.**
-* Make a new system contract called fio.lock.
+* Add new locking structures to the fio.system contract.
 * Make a new table locktokens
 	* int64 lockid   <primary index>     //this is the identifier of the lock
 	* name owner_account;   <secondary index>  //this is the account that owns the lock
@@ -263,10 +263,10 @@ An approach was considered to lock tokens in smart contract instead of in accoun
 	* struct lockperiods     //this is the definition of locking periods.
 	* int64_t duration;   //this is the duration of the lock period, relative to the timestamp on the lock.
 	* double percent;   //this is the percent to unlock when the time period has passed.    
-* Create new contract and new account, integrate accounting into the system
-* Create contract, add tables and indexes to contract, and add to code base, add to dev launch, generate pub key for this account, add to system accounts in the FIO system account checks throughout the system, integrate accounting logic and check for can transfer into token contract, and voting. Affected files (fio.token.hpp, fio.token.cpp, voting.cpp) (2 days).
+* Add tables and indexes to fio.system contract. (1 day)
+* Integrate accounting logic and check for can transfer into token contract, and voting. Affected files (fio.token.hpp, fio.token.cpp, voting.cpp) (2 days).
 * Add new API end point for lock_tokens - modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code.
-* Add new action (locktokens) to fio.lock.cpp and fio.lock.abi. dev test api endpoint and push action and resolve all issues (1 days)
+* Add new action (locktokens) to fio.system.cpp. dev test api endpoint and push action and resolve all issues (1 days)
 * Add new API end point for get_locks - modify chain_plugin cpp and hpp to add new params and code. dev test api endpoint and resolve all issues (1 days)
 * Modify get_fio_balance to return balance and locked:numberlockedtokens. (4 hours)
 * Modify History plugin for lock_tokens, to ensure tx gets into block explorer (1 days)
