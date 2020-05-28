@@ -50,7 +50,7 @@ Transfer and locks tokens per provided schedule.
 ##### New fee: transfer_locked_tokens, 2000000000 per 90 days of longest duration.
 ###### Example
 ```
-"unlock_periods": [
+"periods": [
 	{
 		"duration": 86400,
 		"percent": 1.2
@@ -72,7 +72,7 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000
 |---|---|---|---|
 |payee_public_key|Yes|Valid FIO Public Key|FIO public key of account where locked tokens will be sent.|
 |can_vote|Yes|0 is not can_vote, 1 is can_vote.|This indicates if the locked amount can vote while locked.|
-|unlock_periods|Yes|JSON Array of unlock periods. See unlock_periods below. See *Lock period verification* in *Processing* for requirements.|Schedule by which tokens become unlocked.|
+|periods|Yes|JSON Array of unlock periods. See periods below. See *Lock period verification* in *Processing* for requirements.|Schedule by which tokens become unlocked.|
 |amount|Yes|Int|The amount of tokens to transfer and lock in SUFs|
 |max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
@@ -87,7 +87,7 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000
 {
 	"payee_public_key": "FIO8PRe4WRZJj5mkem6qVGKyvNFgPsNnjNN6kPhh6EaCpzCVin5Jj",
 	"can_vote": 0,
-	"unlock_periods": [
+	"periods": [
 		{
 			"duration": 86400,
 			"percent": 50.0
