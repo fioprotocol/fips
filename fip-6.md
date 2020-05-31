@@ -132,7 +132,7 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid payee public key|Specified public key is not valid FIO format.|400|"payee_public_key"|Value sent in, e.g. "notakey"|"Invalid Public Key."|
+|Invalid payee public key|Specified public key is not valid FIO format.|400|"payee_public_key"|Value sent in, e.g. "notakey"|"Invalid FIO Public Key."|
 |Account already exist|Account hashed down from Public Key alreday exists.|400|"payee_public_key"|Value sent in|"Locked tokens can only be transferred to new account."|
 |Invalid can_vote|Value sent in is not 0 or 1|400|"can_vote"|Value sent in, e.g. "-100"|"Invalid can_vote value."|
 |Invalid unlock periods|See *Lock period verification* in *Processing*|400|"unlock_periods"|"Invalid unlock_periods."|
