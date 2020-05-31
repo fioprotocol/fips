@@ -115,6 +115,7 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000
 		* Minimum of 1 period. Maximum: 365 **(pending performance validation)**.
 		* Sum of percentage in all periods is 100%.
 		* Duration in each period is greater than 0.
+		* 3 digits of resolution on all percentages, specifying more digits will be an error.
 	* Verify the locking account has necessary balance.
 	* Verify that the fee for this does not exceed the max fee specified.
 	* Verify transaction does not exceed max transaction size.
