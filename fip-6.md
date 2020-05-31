@@ -113,9 +113,13 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000
 	* Ensure payee public key does not hash down to existing account.
 	* Lock period verification:
 		* Minimum of 1 period. Maximum: 365 **(pending performance validation)**.
+                       "Invalid number of unlock periods"
+		* verify 3 digit precision of percentage for each period.
+           		"Invalid precision for percentage in unlock periods"
 		* Sum of percentage in all periods is 100%.
+			"Invalid total percentage for unlock periods"
 		* Duration in each period is greater than 0.
-		* 3 digits of resolution on all percentages, specifying more digits will be an error.
+			"Invalid percentage value in unlock periods"
 	* Verify the locking account has necessary balance.
 	* Verify that the fee for this does not exceed the max fee specified.
 	* Verify transaction does not exceed max transaction size.
