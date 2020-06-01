@@ -113,8 +113,13 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000
 	* Ensure payee public key does not hash down to existing account.
 	* Lock period verification:
 		* Minimum of 1 period. Maximum: 365 **(pending performance validation)**.
+                       "Invalid number of unlock periods"
+		* verify 3 digit precision of percentage for each period.
+           		"Invalid precision for percentage in unlock periods"
 		* Sum of percentage in all periods is 100%.
+			"Invalid total percentage for unlock periods"
 		* Duration in each period is greater than 0.
+			"Invalid percentage value in unlock periods"
 	* Verify the locking account has necessary balance.
 	* Verify that the fee for this does not exceed the max fee specified.
 	* Verify transaction does not exceed max transaction size.
@@ -127,7 +132,7 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Invalid payee public key|Specified public key is not valid FIO format.|400|"payee_public_key"|Value sent in, e.g. "notakey"|"Invalid Public Key."|
+|Invalid payee public key|Specified public key is not valid FIO format.|400|"payee_public_key"|Value sent in, e.g. "notakey"|"Invalid FIO Public Key."|
 |Account already exist|Account hashed down from Public Key alreday exists.|400|"payee_public_key"|Value sent in|"Locked tokens can only be transferred to new account."|
 |Invalid can_vote|Value sent in is not 0 or 1|400|"can_vote"|Value sent in, e.g. "-100"|"Invalid can_vote value."|
 |Invalid unlock periods|See *Lock period verification* in *Processing*|400|"unlock_periods"|"Invalid unlock_periods."|
