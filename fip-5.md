@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-04-09
-updated: 2020-05-22
+updated: 2020-06-02
 ---
 
 ## Terminology
@@ -881,13 +881,23 @@ After removing the Friend List and adding the back-up option instead, the author
 
 The Friending functionality allows for the other party to check if they have been added to the Private List and therefore is it safe to interact in a private way. Perhaps a better approach is to retain the Friend List functionality and rename it to Address Book.
 
+**CURRENT CONSENSUS: Evaluating**
+The question remains open whether there is a benefit in the one party knowing if the other party is listening for messages from them:
+1. An argument has been made that since an off-chain interaction had to happen to begin with, there is no benefit and sending party should assume receiver is listening.
+1. An argument can be made that it will improve usability of the sending party if a flag can be set by the listening party, even though there are no guarantees that they in fact will be listening.
+
 ### Complexity tradeoffs
 Privacy on a public blockchain is a complex problem. The Dapix team has spent several weeks in 2019 brainstorming solutions with number of experts. Without a doubt, the solution contemplated in this FIP is adding significant complexity to the blockchain and for the integrators, even though it is planned that a lot of the complexity will be eliminated in the SDKs.
 
 Complexity could be reduced if certain privacy requirements are relaxed. Specifically:
-1. Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet, i.e. by typing in a FIO Address. [FIP-8](fip-8.md) describes an approach, which follows this path, albeit slightly modified, and recommends Request for Public Address.
-1. If #1 is accepted, FIO Request status can additionally be made public, which would push request filtering, such as "show only pending requests" to the blockchain API, instead of having it done inside wallet/SDK.
-1. Eliminate the flexibility of allowing users multi-level encryption of NBPAs. Only address-level encryption would be supported, which would basically mean that once someone is your friend, they will get access to all keys you have shared for any FIO Address you grant them access to.
+1. **CURRENT CONSENSUS: Cannot accept** Accept the fact that it will always be public that two FIO Addresses are interacting with each other and that it is sufficient to simply encrypt the content of the interaction. This would: 1) Eliminate the need for fio_public_key_hash, as one could simply use the FIO Address; 2) Allow retention of existing FIO Request workflow; 3) Allow Request for friending to be put on chain. In current form, user has to initiate adding someone to Friend List from within their wallet, i.e. by typing in a FIO Address. [FIP-8](fip-8.md) describes an approach, which follows this path, albeit slightly modified, and recommends Request for Public Address.
+1. **CURRENT CONSENSUS: Cannot accept** If #1 is accepted, FIO Request status can additionally be made public, which would push request filtering, such as "show only pending requests" to the blockchain API, instead of having it done inside wallet/SDK.
+1. **CURRENT CONSENSUS: Evaluating** Eliminate the flexibility of allowing users multi-level encryption of NBPAs. This would mean that only one level is picked, which would have to be the most private, meaning priv_add_pub_address and priv_grant_pub_address_access would be combined into a single action and each NBPAs is shared with each user separately. This must be evaluated in conjunction with fees. Vastly increasing the storage requirements are going to cost more fees and may render the functionality too expensive to be broadly adopted.
+
+### Why do we encrypt a NBPA with three secret keys?
+Assuming we want to offer the flexibility to users to decide which user can see which NBPA, this was meant to be an alternative to encrypting NBPA for each user separately. For example, if a user has placed 20 NBPAs on the FIO Chain for Payer 1 and they now wanted to give the same access to Payer 2, they would need to place 20 new entries on the FIO Chain. With secret keys, they will place the 20 NBPAs once and then just give one secret key to Payer 1 and 1 secret key to Payer 2, reducing the amount of data that needs to be stored on chain.
+
+We've considered using a SLIP-44 derivation path for those keys, but it does not seem like a good approach, because there would still need to be some index that matched the keys to records on the FIO blockchain.
 
 ### Other approaches considered
 * FIO Private Messaging - akin to [Onion Routing](https://en.wikipedia.org/wiki/Onion_routing) a new message protocol would be created and BPs would act as message relays. This would be a way to exchange a Request for Friend without any blockchain record. Why discounted:
@@ -905,11 +915,6 @@ Complexity could be reduced if certain privacy requirements are relaxed. Specifi
   * May require wallet implementation
 * Randomize FIO Addresses - in this approach, a record is placed by the known party on the blockchain (request placed by payee, reject by payer, record send by payer), but the counter party is disclosed together with X number of other randomly selected FIO Addresses. Why discounted:
   * Depending on the activity of the other members in the random group, the recipient may still have to inspect a large number of requests. For example, what is Alice is paired in a group with Amazon, which has million requests.
-
-### Why do we encrypt a NBPA with three secret keys?
-Assuming we want to offer the flexibility to users to decide which user can see which NBPA, this was meant to be an alternative to encrypting NBPA for each user separately. For example, if a user has placed 20 NBPAs on the FIO Chain for Payer 1 and they now wanted to give the same access to Payer 2, they would need to place 20 new entries on the FIO Chain. With secret keys, they will place the 20 NBPAs once and then just give one secret key to Payer 1 and 1 secret key to Payer 2, reducing the amount of data that needs to be stored on chain.
-
-We've considered using a SLIP-44 derivation path for those keys, but it does not seem like a good approach, because there would still need to be some index that matched the keys to records on the FIO blockchain.
 
 ## Implementation
 ### Blockchain core
