@@ -1,5 +1,5 @@
 ---
-fip: X
+fip: 9
 title: Allow voting and proxying without a FIO Address
 status: Draft
 type: Functionality
@@ -18,7 +18,7 @@ Modified actions:
 |voteproxy|proxy_vote|FIO Address field can now be left blank.|
 
 ## Motivation
-In order to make voting/proxying "free" to users to encourage them to vote/proxy, the voteproducer and voteproxy actions require FIO Address, as FIO Address is needed to allow payment with bundled trasnactions instead of tokens. However, it introduced the **requirement** that the token holder have a FIO Address in order to vote/proxy. As recommended in [Issue 47](https://github.com/fioprotocol/fio/issues/47) it makes sense to also allow voting/proxying even when token holder does not have a FIO Address.
+In order to make voting/proxying "free" to users to encourage them to vote/proxy, the voteproducer and voteproxy actions require FIO Address, as FIO Address is needed to allow payment with bundled transactions instead of tokens. However, it introduced the **requirement** that the token holder have a FIO Address in order to vote/proxy. As recommended in [Issue 47](https://github.com/fioprotocol/fio/issues/47) it makes sense to also allow voting/proxying even when token holder does not have a FIO Address.
 
 ## Specification
 #### Changes to existing actions
