@@ -65,7 +65,7 @@ Transfer and locks tokens per provided schedule.
 	}
 ]
 ```
-The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000
+The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000, the fee type will be mandatory.
 ##### RAM increase: 1,024 + (64 * number of lock periods) bytes
 ##### Request
 |Parameter|Required|Format|Definition|
