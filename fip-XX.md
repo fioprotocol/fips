@@ -1,5 +1,5 @@
 ---
-fip: XX
+fip: 10
 title: Redesign Fee Computations
 status: Draft
 type: Functionality
@@ -71,7 +71,7 @@ Empty
 ```
 
 ### Modifications to existing actions
-#### [/setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model)
+#### [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model)
 Modified to use new table, be callable by any BP, and charge a fee.
 ##### New fee: add submit_fee_ratios fee: 2000000000, not eligible for bundled transactions
 ##### Request
@@ -220,7 +220,7 @@ Modify the existing action to:
 	"fee_collected": 2000000000
 }
 ```
-#### [/setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model)
+#### [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model)
 Modified to use new table, be callable by any BP, and charge a fee.
 ##### New fee: add submit_fee_multiplier fee: 400000000, not eligible for bundled transactions
 ##### Request
@@ -278,7 +278,7 @@ Anything relating to fees needs to use the new fees table after the setcode bloc
 ### Processing limits 
 The number of fees processed per call must be adaptable as the number of producers registered increases and as the number of fees increases. Present testing shows that the protocol can comfortably handle 32 fees voted on by 21 producers, so we round this down to become an initial estimated processing limit of 600 Producer Fees Voted (PFV) where producer fees voted equals number of fees times number of voters.
 
-We will limit the amount of work performed by each call to update fees so that it does not perform more work than 600 PFV. We will compute a number of work iterations to be (nw) using number of producers (nP) and number of fees (nF) such that nW = (nP * nF) / PFV and this will become the number of work iterations necessary. To determine the number of fees to process (NFP), we will divide the number of fees by this number (nW) and this will become the number of fees to process during each call to the update fees. A semaphore will be used to track the processing of fees. This semaphore (which is a flag) will be introduced into the fees table, this flag will be called "votesPending". When a fee is voted on, this flag will be set to 1 for the associated fee in the fee table (votes are pending). When fees are computed and set in the protocol this flag will be set to 0 (no votes are pending). This flag will be used as a secondary index in the fees table and will be used to search for next set of fees (set size equals NFP) to be processed. After determining the fees to process the system will process these and update them into the fees table with votesPending set 0. 
+We will limit the amount of work performed by each call to compute fees so that it does not perform more work than 600 PFV. We will compute a number of work iterations to be (nw) using number of producers (nP) and number of fees (nF) such that nW = (nP * nF) / PFV and this will become the number of work iterations necessary. To determine the number of fees to process (NFP), we will divide the number of fees by this number (nW) and this will become the number of fees to process during each call to the compute fees. A semaphore will be used to track the processing of fees. This semaphore (which is a flag) will be introduced into the fees table, this flag will be called "votesPending". When a fee is voted on, this flag will be set to 1 for the associated fee in the fee table (votes are pending). When fees are computed and set in the protocol this flag will be set to 0 (no votes are pending). This flag will be used as a secondary index in the fees table and will be used to search for next set of fees (set size equals NFP) to be processed. After determining the fees to process the system will process these and update them into the fees table with votesPending set 0. 
 
 ## Backwards Compatibility
 ### Table migrations
