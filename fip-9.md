@@ -1,11 +1,11 @@
 ---
 fip: 9
 title: Allow voting and proxying without a FIO Address
-status: Draft
+status: Accepted
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-06-03
-updated: 2020-06-03
+updated: 2020-06-08
 ---
 
 ## Abstract
