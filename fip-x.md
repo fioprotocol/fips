@@ -1,0 +1,93 @@
+---
+fip: X
+title: Ehnhance bundled transaction usability
+status: Draft
+type: FIP type
+author: Pawel Mastalerz <pawel@dapix.io>
+created: 2020-06-10
+updated: 2020-06-10
+---
+
+# Abstract
+
+# Motivation
+[Bundled transactions](https://kb.fioprotocol.io/fio-protocol/fio-addresses/bundling-and-fees) make it easier for everyday users to interact with the FIO Protocol. Users pay a single annual fee for the FIO Address and get with it enough bundled transactions to cover an average amount of annual interaction with the FIO Chain.
+
+There are a couple of improvements which can further enhanced the usability:
+* FIO token transfer does not currently support the use of bundled transactions. This was primarily, because bundled transactions require a FIO Address and the base FIO token transfer action, [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model), transfers tokens using public key. Of course, it could be enhanced to allow for optional FIO Address of sender, but in order to maintain backwards compatibility, a new call is a better option. In addition, it was always envisioned that ability to transfer FIO tokens using FIO Address and combining record_obt_data into the same call was a beneficial feature. Currently if a user wants to send FIO tokens to another user and attach a memo, they have to execute 2 transactions: [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) and [recordobt](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model).
+* Users who process more transaction than the annual amount of bundled transactions can either pay a per transaction fee for all additional transactions or renew their FIO Address early, which adds new bundle of transactions. However, heavy users will have to run multiple renewals in sequence. A better approach would be to allow ability to purchase multiple sets of bundled transactions in a single blockchain transaction.
+
+# Specification
+## New actions
+### Transfer FIO tokens using FIO Address
+Transfers FIO tokens and records OBT Data.
+#### New action: trnsfiopubad
+#### New end point: /transfer_tokens_fio_add
+#### RAM increase: 2,560 bytes
+#### New fee: transfer_tokens_fio_add: 3000000000, bundle-eligible (uses 5 bundled transaction)
+#### Request
+Describe what parameters are passed in. Example:
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|payee_fio_address|Yes|FIO Address|FIO Address of the payee.|
+|payer_fio_address|Yes|FIO Address|FIO Address of the payer.|
+|amount|Yes|Amount sent in SUFs|Amount of transfer.|
+|content|Yes|FIO public key|Encrypted blob. Same as content element of [/record_obt_data](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model)|
+|fio_request_id|Yes|String or empty if no FIO Request ID|ID of FIO Request, if this transfer is in response to a previously received FIO Request.|
+|max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
+|tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
+|actor|Yes|12 character string|Valid actor of signer|
+###### Example
+```
+{
+	"payer_fio_address": "purse@alice",
+	"payee_fio_address": "crypto@bob",
+	"amount": 1000000000,
+	"content": "JhTnxX9ntI9n1eucNuJzHS1/JXeLj+GYmPD1uXG/5PBixQeHg40d4p4yHCm6fxfn7eKzcYFlV2AFrQ7j/kRQJUk5OcvJzZtCYuvIx6snciwhOvYtBlN7MWKavxWV3XGAJHBrQxxcHQGW0rtCZM4KzVYYqXWMzihN6mRGDqxGALc=",
+	"fio_request_id": "10",
+	"max_fee": 0,
+	"tpid": "rewards@wallet",
+	"actor": "aftyershcu22"
+}
+```
+#### Processing
+* Request is validated per Exception handling
+* Fee is collected or bundled transaction deducted
+* Funds are transferred to the account associated with the FIO Public Key mapped to the provided Payee FIO Address for chain: FIO, token: FIO. Please note that it is not transferred to the account which owns the Payee FIO Address, altthough it will often be the same.
+* Record OBT transaction is created
+#### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Invalid Payee FIO Address|Format of FIO Address not valid, FIO Address does not exist or is not mapped to a valid FIO Public Key.|400|"payee_fio_address"|Value sent in, i.e. "purse@alice"|"Payee FIO Address invalid, does not exist or is not mapped to a valid FIO Public Key."|
+|Invalid Payer FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"Payer FIO Address invalid or does not exist."|
+|FIO Address expired|Supplied FIO Address has expired|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Address expired."|
+|FIO Domain expired|Domain of supplied FIO Address has expired more than 30 days ago|400|"payer_fio_address"|Value sent in, i.e. "purse@alice"|"FIO Domain expired."|
+|Content exceeds limits|content field is less than min or more than max|400|"content"|Value sent in, e.g. "XXX"|"Requires min 64 max 432 size"|
+|Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
+|Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
+|Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
+|Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
+|Not owner of FIO Address|The signer does not own the FIO Address|403|||Type: invalid_signature|
+#### Response
+Describe what parameters are returned. Example:
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if successful|
+|fee_collected|Int|Amount of SUFs collected as fee|
+##### Example
+```
+{
+	"status": "OK",
+	"fee_collected": 2000000000
+}
+```
+
+# Rationale
+## Why is trnsfiopubad so expensive?
+This call combines 2 most expensive calls on the FIO Chain: [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) and [recordobt](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model). It was initially thought that [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) will not be creating a new account as the Payee already has a FIO Address, but the Payee's FIO Address mapping could contain a brand new FIO Public Key which is not yet associated with a new account, as there is no validation in [addaddress](https://developers.fioprotocol.io/api/api-spec/reference/add-pub-address/add-pub-address-model).
+
+# Implementation
+
+# Backwards Compatibility
+
+# Future considerations
