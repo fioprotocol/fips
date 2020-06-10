@@ -2,7 +2,7 @@
 fip: X
 title: Ehnhance bundled transaction usability
 status: Draft
-type: FIP type
+type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
 created: 2020-06-10
 updated: 2020-06-10
@@ -37,7 +37,7 @@ Describe what parameters are passed in. Example:
 |max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by /get_fee for correct value.|
 |tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 |actor|Yes|12 character string|Valid actor of signer|
-###### Example
+##### Example
 ```
 {
 	"payer_fio_address": "purse@alice",
@@ -54,7 +54,7 @@ Describe what parameters are passed in. Example:
 * Request is validated per Exception handling
 * Fee is collected or bundled transaction deducted
 * Funds are transferred to the account associated with the FIO Public Key mapped to the provided Payee FIO Address for chain: FIO, token: FIO. Please note that it is not transferred to the account which owns the Payee FIO Address, altthough it will often be the same.
-* Record OBT transaction is created
+* Record OBT transaction is created.
 #### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -85,6 +85,11 @@ Describe what parameters are returned. Example:
 # Rationale
 ## Why is trnsfiopubad so expensive?
 This call combines 2 most expensive calls on the FIO Chain: [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) and [recordobt](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model). It was initially thought that [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) will not be creating a new account as the Payee already has a FIO Address, but the Payee's FIO Address mapping could contain a brand new FIO Public Key which is not yet associated with a new account, as there is no validation in [addaddress](https://developers.fioprotocol.io/api/api-spec/reference/add-pub-address/add-pub-address-model).
+
+However, when the user does not enter any memo, one may argue that recordobt should not be executed and therefore the fee should be lower.
+### Alternative approaches
+* Allow for content to be empty and if it is, do not execute recordobt and charge a lower fee. This approach would not be consistant with our fee standard. We would need to have 2 fees for same action, which will be confusing.
+* Create a new action for token transfer with memo.
 
 # Implementation
 
