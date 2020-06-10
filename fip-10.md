@@ -288,3 +288,10 @@ All entities using existing [setfeevote](https://developers.fioprotocol.io/api/a
 
 ## Future considerations
 None
+
+## Comments from Block producers.
+1) I understand the need for a fee to avoid spam but I think all BPs should have to pay this fee (including top 21 BPs) because it would cause an inbalance / competitive advantage to the top 21 if they can set fees multiple times a day for free while others have to pay every time. It would make it harder for standbys to show how reactive and engaged they are as they get punished for their engagement and reactiveness.
+
+2) I think the fee is way too high (add submit_fee_ratios fee: 2000000000) and should be closer to (and probably lower than) the fee of vote_producer (fee: 30000000)
+
+
