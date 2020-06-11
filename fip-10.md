@@ -1,7 +1,7 @@
 ---
 fip: 10
 title: Redesign Fee Computations
-status: Draft
+status: Accepted
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>; Pawel Mastalerz <pawel@dapix.io>
 created: 2020-06-07
