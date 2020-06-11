@@ -119,7 +119,7 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000, th
 		* Sum of percentage in all periods is 100%.
 			"Invalid total percentage for unlock periods"
 		* Duration in each period is greater than 0.
-			"Invalid percentage value in unlock periods"
+			"Invalid duration value in unlock periods"
 	* Verify the locking account has necessary balance.
 	* Verify that the fee for this does not exceed the max fee specified.
 	* Verify transaction does not exceed max transaction size.
