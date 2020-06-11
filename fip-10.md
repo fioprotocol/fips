@@ -282,7 +282,7 @@ We will limit the amount of work performed by each call to compute fees so that 
 
 ## Backwards Compatibility
 ### Table migrations
-To avoid table migrations we will make a new fees table, called fiofees1 and we will migrate contracts to use this new table. In this way migrations will not become necessary on chain. The list of impacted contracts is included above.
+We will add the new field to the fiofee struct as a binary extension, no table migrations will be necessary.
 ### Impact to existing calls
 All entities using existing [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) actions will have to migrate to new actions, which now inlcude max_fee. However, since this call only impacts block producers, impact is minimized.
 
