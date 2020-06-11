@@ -5,14 +5,14 @@ status: Draft
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>; Pawel Mastalerz <pawel@dapix.io>
 created: 2020-06-07
-updated: 2020-06-08
+updated: 2020-06-11
 ---
 
 ## Abstract
 This FIP implements a redesign of the fee voting and fee computation in the FIO Protocol. Specifically:
 * Fee computation will be removed from onblock and from [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) and attached to a dedicated action/endpoint.
 * Any block producer will be permitted to vote for fees.
-* A fee will be collected whenever a [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) is executed, unless the voter is in the top 21 BPs.
+* A fee will be collected whenever a [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) is executed.
 * Only votes of top 21 block producers will be used to compute the fees. 
 
 Proposed new actions:
@@ -23,8 +23,8 @@ Proposed new actions:
 Modified actions:
 |Action|Endpoint|Description|
 |---|---|---|
-|setfeevote|set_fee_vote|Can now be called by any BP. Fee is added if not in top 21. Fee computation removed from this action.|
-|setfeemult|set_fee_multiplier|Can now be called by any BP. Fee is added if not in top 21. Fee computation removed from this action.|
+|setfeevote|set_fee_vote|Can now be called by any BP. Fee is added. Fee computation removed from this action.|
+|setfeemult|set_fee_multiplier|Can now be called by any BP. Fee is added. Fee computation removed from this action.|
 
 ## Motivation
 The FIO Protocol was designed to enable top 21 producers to vote on protocol fees via [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model).
@@ -196,7 +196,7 @@ Modify the existing action to:
 * Store submitted value, but not calculate fees.
 * Use the new fees table and set the votesPending to 1.
 * Allow any block producer to call it.
-* Charge a fee if BP not in top 21.
+* Charge a fee.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
@@ -233,7 +233,7 @@ Modified to use new table, be callable by any BP, and charge a fee.
 Modify the action to:
 * Use the new fees table and set the votesPending to 1.
 * Allow any block producer to call it.
-* Charge a fee if BP not in top 21.
+* Charge a fee.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
