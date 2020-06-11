@@ -73,7 +73,7 @@ Empty
 ### Modifications to existing actions
 #### [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model)
 Modified to use new table, be callable by any BP, and charge a fee.
-##### New fee: add submit_fee_ratios fee: 2000000000, not eligible for bundled transactions
+##### New fee: add submit_fee_ratios fee: 1000000000, not eligible for bundled transactions
 ##### Request
 |Group|Parameter|Required|Format|Definition|
 |---|---|---|---|---|
