@@ -46,7 +46,7 @@ Funds in locked accounts are evaluated for unlocking and unlocked if eligible, w
 #### Transfer locked tokens
 Transfer and locks tokens per provided schedule.
 ##### New end point: *transfer_locked_tokens* 
-##### New action in new fio.system contract trnsloctoks
+##### New action in new fio.token contract trnsloctoks
 ##### New fee: transfer_locked_tokens, 2000000000 per 90 days of longest duration.
 ###### Example
 ```
