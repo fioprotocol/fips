@@ -46,7 +46,7 @@ Funds in locked accounts are evaluated for unlocking and unlocked if eligible, w
 #### Transfer locked tokens
 Transfer and locks tokens per provided schedule.
 ##### New end point: *transfer_locked_tokens* 
-##### New action in new fio.system contract trnsloctoks
+##### New action in new fio.token contract trnsloctoks
 ##### New fee: transfer_locked_tokens, 2000000000 per 90 days of longest duration.
 ###### Example
 ```
@@ -271,7 +271,7 @@ An approach was considered to lock tokens in smart contract instead of in accoun
 * Add tables and indexes to fio.system contract. (1 day)
 * Integrate accounting logic and check for can transfer into token contract, and voting. Affected files (fio.token.hpp, fio.token.cpp, voting.cpp) (2 days).
 * Add new API end point for lock_tokens - modify chain_api_plugin to add new endpoint, modify chain_plugin.cpp and hpp to add new params and code.
-* Add new action (locktokens) to fio.system.cpp. dev test api endpoint and push action and resolve all issues (1 days)
+* Add new action (locktokens) to fio.token.cpp. dev test api endpoint and push action and resolve all issues (1 days)
 * Add new API end point for get_locks - modify chain_plugin cpp and hpp to add new params and code. dev test api endpoint and resolve all issues (1 days)
 * Modify get_fio_balance to return balance and locked:numberlockedtokens. (4 hours)
 * Modify History plugin for lock_tokens, to ensure tx gets into block explorer (1 days)
