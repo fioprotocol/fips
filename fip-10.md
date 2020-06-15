@@ -40,7 +40,7 @@ To address this issue, a new endpoint dedicated to fee computation should be imp
 #### Compute fees
 Computes and sets fees in the FIO Protocol.
 ##### New end point: *compute_fees* 
-##### New action in new fio.system contract computefees
+##### Modify existing action in fio.system contract updatefees
 ##### RAM increase: none, this does not increase state
 ##### New fee: this action will not have a fee, as it will only process if work is needed and return exception otherwise
 ##### Request
@@ -259,13 +259,7 @@ Modify the action to:
 
 ## Implementation
 ### Endpoint updates
-#### Affected fee based endpoints
-The following need to be migrated to the new table:
-* fio.token
-* fio.address
-* fio.system
-* fio.fee
-* fio.request.obt
+none. using binary extensions ensures backwards compatibilty.
 
 #### Affected chain plugin endpoints reading fees
 The following need to be migrated to the new table:
@@ -273,7 +267,7 @@ The following need to be migrated to the new table:
 
 ### Modifications to plugins
 #### History plugin
-Anything relating to fees needs to use the new fees table after the setcode block number.
+none.
 
 ### Processing limits 
 The number of fees processed per call must be adaptable as the number of producers registered increases and as the number of fees increases. Present testing shows that the protocol can comfortably handle 32 fees voted on by 21 producers, so we round this down to become an initial estimated processing limit of 600 Producer Fees Voted (PFV) where producer fees voted equals number of fees times number of voters.
