@@ -32,16 +32,16 @@ The original use case was to **allow the Foundation to grant or sell tokens with
 When the transfer of locked tokens is initiated, the target account (hashed from provided FIO Public Key) will be created, the specified amount will be transferred and a lock for that amount will be attached to the account. The account can function normally, funds may be transferred in and out of the account, except that the original amount of locked tokens remain locked until unlock periods are reached.
 #### What variables define a lock?
 To allow for most flexibility when tokens are locked the following variables define the type of lock:
-* **Can vote** - when set to 1, 100% of tokens can be voted, even when locked.
+* **Can vote** - when set to 1, 100% of tokens can be voted/proxied, even when locked.
 * **Lock periods** - one or many time intervals at which specified percentage of tokens is unlocked.
 #### What actions are disallowed for locked tokens in account?
 * [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) - when a transfer is initiated, only unlocked tokens in account can be transferred.
-* [voteproducer](https://developers.fioprotocol.io/api/api-spec/reference/vote-producer/vote-producer-model)
+* [voteproducer](https://developers.fioprotocol.io/api/api-spec/reference/vote-producer/vote-producer-model) and [voteproxy](https://developers.fioprotocol.io/api/api-spec/reference/proxy-vote/proxy-vote-model)
 	* If *can_vote* set to 0 only unlocked tokens are counted in vote.
 	* If *can_vote* set to 1 all tokens in account are counted in vote, even when locked.
 * Payment of fee. When fee is collected, only unlocked tokens may be used to pay for that fee. Bundled transactions can always be used, even when all tokens are locked.
 #### How are tokens unlocked?
-Funds in locked accounts are evaluated for unlocking and unlocked if eligible, whenever trnsfiopubky, voteproducer, or payment of fee are triggered.
+Funds in locked accounts are evaluated for unlocking and unlocked if eligible, whenever trnsfiopubky, voteproducer, voteproxy, or payment of fee are triggered.
 ### New actions
 #### Transfer locked tokens
 Transfer and locks tokens per provided schedule.
@@ -71,7 +71,7 @@ The fee will be: (1 90-day period in 259200 seconds * 300000000) = 600000000, th
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
 |payee_public_key|Yes|Valid FIO Public Key|FIO public key of account where locked tokens will be sent.|
-|can_vote|Yes|0 is not can_vote, 1 is can_vote.|This indicates if the locked amount can vote while locked.|
+|can_vote|Yes|0 is not can_vote, 1 is can_vote.|This indicates if the locked amount can vote/proxy while locked.|
 |periods|Yes|JSON Array of unlock periods. See periods below. See *Lock period verification* in *Processing* for requirements.|Schedule by which tokens become unlocked.|
 |amount|Yes|Int|The amount of tokens to transfer and lock in SUFs|
 |max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
