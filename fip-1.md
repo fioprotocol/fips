@@ -14,7 +14,7 @@ This FIP implements the following:
 * Adds ability to transfer FIO Address to new owner using new action
 * Adds new API end points for FIO Domain transfer, FIO Address transfer
 * Adds new fees for FIO Domain transfer and FIO Address transfer
-* Modifies search logic for get_obt_data, get_pending_fio_requests, get_sent_fio_requests
+* Modifies search logic for get_obt_data, get_pending_fio_requests, get_sent_fio_requests, get_cancelled_fio_requests
 
 ## Motivation
 Both FIO Domain and FIO Address are non-fungible tokens (NFTs) that are owned by a FIO Public Key. Ability to transfer ownership is a must, yet there is currently no support for it in FIO Protocol. It was always assumed that this will be one of the first improvements to the FIO Protocol.
@@ -149,6 +149,9 @@ get_obt_data is modified to only return OBT records which include the provided F
 get_pending_fio_requests is modified to only FIO Requests which include the provided FIO Public Key. It currently returns FIO Requests which include FIO Addresses owned by the provided key at the time of query, even though they could not decrypt the contents.
 #### get_sent_fio_requests
 get_sent_fio_requests is modified to only FIO Requests which include the provided FIO Public Key. It currently returns FIO Requests which include FIO Addresses owned by the provided key at the time of query, even though they could not decrypt the contents.
+#### get_cancelled_fio_requests
+get_cancelled_fio_requests is modified to only FIO Requests which include the provided FIO Public Key. It currently returns FIO Requests which include FIO Addresses owned by the provided key at the time of query, even though they could not decrypt the contents.
+
 
 ## Rationale
 ### Purging of data
