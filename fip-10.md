@@ -11,7 +11,7 @@ updated: 2020-06-11
 ## Abstract
 This FIP implements a redesign of the fee voting and fee computation in the FIO Protocol. Specifically:
 * Fee computation will be removed from onblock and from [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) and attached to a dedicated action/endpoint.
-* Any block producer will be permitted to vote for fees.
+* Top 42 block producers will be permitted to vote for fees.
 * A fee will be collected whenever a [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) is executed.
 * Only votes of top 21 block producers will be used to compute the fees. 
 
@@ -195,12 +195,12 @@ Modified to use new table, be callable by any BP, and charge a fee.
 Modify the existing action to:
 * Store submitted value, but not calculate fees.
 * Use the new fees table and set the votesPending to 1.
-* Allow any block producer to call it.
+* Allow only Top 42 block producers to call it.
 * Charge a fee.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Not a BP|Actor is not an active (meaning has is_active = 1) BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not an active BP."|
+|Not a BP|Actor is not in the Top 42 BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not a top 42 BP."|
 |Not positive|Fee value is not positive|400|"value"|Value sent in, e.g. "-1"|"Value has to be positive."|
 |Invalid end_point|End point is not valid or does not exist.|400|"end_point"|Value sent in, e.g. "xxx"|"Invalid end_point."|
 |Too soon since last call|Call was made less than 3600 seconds since last call.|400|||"Too soon since last call."|
@@ -232,12 +232,12 @@ Modified to use new table, be callable by any BP, and charge a fee.
 ##### Processing
 Modify the action to:
 * Use the new fees table and set the votesPending to 1.
-* Allow any block producer to call it.
+* Allow only top 42 block producers to call it.
 * Charge a fee.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Not a BP|Actor is not an active (meaning has is_active = 1) BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not an active BP."|
+|Not a BP|Actor is not a top 42 BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not an active BP."|
 |Not positive|Multiplier value is not positive|400|"value"|Value sent in, e.g. "-1"|"Value has to be positive."|
 |Too soon since last call|Call was made less than 120 seconds since last call.|400|||"Too soon since last call."|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
@@ -260,6 +260,7 @@ Modify the action to:
 ## Implementation
 ### Endpoint updates
 none. using binary extensions ensures backwards compatibilty.
+setfeemult, setfeevote -- are updated to set the dirty flag after checking that this is a TOP 42 BP.
 
 #### Affected chain plugin endpoints reading fees
 The following need to be migrated to the new table:
@@ -270,9 +271,9 @@ The following need to be migrated to the new table:
 none.
 
 ### Processing limits 
-The number of fees processed per call must be adaptable as the number of producers registered increases and as the number of fees increases. Present testing shows that the protocol can comfortably handle 32 fees voted on by 21 producers, so we go well under this to become an initial estimated processing limit of 400 Producer Fees Voted (PFV) where producer fees voted equals number of fees times number of voters.
+The number of fees processed per call must be adaptable as the number of producers registered increases and as the number of fees increases. Present testing shows that the protocol can process up to 20 fee votes per BP (when processing the top 21 only), so we go well under this to become an initial estimated processing limit of 10 fees to process per call.
 
-We will limit the amount of work performed by each call to compute fees so that it does not perform more work than 400 PFV. We will compute a number of work iterations to be (nw) using number of producers (nP) and number of fees (nF) such that nW = (nP * nF) / PFV and this will become the number of work iterations necessary. To determine the number of fees to process (NFP), we will divide the number of fees by this number (nW) and this will become the number of fees to process during each call to the compute fees. A semaphore will be used to track the processing of fees. This semaphore (which is a flag) will be introduced into the fees table, this flag will be called "votesPending". When a fee is voted on, this flag will be set to 1 for the associated fee in the fee table (votes are pending). When fees are computed and set in the protocol this flag will be set to 0 (no votes are pending). This flag will be used as a secondary index in the fees table and will be used to search for next set of fees (set size equals NFP) to be processed. After determining the fees to process the system will process these and update them into the fees table with votesPending set 0. 
+We will limit the amount of work performed by each call to the compute fees endpoint, we will start at processing 10 fees each call. a no work exception will be thrown when all fees are processed.
 
 The short explanation is that if there are more than 400 PFV to process, then 400 will be processed, until there are less than 400. "no work" exception will be returned when there are no records to process.
 
