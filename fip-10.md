@@ -237,7 +237,7 @@ Modify the action to:
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Not a BP|Actor is not a top 42 BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not an active BP."|
+|Not a BP|Actor is not a top 42 BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not a top 42 BP."|
 |Not positive|Multiplier value is not positive|400|"value"|Value sent in, e.g. "-1"|"Value has to be positive."|
 |Too soon since last call|Call was made less than 120 seconds since last call.|400|||"Too soon since last call."|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
