@@ -23,7 +23,7 @@ Proposed new actions:
 [Bundled transactions](https://kb.fioprotocol.io/fio-protocol/fio-addresses/bundling-and-fees) make it easier for everyday users to interact with the FIO Protocol. Users pay a single annual fee for the FIO Address and get with it enough bundled transactions to cover an average amount of annual interaction with the FIO Chain.
 
 There are a couple of improvements which can further enhanced the usability:
-* FIO token transfer does not currently support the use of bundled transactions. This was primarily, because bundled transactions require a FIO Address and the base FIO token transfer action, [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model), transfers tokens using public key. Of course, it could be enhanced to allow for optional FIO Address of sender, but in order to maintain backwards compatibility, a new call is a better option. In addition, it was always envisioned that ability to transfer FIO tokens using FIO Address and combining record_obt_data into the same call was a beneficial feature. Currently if a user wants to send FIO tokens to another user and attach a memo, they have to execute 2 transactions: [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) and [recordobt](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model).
+* FIO token transfer does not currently support the use of bundled transactions. This was primarily, because bundled transactions require a FIO Address and the base FIO token transfer action, [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model), transfers tokens using public key. It could be enhanced to allow for optional FIO Address of sender, but in order to maintain backwards compatibility, a new action/end-point is a better option. In addition, it was always envisioned that ability to transfer FIO tokens using FIO Address and combining record_obt_data into the same call was a beneficial feature. Currently if a user wants to send FIO tokens to another user and attach a memo, they have to execute 2 transactions: [trnsfiopubky](https://developers.fioprotocol.io/api/api-spec/reference/transfer-tokens-pub-key/transfer-tokens-pub-key-model) and [recordobt](https://developers.fioprotocol.io/api/api-spec/reference/record-obt-data/record-obt-data-model).
 * Users who process more transaction than the annual amount of bundled transactions can either pay a per transaction fee for all additional transactions or renew their FIO Address early, which adds new bundle of transactions and extends FIO Address expiration date. However, heavy users will have to run multiple renewals in sequence. A better approach would be to allow ability to purchase multiple sets of bundled transactions in a single blockchain transaction.
 
 # Specification
@@ -75,9 +75,8 @@ Transfers FIO tokens and records OBT Data.
 |Insufficient funds to cover fee|Account does not have enough funds to cover fee|400|"max_fee"|Value sent in, e.g. "1000000000"|"Insufficient funds to cover fee"|
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
-|Not owner of FIO Address|The signer does not own the FIO Address|403|||Type: invalid_signature|
+|Not owner of Payer FIO Address|The signer does not own the Payer FIO Address|403|||Type: invalid_signature|
 #### Response
-Describe what parameters are returned. Example:
 |Parameter|Format|Definition|
 |---|---|---|
 |status|String|OK if successful|
@@ -132,7 +131,6 @@ Adds bundles of transactions to FIO Address.
 |Invalid TPID|tpid format is not valid|400|"tpid"|Value sent in, e.g. "notvalidfioaddress"|"TPID must be empty or valid FIO address"|
 |Fee exceeds maximum|Actual fee is greater than supplied max_fee|400|max_fee"|Value sent in, e.g. "1000000000"|"Fee exceeds supplied maximum"|
 #### Response
-Describe what parameters are returned. Example:
 |Parameter|Format|Definition|
 |---|---|---|
 |status|String|OK if successful|
