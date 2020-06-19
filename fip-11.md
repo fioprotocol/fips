@@ -1,6 +1,6 @@
 ---
 fip: 11
-title: Ehnhance bundled transaction usability
+title: Enhance bundled transaction usability
 status: Draft
 type: Functionality
 author: Pawel Mastalerz <pawel@dapix.io>
