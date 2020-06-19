@@ -1,18 +1,18 @@
 ---
 fip: 10
 title: Redesign Fee Computations
-status: Draft
+status: Accepted
 type: Functionality
 author: Ed Rotthoff <ed@dapix.io>; Pawel Mastalerz <pawel@dapix.io>
 created: 2020-06-07
-updated: 2020-06-08
+updated: 2020-06-11
 ---
 
 ## Abstract
 This FIP implements a redesign of the fee voting and fee computation in the FIO Protocol. Specifically:
 * Fee computation will be removed from onblock and from [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) and attached to a dedicated action/endpoint.
-* Any block producer will be permitted to vote for fees.
-* A fee will be collected whenever a [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) is executed, unless the voter is in the top 21 BPs.
+* Top 42 block producers will be permitted to vote for fees.
+* A fee will be collected whenever a [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) is executed.
 * Only votes of top 21 block producers will be used to compute the fees. 
 
 Proposed new actions:
@@ -23,8 +23,8 @@ Proposed new actions:
 Modified actions:
 |Action|Endpoint|Description|
 |---|---|---|
-|setfeevote|set_fee_vote|Can now be called by any BP. Fee is added if not in top 21. Fee computation removed from this action.|
-|setfeemult|set_fee_multiplier|Can now be called by any BP. Fee is added if not in top 21. Fee computation removed from this action.|
+|setfeevote|set_fee_vote|Can now be called by any BP. Fee is added. Fee computation removed from this action.|
+|setfeemult|set_fee_multiplier|Can now be called by any BP. Fee is added. Fee computation removed from this action.|
 
 ## Motivation
 The FIO Protocol was designed to enable top 21 producers to vote on protocol fees via [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model).
@@ -40,7 +40,7 @@ To address this issue, a new endpoint dedicated to fee computation should be imp
 #### Compute fees
 Computes and sets fees in the FIO Protocol.
 ##### New end point: *compute_fees* 
-##### New action in new fio.system contract computefees
+##### Modify existing action in fio.system contract updatefees
 ##### RAM increase: none, this does not increase state
 ##### New fee: this action will not have a fee, as it will only process if work is needed and return exception otherwise
 ##### Request
@@ -73,7 +73,7 @@ Empty
 ### Modifications to existing actions
 #### [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model)
 Modified to use new table, be callable by any BP, and charge a fee.
-##### New fee: add submit_fee_ratios fee: 2000000000, not eligible for bundled transactions
+##### New fee: add submit_fee_ratios fee: 1000000000, not eligible for bundled transactions
 ##### Request
 |Group|Parameter|Required|Format|Definition|
 |---|---|---|---|---|
@@ -195,12 +195,12 @@ Modified to use new table, be callable by any BP, and charge a fee.
 Modify the existing action to:
 * Store submitted value, but not calculate fees.
 * Use the new fees table and set the votesPending to 1.
-* Allow any block producer to call it.
-* Charge a fee if BP not in top 21.
+* Allow only Top 42 block producers to call it.
+* Charge a fee.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Not a BP|Actor is not an active (meaning has is_active = 1) BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not an active BP."|
+|Not a BP|Actor is not in the Top 42 BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not a top 42 BP."|
 |Not positive|Fee value is not positive|400|"value"|Value sent in, e.g. "-1"|"Value has to be positive."|
 |Invalid end_point|End point is not valid or does not exist.|400|"end_point"|Value sent in, e.g. "xxx"|"Invalid end_point."|
 |Too soon since last call|Call was made less than 3600 seconds since last call.|400|||"Too soon since last call."|
@@ -232,12 +232,12 @@ Modified to use new table, be callable by any BP, and charge a fee.
 ##### Processing
 Modify the action to:
 * Use the new fees table and set the votesPending to 1.
-* Allow any block producer to call it.
-* Charge a fee if BP not in top 21.
+* Allow only top 42 block producers to call it.
+* Charge a fee.
 ##### Exception handling
 |Error condition|Trigger|Type|fields:name|fields:value|Error message|
 |---|---|---|---|---|---|
-|Not a BP|Actor is not an active (meaning has is_active = 1) BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not an active BP."|
+|Not a BP|Actor is not a top 42 BP.|400|"actor"|Value sent in, e.g. "aftyershcu22"|"Not a top 42 BP."|
 |Not positive|Multiplier value is not positive|400|"value"|Value sent in, e.g. "-1"|"Value has to be positive."|
 |Too soon since last call|Call was made less than 120 seconds since last call.|400|||"Too soon since last call."|
 |Invalid fee value|max_fee format is not valid|400|"max_fee"|Value sent in, e.g. "-100"|"Invalid fee value"|
@@ -259,13 +259,8 @@ Modify the action to:
 
 ## Implementation
 ### Endpoint updates
-#### Affected fee based endpoints
-The following need to be migrated to the new table:
-* fio.token
-* fio.address
-* fio.system
-* fio.fee
-* fio.request.obt
+none. using binary extensions ensures backwards compatibilty.
+setfeemult, setfeevote -- are updated to set the dirty flag after checking that this is a TOP 42 BP.
 
 #### Affected chain plugin endpoints reading fees
 The following need to be migrated to the new table:
@@ -273,16 +268,18 @@ The following need to be migrated to the new table:
 
 ### Modifications to plugins
 #### History plugin
-Anything relating to fees needs to use the new fees table after the setcode block number.
+none.
 
 ### Processing limits 
-The number of fees processed per call must be adaptable as the number of producers registered increases and as the number of fees increases. Present testing shows that the protocol can comfortably handle 32 fees voted on by 21 producers, so we round this down to become an initial estimated processing limit of 600 Producer Fees Voted (PFV) where producer fees voted equals number of fees times number of voters.
+The number of fees processed per call must be adaptable as the number of producers registered increases and as the number of fees increases. Present testing shows that the protocol can process up to 20 fee votes per BP (when processing the top 21 only), so we go well under this to become an initial estimated processing limit of 10 fees to process per call.
 
-We will limit the amount of work performed by each call to compute fees so that it does not perform more work than 600 PFV. We will compute a number of work iterations to be (nw) using number of producers (nP) and number of fees (nF) such that nW = (nP * nF) / PFV and this will become the number of work iterations necessary. To determine the number of fees to process (NFP), we will divide the number of fees by this number (nW) and this will become the number of fees to process during each call to the compute fees. A semaphore will be used to track the processing of fees. This semaphore (which is a flag) will be introduced into the fees table, this flag will be called "votesPending". When a fee is voted on, this flag will be set to 1 for the associated fee in the fee table (votes are pending). When fees are computed and set in the protocol this flag will be set to 0 (no votes are pending). This flag will be used as a secondary index in the fees table and will be used to search for next set of fees (set size equals NFP) to be processed. After determining the fees to process the system will process these and update them into the fees table with votesPending set 0. 
+We will limit the amount of work performed by each call to the compute fees endpoint, we will start at processing 10 fees each call. a no work exception will be thrown when all fees are processed.
+
+The short explanation is that if there are more than 400 PFV to process, then 400 will be processed, until there are less than 400. "no work" exception will be returned when there are no records to process.
 
 ## Backwards Compatibility
 ### Table migrations
-To avoid table migrations we will make a new fees table, called fiofees1 and we will migrate contracts to use this new table. In this way migrations will not become necessary on chain. The list of impacted contracts is included above.
+We will add the new field to the fiofee struct as a binary extension, no table migrations will be necessary.
 ### Impact to existing calls
 All entities using existing [setfeevote](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-ratios/submit-fee-ratios-model) and [setfeemult](https://developers.fioprotocol.io/api/api-spec/reference/submit-fee-multiplier/submit-fee-multiplier-model) actions will have to migrate to new actions, which now inlcude max_fee. However, since this call only impacts block producers, impact is minimized.
 
