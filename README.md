@@ -13,8 +13,8 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-7](fip-7.md)|Provide ability to burn FIO Address|Accepted|
 |[FIP-8](fip-8.md)|Public Address Request|Draft|
 |[FIP-9](fip-9.md)|Allow voting and proxying without a FIO Address|Accepted|
-|[FIP-10](fip-10.md)|Redesign Fee Computations|Draft|
-|[FIP-11](fip-11.md)|Ehnhance bundled transaction usability|Draft|
+|[FIP-10](fip-10.md)|Redesign Fee Computations|Accepted|
+|[FIP-0011](fip-0011.md)|Ehnhance bundled transaction usability|Draft|
 
 ## Contributing
 ### Review FIPs
