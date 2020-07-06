@@ -4,16 +4,17 @@ FIPs describe proposed changes to the FIO Protocol.
 ## FIPs
 |FIP|Title|Status|
 |---|---|---|
-|[FIP-1](fip-1.md)|FIO Domain/FIO Address transfer and data purge|Accepted|
-|[FIP-2](fip-2.md)|Improvements to paging via API|Accepted|
-|[FIP-3](fip-3.md)|Provide ability to cancel a request for funds|Accepted|
-|[FIP-4](fip-4.md)|Provide ability to remove pub address from the FIO protocol for a user|Accepted|
-|[FIP-5](fip-5.md)|Enhanced privacy via friending|Draft|
-|[FIP-6](fip-6.md)|Transfer locked tokens|Accepted|
-|[FIP-7](fip-7.md)|Provide ability to burn FIO Address|Accepted|
-|[FIP-8](fip-8.md)|Public Address Request|Draft|
-|[FIP-9](fip-9.md)|Allow voting and proxying without a FIO Address|Accepted|
-|[FIP-10](fip-10.md)|Redesign Fee Computations|Draft|
+|[FIP-1](fip-0001.md)|FIO Domain/FIO Address transfer and data purge|Accepted|
+|[FIP-2](fip-0002.md)|Improvements to paging via API|Accepted|
+|[FIP-3](fip-0003.md)|Provide ability to cancel a request for funds|Accepted|
+|[FIP-4](fip-0004.md)|Provide ability to remove pub address from the FIO protocol for a user|Accepted|
+|[FIP-5](fip-0005.md)|Enhanced privacy|Draft|
+|[FIP-6](fip-0006.md)|Transfer locked tokens|Accepted|
+|[FIP-7](fip-0007.md)|Provide ability to burn FIO Address|Accepted|
+|[FIP-8](fip-0008.md)|Public Address Request|Draft|
+|[FIP-9](fip-0009.md)|Allow voting and proxying without a FIO Address|Accepted|
+|[FIP-10](fip-0010.md)|Redesign Fee Computations|Accepted|
+|[FIP-11](fip-0011.md)|Ehnhance bundled transaction usability|Draft|
 
 ## Contributing
 ### Review FIPs
