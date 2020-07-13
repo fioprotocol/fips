@@ -1,0 +1,83 @@
+---
+fip: X
+title: Add ability to retrive all public addresses for a FIO Address
+status: Draft
+type: Functionality
+author: Pawel Mastalerz <pawel@dapix.io>
+created: 2020-07-13
+updated: 2020-07-13
+---
+
+# Abstract
+
+
+# Motivation
+Currently, the [/get_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/get-pub-address/get-pub-address) API method returns only the public address for specific chain and token code. This works great for a look-up of a specific token code, but it's not practical for a wallet wanting to fetch and display all public address mappings to the owner of the FIO Address. Even though the mappings can be fetched using [/get_table_rows](https://developers.fioprotocol.io/api/api-spec/reference/get-table-rows/get-table-rows), this call requires index computation, and therefore a native API method is desirable.
+
+# Specification
+## New actions
+### Get All Public Addresses
+Returns all public addresses for specified token code and FIO Address.
+#### New end point: /get_pub_address_all
+#### Request
+|Parameter|Required|Format|Definition|
+|---|---|---|---|
+|fio_address|Yes|FIO Address|FIO Address of the payee.|
+|limit|No|Positive Int|Number of records to return. If omitted, all records will be returned. Due to table read timeout, a value of less than 1,000 is recommended.|
+|offset|No|Positive Int|First record from list to return. If omitted, 0 is assumed.|
+##### Example
+```
+{
+	"fio_address": "purse@alice",
+	"limit": 100,
+	"offset": 0
+}
+```
+#### Processing
+* Request is validated per Exception handling
+* FIO Addresses are returned
+#### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"fio_address"|Value sent in, i.e. "purse@alice"|"Invalid FIO Address"|
+|Invalid limit|limit is not valid|400|"limit"|Value sent in, e.g. "-1"|"Invalid limit"|
+|invalid offset|offset not valid |400|"offset"|Value sent in, e.g. "-1"|"Invalid offset"|
+|FIO Address not found or not addresses mapped
+#### Response
+|Group|Parameter|Format|Definition|
+|---|---|---|---|
+||public_addresses|JSON Array|Array of actions|
+|public_addresses|chain_code|String|Chain code|
+|public_addresses|token_code|String|Token code|
+|public_addresses|public_address|String|Public address for specified chain_code and toke_code|
+||more|Int|Number of remaining results|
+##### Example
+```
+{
+	"public_addresses": [
+		{
+			"chain_code": "FIO",
+			"token_code": "FIO",
+			"public_address": "FIO6cp3eJMhtAuQvzetCAqcUAyLBabHj8M8hJD5nA8T1p7FoXaTd2"
+		},
+		{
+			"chain_code": "ETH",
+			"token_code": "ETH",
+			"public_address": "0xAb5801a7D398351b8bE11C439e05C5B3259aeC9B"
+		}
+	],
+	"more": 0
+}
+```
+
+# Rationale
+Straightforward approach used in other getter methods.
+
+# Implementation
+TBD
+
+# Backwards Compatibility
+No impact on existing functionality, actions or API endpoints.
+
+# Future considerations
+None
