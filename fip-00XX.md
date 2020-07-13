@@ -1,5 +1,5 @@
 ---
-fip: X
+fip: 13
 title: Add ability to retrive all public addresses for a FIO Address
 status: Draft
 type: Functionality
@@ -9,7 +9,12 @@ updated: 2020-07-13
 ---
 
 # Abstract
+This FIP implements ability to easily fetch all public address mapped to a provided FIO Address.
 
+Proposed new actions:
+|Action|Endpoint|Description|
+|---|---|---|
+||get_pub_addresses|Returns all public addresses for specified FIO Address.|
 
 # Motivation
 Currently, the [/get_pub_address](https://developers.fioprotocol.io/api/api-spec/reference/get-pub-address/get-pub-address) API method returns only the public address for specific chain and token code. This works great for a look-up of a specific token code, but it's not practical for a wallet wanting to fetch and display all public address mappings to the owner of the FIO Address. Even though the mappings can be fetched using [/get_table_rows](https://developers.fioprotocol.io/api/api-spec/reference/get-table-rows/get-table-rows), this call requires index computation, and therefore a native API method is desirable.
@@ -17,8 +22,8 @@ Currently, the [/get_pub_address](https://developers.fioprotocol.io/api/api-spec
 # Specification
 ## New actions
 ### Get All Public Addresses
-Returns all public addresses for specified token code and FIO Address.
-#### New end point: /get_pub_address_all
+Returns all public addresses for specified FIO Address.
+#### New end point: /get_pub_addresses
 #### Request
 |Parameter|Required|Format|Definition|
 |---|---|---|---|
@@ -42,14 +47,14 @@ Returns all public addresses for specified token code and FIO Address.
 |Invalid FIO Address|Format of FIO Address not valid or FIO Address does not exist.|400|"fio_address"|Value sent in, i.e. "purse@alice"|"Invalid FIO Address"|
 |Invalid limit|limit is not valid|400|"limit"|Value sent in, e.g. "-1"|"Invalid limit"|
 |invalid offset|offset not valid |400|"offset"|Value sent in, e.g. "-1"|"Invalid offset"|
-|FIO Address not found or not addresses mapped
+|No FIO addresses are mapped|404|||"Public addresses not found"|
 #### Response
 |Group|Parameter|Format|Definition|
 |---|---|---|---|
 ||public_addresses|JSON Array|Array of actions|
 |public_addresses|chain_code|String|Chain code|
 |public_addresses|token_code|String|Token code|
-|public_addresses|public_address|String|Public address for specified chain_code and toke_code|
+|public_addresses|public_address|String|Public address for specified chain_code and token_code|
 ||more|Int|Number of remaining results|
 ##### Example
 ```
