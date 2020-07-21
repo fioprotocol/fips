@@ -16,7 +16,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-10](fip-0010.md)|Redesign Fee Computations|Accepted|
 |[FIP-11](fip-0011.md)|Ehnhance bundled transaction usability|Accepted|
 |[FIP-12](fip-0012.md)|Move action whitelisting into state|Accepted|
-|[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Draft|
+|[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Accepted|
 
 ## Contributing
 ### Review FIPs
