@@ -18,6 +18,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-12](fip-0012.md)|Move action whitelisting into state|Accepted|
 |[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Accepted|
 |[FIP-14](fip-0014.md)|Ensuring API response data integrity|Draft|
+|[FIP-15](fip-0015.md)|Chain and token code standard|Draft|
 
 ## Contributing
 ### Review FIPs
@@ -36,6 +37,7 @@ Create an issue describing the FIP or section of a FIP you would like to open up
 ## FIP Type
 * Core - improvements requiring a consensus fork
 * Functionality - adds or modifies functionality without need for consensus fork
+* Standard - documents standards used in FIO Protocol
 
 ## FIP Status
 * Draft - a FIP that is open for consideration.
