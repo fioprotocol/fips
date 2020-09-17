@@ -19,6 +19,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Accepted|
 |[FIP-14](fip-0014.md)|Ensuring API response data integrity|Draft|
 |[FIP-15](fip-0015.md)|Chain and token code standard|Draft|
+|[FIP-16](fip-0016.md)|CLIO Enhancements|Draft|
 
 ## Contributing
 ### Review FIPs
