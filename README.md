@@ -18,7 +18,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-12](fip-0012.md)|Move action whitelisting into state|Accepted|
 |[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Accepted|
 |[FIP-14](fip-0014.md)|Ensuring API response data integrity|Draft|
-|[FIP-15](fip-0015.md)|Chain and token code standard|Draft|
+|[FIP-15](fip-0015.md)|Chain and token code standard|Accepted|
 |[FIP-16](fip-0016.md)|CLIO Enhancements|Draft|
 |[FIP-17](fip-0017.md)|FIO Token and Domain Wrapping|Draft|
 
@@ -81,3 +81,6 @@ All FIPs that introduce backwards incompatibilities must include a section descr
 
 ### Future considerations
 This section may include proposals for how the new functionality could be enhanced in the future.
+
+### Discussion link
+Provide a link(s) to where this FIP is being discussed.
