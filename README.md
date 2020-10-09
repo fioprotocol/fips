@@ -22,7 +22,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-16](fip-0016.md)|CLIO Enhancements|Draft|
 |[FIP-17](fip-0017.md)|FIO Token and Domain Wrapping|Draft|
 |[FIP-18](fip-0018.md)|Chain-level public address|Draft|
-|[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Draft|
+|[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Accepted|
 
 ## Contributing
 ### Review FIPs
