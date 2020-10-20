@@ -5,9 +5,9 @@ FIPs describe proposed changes to the FIO Protocol.
 |FIP|Title|Status|
 |---|---|---|
 |[FIP-1](fip-0001.md)|FIO Domain/FIO Address transfer and data purge|Accepted|
-|[FIP-2](fip-0002.md)|Improvements to paging via API|Accepted|
-|[FIP-3](fip-0003.md)|Provide ability to cancel a request for funds|Accepted|
-|[FIP-4](fip-0004.md)|Provide ability to remove pub address from the FIO protocol for a user|Accepted|
+|[FIP-2](fip-0002.md)|Improvements to paging via API|Final|
+|[FIP-3](fip-0003.md)|Provide ability to cancel a request for funds|Final|
+|[FIP-4](fip-0004.md)|Provide ability to remove pub address from the FIO protocol for a user|Final|
 |[FIP-5](fip-0005.md)|Enhanced privacy|Draft|
 |[FIP-6](fip-0006.md)|Transfer locked tokens|Accepted|
 |[FIP-7](fip-0007.md)|Provide ability to burn FIO Address|Accepted|
