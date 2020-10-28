@@ -14,9 +14,9 @@ This FIP proposes **FIO Co-op**, an on-chain program for creating economic incen
 # Motivation
 The FIO Protocol is subject to the network effect, meaning the more participants adopt it, the more useful it is to all.
 
-To accelerate the adoption, on-chain incetives for integrators in the form of [TPID rewards](https://kb.fioprotocol.io/fio-chain/fees#fee-distribution) and [New User Bounties](https://kb.fioprotocol.io/fio-token/token-distribution#new-user-bounties), as well as for block producers in the form of [rewards](https://kb.fioprotocol.io/fio-token/token-distribution#new-user-bounties) and [reserves](https://kb.fioprotocol.io/fio-token/token-distribution#block-producer-reserves) are built into the FIO Chain.
+To accelerate the adoption, on-chain incentives for integrators in the form of [TPID rewards](https://kb.fioprotocol.io/fio-chain/fees#fee-distribution) and [New User Bounties](https://kb.fioprotocol.io/fio-token/token-distribution#new-user-bounties), as well as for block producers in the form of [rewards](https://kb.fioprotocol.io/fio-token/token-distribution#new-user-bounties) and [reserves](https://kb.fioprotocol.io/fio-token/token-distribution#block-producer-reserves) are built into the FIO Chain.
 
-Currently, there are no incentives for end-users. When registered early, a FIO Address has limited use until more participants integrate it into their products and more end-users join the network. Yet early adopters add significant value to the network by helping it grow and therefore should be incetivized.
+Currently, there are no incentives for end-users. When registered early, a FIO Address has limited use until more participants integrate it into their products and more end-users join the network. Yet early adopters add significant value to the network by helping it grow and therefore should be incentivized.
 
 Key objective for FIO Co-op:
 * Encourage early adoption of the FIO Protocol by end-users
@@ -28,7 +28,7 @@ Register a FIO Address/Domain and you get a lifetime residual portion of all the
 
 # Specification
 ## Overview
-FIO Co-op is an on-chain incentive program in which end-users who perform an Incentivized Action (pay for a FIO Address/Domain or lock FIO Tokens) are awarded FIO Points (FIOPs). The earlier the Incentivized Action is performed, the higher the amount of FIOPs awarded. After 250,000,000 blocks or approximatley 4 years, FIOPs will no longer be awarded.
+FIO Co-op is an on-chain incentive program in which end-users who perform an Incentivized Action (pay for a FIO Address/Domain or lock FIO Tokens) are awarded FIO Points (FIOPs). The earlier the Incentivized Action is performed, the higher the amount of FIOPs awarded. After 250,000,000 blocks or approximately 4 years, FIOPs will no longer be awarded.
 
 Any time a fee is paid on FIO Chain, 25% is allocated to holders of FIOPs pro-rata. The payments continue indefinitely, even after new FIOPs are no longer being awarded.
 
@@ -58,7 +58,7 @@ Lock Points are awarded when a user locks FIO Tokens and that user's account has
 Lock Points (L) are accrued according to this formula: TBD
 
 #### Locks before program launch
-Tokens locked before program launch, will not earny any Lock Points.
+Tokens locked before program launch, will not earn any Lock Points.
 
 ### Program duration
 FIOPs are only accrued in the first 250,000,000 blocks after program launch.
@@ -75,7 +75,7 @@ FIOPs are only accrued in the first 250,000,000 blocks after program launch.
 ## New actions
 
 # Rationale
-When designing an end-user incetive program, the following was considered:
+When designing an end-user incentive program, the following was considered:
 * Must be sybil attack proof
 * Should provide greater economic benefits the early the user participates
 * Payouts should be based on the future economic inputs to the FIO Protocol
