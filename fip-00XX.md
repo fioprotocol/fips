@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: David Gold <david@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-10-27
-updated: 2020-10-28
+updated: 2020-10-29
 ---
 
 # Abstract
@@ -28,7 +28,7 @@ Register a FIO Address/Domain and you get a lifetime residual portion of all the
 
 # Specification
 ## Overview
-FIO Co-op is an on-chain incentive program in which end-users who perform an Incentivized Action (pay for a FIO Address/Domain or lock FIO Tokens) are awarded FIO Points (FIOPs). The earlier the Incentivized Action is performed, the higher the amount of FIOPs awarded. After 250,000,000 blocks or approximately 4 years, FIOPs will no longer be awarded.
+FIO Co-op is an on-chain incentive program in which end-users who perform an Incentivized Action (pay for a FIO Address/Domain or lock FIO Tokens) are awarded FIO Points (FIOPs). The earlier the Incentivized Action is performed, the higher the amount of FIOPs awarded. After 3 years, FIOPs will no longer be awarded.
 
 Any time a fee is paid on FIO Chain, 25% is allocated to holders of FIOPs pro-rata. The payments continue indefinitely, even after new FIOPs are no longer being awarded.
 
@@ -44,13 +44,17 @@ Name Points (N) are accrued according to this formula:
 where:
 * ***f*** - Current register_fio_address fee
 * ***F*** - Fee paid for FIO Address or FIO Domain Registration
-* ***r*** - Percent decay per block
-* ***x*** - Block number since program launch
+* ***r*** - Percent decay per second
+* ***x*** - Seconds since program launch
 
 #### Registrations before program launch
-FIO Addresses and FIO Domains which were registered before program launch will have Name Points computed as if they were registered in block 1 since program launch. FIO Addresses and FIO Domains minted during genesis (registered before Mainnet launched) will have their Computed Name Points further increased by 25%.
+FIO Addresses and FIO Domains which were registered before program launch will have Name Points computed as if they were registered zero seconds since program launch. The Name Points would be further increased by:
+|When registered|Increase|
+|---|---|
+|At Mainnet|25%|
+|After Mainnet but before program start|10%|
 
-Computed Name Points will not be awarded to the FIO Address or FIO Domain until it is renewed. Meaning a FIO Address registered before program launched will not be earning FIOP rewards until it is renewed. When it is renewed does not alter the Computed Name Points, provided it is renewed before it is burned.
+Computed Name Points will not be awarded to the FIO Address or FIO Domain until it is renewed. Meaning a FIO Address registered before program launched will not be earning FIOP rewards until it is renewed. When it is renewed, does not alter the Computed Name Points, provided it is renewed before it is burned.
 
 ### Lock Points
 Lock Points are awarded when a user locks FIO Tokens and that user's account has at any time in the past executed [voteproducer](https://developers.fioprotocol.io/api/api-spec/reference/vote-producer/vote-producer-model) or [voteproxy](https://developers.fioprotocol.io/api/api-spec/reference/proxy-vote/proxy-vote-model) actions. The Lock tokens are awarded to the FIO Address specified during locking. The specified FIO Address does not have to belong to the account locking the tokens.
@@ -58,10 +62,10 @@ Lock Points are awarded when a user locks FIO Tokens and that user's account has
 Lock Points (L) are accrued according to this formula: TBD
 
 #### Locks before program launch
-Tokens locked before program launch, will not earn any Lock Points.
+Tokens locked before program launch will have Lock Points computed and awarded as if they were locked zero seconds since program launch. The Lock Points would be further increased by 10%. In order to earn FIOPs, a valid FIO Address has to be specified when locking and it does not have to be owned by the locking account. Tokens locked without a valid FIO Address will not be awarded any Lock Points.
 
 ### Program duration
-FIOPs are only accrued in the first 250,000,000 blocks after program launch.
+FIOPs are only accrued in the first 3 years after program launch.
 
 ## FIOP lifecycle
 * FIOPs never expire and are permanently attached to the NFT.
@@ -69,8 +73,15 @@ FIOPs are only accrued in the first 250,000,000 blocks after program launch.
 * FIOPs cannot be transferred. However, when the FIO Address/Domain NFT is transferred to a new owner, attached FIOPs get transferred as well.
 
 ## FIOP rewards
-
-### Use cases
+### Fee distribution
+[On-chain fee distribution](https://kb.fioprotocol.io/fio-chain/fees#fee-distribution) is modified as follows:
+|Recipient|Share before FIP|Share after FIP|
+|---|---|---|
+|Block Producers|85%|60%|
+|Entity facilitating transaction (TPID) or, if not provided, block producers.|10%|10%|
+|Foundation|5%|5%|
+|Name Point Holders|0%|12.5%|
+|Lock Point Holders|0%|12.5%|
 
 ## New actions
 
