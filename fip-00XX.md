@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: David Gold <david@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-10-27
-updated: 2020-10-29
+updated: 2020-10-30
 ---
 
 # Abstract
@@ -22,24 +22,22 @@ Key objective for FIO Co-op:
 * Encourage early adoption of the FIO Protocol by end-users
 * Cause users to seek FIO-integrated applications
 * Entice users to spread the word about FIO to others
-* Encourage users to hold FIO tokens for long periods of time
+
 ## User pitch
-Register a FIO Address/Domain and you get a lifetime residual portion of all the future income to the FIO Protocol. The earlier you do so, the greater your share will be. If you register now, you'll get an X% greater allocation than a year from now. You can also choose to lock FIO tokens for a duration of time to receive an additional portion of the future income to the FIO Protocol.
+Register a FIO Address/Domain and you get a lifetime residual portion of all the future income to the FIO Protocol. The earlier you do so, the greater your share will be. If you register now, you'll get an X% greater allocation than a year from now.
 
 # Specification
 ## Overview
-FIO Co-op is an on-chain incentive program in which end-users who perform an Incentivized Action (pay for a FIO Address/Domain or lock FIO Tokens) are awarded FIO Points (FIOPs). The earlier the Incentivized Action is performed, the higher the amount of FIOPs awarded. After 3 years, FIOPs will no longer be awarded.
+FIO Co-op is an on-chain incentive program in which end-users who register FIO Address or FIO Domain are awarded FIO Points (FIOPs). The earlier the registration is performed, the higher the amount of FIOPs awarded. After 3 years, FIOPs will no longer be awarded.
 
-Any time a fee is paid on FIO Chain, 25% is allocated to holders of FIOPs pro-rata. The payments continue indefinitely, even after new FIOPs are no longer being awarded.
+Any time a fee is paid on FIO Chain, 20% is allocated to holders of FIOPs pro-rata. The payments continue indefinitely, even after new FIOPs are no longer being awarded.
 
 ## FIOP accrual
-There are two types of FIOPs: Name Points and Lock Points.
-### Name Points
-Name Points are awarded when a FIO Address or FIO Domain is registered and are permanently attached to the Non-fungible Token (NFT) being registered, irrespective of which FIO Public Key is indicated as the owner of the NFT. However the account paying for the registration may choose not to award FIOPs to the NFT. This may be used by any entity which pays for FIO Addresses for its users and does not want to increase a risk of a sybil attack. Name Points are not awarded on renewals or bundle transaction purchases.
+FIOPs are awarded when a FIO Address or FIO Domain is registered and are permanently attached to the Non-fungible Token (NFT) being registered, irrespective of which FIO Public Key is indicated as the owner of the NFT. However the account paying for the registration may choose not to award FIOPs to the NFT. This may be used by any entity which pays for FIO Addresses for its users and does not want to increase a risk of a sybil attack. FIOPs are not awarded on renewals or bundle transaction purchases.
 
-Name Points (N) are accrued according to this formula:
+FIOPs (P) are accrued according to this formula:
 
-***N = (F/f)(1 - r)<sup>x</sup>***
+***P = (F/f)(1 - r)<sup>x</sup>***
 
 where:
 * ***f*** - Current register_fio_address fee
@@ -48,21 +46,15 @@ where:
 * ***x*** - Seconds since program launch
 
 #### Registrations before program launch
-FIO Addresses and FIO Domains which were registered before program launch will have Name Points computed as if they were registered zero seconds since program launch. The Name Points would be further increased by:
+FIO Addresses and FIO Domains which were registered before the program launch have their FIOPs computed as if they were registered zero seconds since program launch. The FIOPs are further increased by:
 |When registered|Increase|
 |---|---|
 |At Mainnet|25%|
 |After Mainnet but before program start|10%|
 
-Computed Name Points will not be awarded to the FIO Address or FIO Domain until it is renewed. Meaning a FIO Address registered before program launched will not be earning FIOP rewards until it is renewed. When it is renewed, does not alter the Computed Name Points, provided it is renewed before it is burned.
+FIO Address registered before program launch do not have their FIOPs attached until the FIO Address is renewed after the program starts. Meaning a FIO Address registered before program launched does not earn FIOP rewards until after it has been renewed.
 
-### Lock Points
-Lock Points are awarded when a user locks FIO Tokens and that user's account has at any time in the past executed [voteproducer](https://developers.fioprotocol.io/api/api-spec/reference/vote-producer/vote-producer-model) or [voteproxy](https://developers.fioprotocol.io/api/api-spec/reference/proxy-vote/proxy-vote-model) actions. The Lock tokens are awarded to the FIO Address specified during locking. The specified FIO Address does not have to belong to the account locking the tokens.
-
-Lock Points (L) are accrued according to this formula: TBD
-
-#### Locks before program launch
-Tokens locked before program launch will have Lock Points computed and awarded as if they were locked zero seconds since program launch. The Lock Points would be further increased by 10%. In order to earn FIOPs, a valid FIO Address has to be specified when locking and it does not have to be owned by the locking account. Tokens locked without a valid FIO Address will not be awarded any Lock Points.
+FIO Domains registered before program launch have their FIOPs attached immediatley after the program starts.
 
 ### Program duration
 FIOPs are only accrued in the first 3 years after program launch.
@@ -77,11 +69,10 @@ FIOPs are only accrued in the first 3 years after program launch.
 [On-chain fee distribution](https://kb.fioprotocol.io/fio-chain/fees#fee-distribution) is modified as follows:
 |Recipient|Share before FIP|Share after FIP|
 |---|---|---|
-|Block Producers|85%|60%|
+|Block Producers|85%|75%|
 |Entity facilitating transaction (TPID) or, if not provided, block producers.|10%|10%|
 |Foundation|5%|5%|
-|Name Point Holders|0%|12.5%|
-|Lock Point Holders|0%|12.5%|
+|FIOP Holders|0%|10%|
 
 ## New actions
 
@@ -92,6 +83,10 @@ When designing an end-user incentive program, the following was considered:
 * Payouts should be based on the future economic inputs to the FIO Protocol
 * Should not add friction to the process of adopting the FIO Protocol
 * Should enable permanent residual income as long as the user continues to participate
+
+The following features were considered, but were not made part of this FIP as it was determiend that they would add too much complexity at this stage:
+* Continue to award FIOPs after the initial grant based on on-chain activity
+* Award FIOPs for locking tokens.
 
 # Implementation
 TBD
