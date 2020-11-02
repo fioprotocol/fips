@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: David Gold <david@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-10-27
-updated: 2020-10-30
+updated: 2020-11-02
 ---
 
 # Abstract
@@ -64,15 +64,20 @@ FIOPs are only accrued in the first 3 years after program launch.
 * When the FIO Address/Domain NFT is burned, attached FIOPs are permanently destroyed.
 * FIOPs cannot be transferred. However, when the FIO Address/Domain NFT is transferred to a new owner, attached FIOPs get transferred as well.
 
-## FIOP rewards
+## FIOP Rewards
 ### Fee distribution
 [On-chain fee distribution](https://kb.fioprotocol.io/fio-chain/fees#fee-distribution) is modified as follows:
 |Recipient|Share before FIP|Share after FIP|
 |---|---|---|
 |Block Producers|85%|75%|
-|Entity facilitating transaction (TPID) or, if not provided, block producers.|10%|10%|
+|Entity facilitating transaction (TPID) or, if not provided, Block Producers.|10%|10%|
 |Foundation|5%|5%|
 |FIOP Holders|0%|10%|
+
+## Changes to BP Reserves
+In order to mitigate the impact of reduced Block Producer rewards and to extend the time when those rewards are guaranteed, the [Block Producer Reserves pool](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-over-time) is increased from 10,000,000 to 30,000,000 FIO Tokens.
+
+At the same time, in order to keep the cap on tokens minted at 1,000,000,000, the Foundation is reducing the FIO Address Giveaways pool from 125,000,000 to 105,000,000 FIO Tokens.
 
 ## New actions
 
