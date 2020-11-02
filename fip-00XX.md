@@ -28,21 +28,19 @@ Register a FIO Address/Domain and you get a lifetime residual portion of all the
 
 # Specification
 ## Overview
-FIO Co-op is an on-chain incentive program in which end-users who register FIO Address or FIO Domain are awarded FIO Points (FIOPs). The earlier the registration is performed, the higher the amount of FIOPs awarded. After 3 years, FIOPs will no longer be awarded.
+FIO Co-op is an on-chain incentive program in which end-users who register FIO Address or FIO Domain are granted FIO Points (FIOPs). The earlier the registration is performed, the higher the amount of FIOPs granted. Any time a fee is paid on FIO Chain, a percentage is allocated to holders of FIOPs pro-rata.
 
-Any time a fee is paid on FIO Chain, 20% is allocated to holders of FIOPs pro-rata. The payments continue indefinitely, even after new FIOPs are no longer being awarded.
+## FIOP grants
+FIOPs are granted when a FIO Address or FIO Domain is registered and are permanently attached to the Non-fungible Token (NFT) being registered, irrespective of which FIO Public Key is indicated as the owner of the NFT. However, the account paying for the registration may choose not to grant FIOPs to the NFT. This may be used by any entity which pays for FIO Addresses for its users and does not want to increase a risk of a sybil attack. FIOPs are not granted on renewals or bundle transaction purchases.
 
-## FIOP accrual
-FIOPs are awarded when a FIO Address or FIO Domain is registered and are permanently attached to the Non-fungible Token (NFT) being registered, irrespective of which FIO Public Key is indicated as the owner of the NFT. However the account paying for the registration may choose not to award FIOPs to the NFT. This may be used by any entity which pays for FIO Addresses for its users and does not want to increase a risk of a sybil attack. FIOPs are not awarded on renewals or bundle transaction purchases.
-
-FIOPs (P) are accrued according to this formula:
+Amount of FIOPs (P) granted is determined by this formula:
 
 ***P = (F/f)(1 - r)<sup>x</sup>***
 
 where:
 * ***f*** - Current register_fio_address fee
 * ***F*** - Fee paid for FIO Address or FIO Domain Registration
-* ***r*** - Percent decay per second
+* ***r*** - *Percent decay per second*: 0.000002%
 * ***x*** - Seconds since program launch
 
 #### Registrations before program launch
@@ -52,12 +50,12 @@ FIO Addresses and FIO Domains which were registered before the program launch ha
 |At Mainnet|25%|
 |After Mainnet but before program start|10%|
 
-FIO Address registered before program launch do not have their FIOPs attached until the FIO Address is renewed after the program starts. Meaning a FIO Address registered before program launched does not earn FIOP rewards until after it has been renewed.
+FIO Address registered before program launch do not have their FIOPs granted until the FIO Address is renewed after the program starts. Meaning a FIO Address registered before program launched does not earn FIOP rewards until after it has been renewed.
 
-FIO Domains registered before program launch have their FIOPs attached immediatley after the program starts.
+FIO Domains registered before program launch have their FIOPs granted immediately after the program starts.
 
 ### Program duration
-FIOPs are only accrued in the first 3 years after program launch.
+FIOPs are only granted in the first 3 years after program launch. After that time FIOP Holders continue to receive the FIOP Rewards, but no new FIOPs are granted.
 
 ## FIOP lifecycle
 * FIOPs never expire and are permanently attached to the NFT.
@@ -74,12 +72,123 @@ FIOPs are only accrued in the first 3 years after program launch.
 |Foundation|5%|5%|
 |FIOP Holders|0%|10%|
 
+In other words every time a fee is paid, 10% is assigned to FIOP Rewards pool.
+
+### Distribuition period
+FIOP Rewards accumulate in the pool for a period of 30 days before they become eligible for distribution. If a distribution to a single NFT is less that register_fio_address fee, the amount is not transferred, but rather attached to the NFT and is added to the next distribution.
+
+### FIOP Holders Bounty
+To further incetivize end users, FIOP Reward pool is increased before distribution by minting new tokens akin to [New User Bounties](https://kb.fioprotocol.io/fio-token/token-distribution#new-user-bounties). New tokens minted are capped at 5,000,000 and increase the FIOP Rewards based on the following schedule:
+|Time since program launch|Increase in FIOP Rewards|
+|---|---|
+|30 days|100%|
+|60 days|95%|
+|90 days|90%|
+|120 days|85%|
+|150 days|80%|
+|180 days|70%|
+|210 days|60%|
+|240 days|50%|
+|270 days|40%|
+|300 days|30%|
+|330 days|20%|
+|360 days|10%|
+
+In order to keep the cap on tokens minted at 1,000,000,000, the Foundation is reducing the FIO Address Giveaways pool from 125,000,000 to 120,000,000 FIO Tokens.
+
 ## Changes to BP Reserves
 In order to mitigate the impact of reduced Block Producer rewards and to extend the time when those rewards are guaranteed, the [Block Producer Reserves pool](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-over-time) is increased from 10,000,000 to 30,000,000 FIO Tokens.
 
-At the same time, in order to keep the cap on tokens minted at 1,000,000,000, the Foundation is reducing the FIO Address Giveaways pool from 125,000,000 to 105,000,000 FIO Tokens.
+In order to keep the cap on tokens minted at 1,000,000,000, the Foundation is further reducing the FIO Address Giveaways pool from 120,000,000 to 100,000,000 FIO Tokens.
+
+## Modifications to existing actions
+### [regaddress](https://developers.fioprotocol.io/api/api-spec/reference/register-fio-address/register-fio-address-model)
+Added logic to compute and grant FIOPs.
+#### Request
+No changes
+#### Processing
+* FIOPs are computed based on [FIO grants](#fiop-grants) and are granted to the NFT.
+* *Total FIOPs in Circulation* is updated.
+#### Exception handling
+No changes
+#### Response
+No changes
+
+### [regdomain](https://developers.fioprotocol.io/api/api-spec/reference/register-fio-domain/register-fio-domain-model)
+Added logic to compute and grant FIOPs.
+#### Request
+No changes
+#### Processing
+* FIOPs are computed based on [FIO Accrual](#fiop-accrual) and are granted to the NFT.
+* *Total FIOPs in Circulation* is updated.
+#### Exception handling
+No changes
+#### Response
+No changes
+
+### Any action which collects a fee
+Modify fee collection logic to allocate FIOP Rewards to pool:
+* Determine if pool is current, meaning time from pool creation is less than *Distribuition period*
+  * If pool is current, add *FIOP Holders*% of fee being collected to the pool. Entire fee continues to be transferred to treasury.
+  * If pool is not current:
+    * Attach *Total FIOP Circulating Supply* to the pool
+    * Create a new pool
 
 ## New actions
+### Register FIO Address without FIOPs
+Registers FIO Address, but does not grant FIOPs.
+#### Contract: fio.address
+#### New action: *regaddressnf*
+#### New end point: /register_fio_address_nofiops
+#### New fee: register_fio_address_nofiops, not bundle-eligible
+#### RAM increase: 2,560 bytes
+#### Request body
+Same as [regaddress](https://developers.fioprotocol.io/api/api-spec/reference/register-fio-address/register-fio-address-model).
+#### Processing
+Same as [regaddress](https://developers.fioprotocol.io/api/api-spec/reference/register-fio-address/register-fio-address-model) except that FIOPs are not granted to the NFT.
+#### Exception handling
+Same as [regaddress](https://developers.fioprotocol.io/api/api-spec/reference/register-fio-address/register-fio-address-model).
+#### Response body
+Same as [regaddress](https://developers.fioprotocol.io/api/api-spec/reference/register-fio-address/register-fio-address-model).
+
+### Payout FIOP rewards
+Computes FIOP rewards and processes FIOP payments.
+#### Contract: fio.treasury
+#### New action: *fiopclaim*
+#### New end point: /pay_fiop_rewards
+#### New fee: None
+#### RAM increase: To be determined during implementation
+#### Request body
+None
+#### Processing
+* Identify first unpaid FIOP Reward pool.
+  * If none return 400:No work to perform.
+* Identify first NFT (FIO Address/Domain) which has not been paid for that pool. NFT is eligible to be paid for that pool if it exists (even if after expiration and before burning) was created before that reward pool was started.
+* Compute FIOP Reward.
+  * FIOP Reward is: *NFT's FIOP balance* / *circulating FIOPs at pool close* * *Pool FIO amount at close*.
+  * If *FIOP carry-over* is present, add it to FIOP Reward.
+  * Track *FIO paid from pool*.
+* If FIOP Reward >= register_fio_address amount, transfer FIO tokens to account which owns the NFT.
+  * Annotate NFT as paid for current pool.
+* If FIOP Reward < register_fio_address amount, incerement *FIOP carry-over* and do not transfer FIO tokens.
+* Continue processing until as many NFTs as can safely be processed in single transaction.
+* Once all NFTs for a specific pool have been processed and *FIO paid from pool* is > 0 (this can happen when NFTs get burned), add that amount to the current open pool.
+#### Exception handling
+|Error condition|Trigger|Type|fields:name|fields:value|Error message|
+|---|---|---|---|---|---|
+|No work to perform|No work to perform|400|||"No work to perform"|
+#### Response body
+|Parameter|Format|Definition|
+|---|---|---|
+|status|String|OK if successful|
+|nfts_paid|Int|Number of NFTs which were paid|
+##### Example
+```
+{
+  "status": "OK",
+  "nfts_paid": 100
+}
+```
 
 # Rationale
 When designing an end-user incentive program, the following was considered:
@@ -89,16 +198,25 @@ When designing an end-user incentive program, the following was considered:
 * Should not add friction to the process of adopting the FIO Protocol
 * Should enable permanent residual income as long as the user continues to participate
 
-The following features were considered, but were not made part of this FIP as it was determiend that they would add too much complexity at this stage:
+The following features were considered, but were not made part of this FIP as it was determined that they would add too much complexity at this stage:
 * Continue to award FIOPs after the initial grant based on on-chain activity
 * Award FIOPs for locking tokens.
 
 # Implementation
-TBD
+* Create first pool as part of deployment
+* The following variables should be defined in contract:
+  * *Percent decay per second*
+  * *Program duration*
+  * *Distribuition period*
+  * *FIOP Holders Bounty cap*
 
 # Backwards Compatibility
+No impact on existing functionality.
 
 # Future considerations
+May be considered in the future:
+* Continue to award FIOPs after the initial grant based on on-chain activity
+* Award FIOPs for locking tokens.
 
 # Discussion link
 https://fioprotocol.atlassian.net/wiki/spaces/WP/pages/16252931/FIO+Co-op
