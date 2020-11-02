@@ -12,17 +12,17 @@ updated: 2020-11-02
 This FIP proposes **FIO Co-op**, an on-chain program for creating economic incentives for FIO end-users to adopt the protocol early.
 
 Fee distribution modifications:
-|Recipient|Change|
-|---|---|
-|Block Producers|Changed from 85% to 75%|
-|FIOP Holders|Changed from 0% to 10%|
+|Recipient|Before FIP|After FIP|
+|---|---|---|
+|Block Producers|85%|75%|
+|FIOP Holders|0%|10%|
 
 Token supply modifications:
-|Token group|Change|
-|---|---|
-|FIOP Holders Bounty|Changed from 0 to 5,000,000|
-|BP Reserves|Changed from 10,000,000 to 30,000,000|
-|FIO Address Giveaways|Changed from 125,000,000 to 100,000,000|
+|Token group|Before FIP|After FIP|
+|---|---|---|
+|FIOP Holders Bounty|0|5,000,000|
+|BP Reserves|10,000,000|30,000,000|
+|FIO Address Giveaways|125,000,000|100,000,000|
 
 **Token supply increase/decerase: 0**
 
