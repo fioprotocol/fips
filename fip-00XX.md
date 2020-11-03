@@ -5,7 +5,7 @@ status: Draft
 type: Functionality
 author: David Gold <david@dapix.io>, Pawel Mastalerz <pawel@dapix.io>
 created: 2020-10-27
-updated: 2020-11-02
+updated: 2020-11-03
 ---
 
 # Abstract
@@ -20,9 +20,9 @@ Fee distribution modifications:
 Token supply modifications:
 |Token group|Before FIP|After FIP|
 |---|---|---|
-|FIOP Holders Bounty|0|5,000,000|
+|FIOP Holders Bounty|0|10,000,000|
 |BP Reserves|10,000,000|30,000,000|
-|FIO Address Giveaways|125,000,000|100,000,000|
+|FIO Address Giveaways|125,000,000|95,000,000|
 
 **Token supply increase/decerase: 0**
 
@@ -108,7 +108,7 @@ FIOPs are only granted in the first 3 years after program launch. After that tim
 FIOP Rewards accumulate in the FIOP Rewards pool for a period of 30 days before they become eligible for distribution. If a distribution to a single NFT is less that register_fio_address fee, the amount is not transferred, but rather attached to the NFT and is added to the next distribution.
 
 ### FIOP Holders Bounty
-To further incentivize end users, FIOP Reward pool is increased before distribution by minting new tokens akin to [New User Bounties](https://kb.fioprotocol.io/fio-token/token-distribution#new-user-bounties). New tokens minted are capped at 5,000,000 and increase the FIOP Rewards based on the following schedule:
+To further incentivize end users, FIOP Reward pool is increased before distribution by minting new tokens akin to [New User Bounties](https://kb.fioprotocol.io/fio-token/token-distribution#new-user-bounties). New tokens minted are capped at 10,000,000 and increase the FIOP Rewards based on the following schedule:
 |Time since program launch|Increase in FIOP Rewards|
 |---|---|
 |30 days|100%|
@@ -116,20 +116,28 @@ To further incentivize end users, FIOP Reward pool is increased before distribut
 |90 days|90%|
 |120 days|85%|
 |150 days|80%|
-|180 days|70%|
-|210 days|60%|
-|240 days|50%|
-|270 days|40%|
-|300 days|30%|
-|330 days|20%|
-|360 days|10%|
+|180 days|75%|
+|210 days|70%|
+|240 days|65%|
+|270 days|60%|
+|300 days|55%|
+|330 days|50%|
+|360 days|45%|
+|390 days|40%|
+|420 days|35%|
+|450 days|30%|
+|480 days|25%|
+|510 days|20%|
+|540 days|15%|
+|570 days|10%|
+|600 days|5%|
 
-In order to keep the cap on tokens minted at 1,000,000,000, the Foundation is reducing the [FIO Address Giveaways](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-over-time) pool from 125,000,000 to 120,000,000 FIO Tokens.
+In order to keep the cap on tokens minted at 1,000,000,000, the Foundation is reducing the [FIO Address Giveaways](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-over-time) pool from 125,000,000 to 115,000,000 FIO Tokens.
 
 ## Changes to BP Reserves
 In order to mitigate the impact of reduced Block Producer rewards and to extend the time when those rewards are guaranteed, the [Block Producer Reserves pool](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-over-time) is increased from 10,000,000 to 30,000,000 FIO Tokens.
 
-In order to keep the cap on tokens minted at 1,000,000,000, the Foundation is further reducing the [FIO Address Giveaways](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-over-time) pool from 120,000,000 to 100,000,000 FIO Tokens.
+In order to keep the cap on tokens minted at 1,000,000,000, the Foundation is further reducing the [FIO Address Giveaways](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-over-time) pool from 115,000,000 to 95,000,000 FIO Tokens.
 
 ## Modifications to existing actions
 ### [regaddress](https://developers.fioprotocol.io/api/api-spec/reference/register-fio-address/register-fio-address-model)
@@ -159,7 +167,7 @@ Added logic to grant FIOPs to FIO Addresses registered before program launch.
 #### Request
 No changes
 #### Processing
-* If NFT has no granted FIOPs, program is [sill active](#program-duration) and FIOPs were computed, computed FIOPs are granted to the NFT and *Total FIOPs in Circulation* is updated.
+* If NFT has no granted FIOPs, program is [sill active](#program-duration) and FIOPs were computed, computed FIOPs are granted to the NFT.
 #### Exception handling
 No changes
 #### Response
@@ -264,7 +272,7 @@ The following features were considered, but were not made part of this FIP as it
 * Deployment considerations:
   * 25,000,000 FIO Tokens held by eosio are retired.
   * Allocate FIOPs to addresses [registered before program launch](#registrations-before-program-launch).
-    * For FIO Addresses, FIOPs are [computed and recorded but not granted](#registrations-before-program-launch).
+    * For FIO Addresses, FIOPs are [computed and recorded but not granted](#registrations-before-program-launch). Those FIOPs are reflected in *Total FIOPs in Circulation*.
   * Create first pool as part of deployment.
 
 # Backwards Compatibility
