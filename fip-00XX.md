@@ -79,7 +79,7 @@ where:
 FIO Addresses and FIO Domains which were registered before the program launch have their FIOPs computed as if they were registered zero seconds since program launch. The FIOPs are further increased by:
 |When registered|Increase|
 |---|---|
-|At Mainnet|25%|
+|At Mainnet|20%|
 |After Mainnet but before program start|10%|
 
 FIO Address registered before program launch do not have their FIOPs granted until the FIO Address is renewed after the program starts. Meaning a FIO Address registered before program launched does not earn FIOP rewards until after it has been renewed.
