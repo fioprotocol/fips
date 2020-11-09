@@ -10,10 +10,10 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-4](fip-0004.md)|Provide ability to remove pub address from the FIO protocol for a user|Final|
 |[FIP-5](fip-0005.md)|Enhanced privacy|Draft|
 |[FIP-6](fip-0006.md)|Transfer locked tokens|Accepted|
-|[FIP-7](fip-0007.md)|Provide ability to burn FIO Address|Accepted|
+|[FIP-7](fip-0007.md)|Provide ability to burn FIO Address|Final|
 |[FIP-8](fip-0008.md)|Public Address Request|Draft|
-|[FIP-9](fip-0009.md)|Allow voting and proxying without a FIO Address|Accepted|
-|[FIP-10](fip-0010.md)|Redesign Fee Computations|Accepted|
+|[FIP-9](fip-0009.md)|Allow voting and proxying without a FIO Address|Final|
+|[FIP-10](fip-0010.md)|Redesign Fee Computations|Final|
 |[FIP-11](fip-0011.md)|Ehnhance bundled transaction usability|Accepted|
 |[FIP-12](fip-0012.md)|Move action whitelisting into state|Final|
 |[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Accepted|
