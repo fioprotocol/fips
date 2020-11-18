@@ -1,0 +1,92 @@
+---
+fip: XX
+title: FIO Staking
+status: Draft
+type: Functionality
+author: Pawel Mastalerz <pawel@dapix.io>
+created: 2020-11-18
+updated: 2020-11-18
+---
+
+### The specific numbers in this FIP are still being modeled and may change before the FIP is accepted.
+
+# Abstract
+This FIP proposes **FIO Staking**, an on-chain program which rewards users for locking tokens.
+
+Token supply modifications:
+|Token group|Before FIP|After FIP|
+|---|---|---|
+|Staking Rewards Pool|0|20,000,000|
+|FIO Address Giveaways|125,000,000|105,000,000|
+
+**Total token supply increase/(decrease): 0**
+
+Modified actions:
+|Contract|Action|Endpoint|Description|
+|---|---|---|---|
+|fio.token|trnsloctoks|transfer_locked_tokens|Added logic to award Staking Rewards.|
+
+# Motivation
+The FIO Protocol is subject to the network effect, meaning the more participants adopt it, the more useful it is to all.
+
+To accelerate the adoption, on-chain incentives for integrators in the form of TPID rewards and New User Bounties, as well as for block producers in the form of rewards and reserves are built into the FIO Chain.
+
+Currently, there are no incentives for end-users. Yet early token holders add value to the network by helping it grow and therefore should be incentivized.
+
+FIO Staking was spun out of [FIP-20 FIO Co-op|fip-0020.md], so it shares the same motivation.
+
+# Specification
+## Staking Rewards
+Staking Rewards Pool will be established and designated to be used for Staking Rewards. Users who lock tokens will be awarded FIO Tokens from the Staking Rewards Pool based on the duration of the lock, meaning the longer the period for which they lock tokens, the higher the Staking Reward.
+
+Staking Rewards Pool will be set at 20,000,000 FIO. Once that amount is depleted, Staking Rewards will no longer be issued. In order to keep the cap on tokens minted at 1,000,000,000, the Foundation is reducing the FIO Address Giveaways pool from 125,000,000 to 105,000,000 FIO Tokens.
+
+When the user locks tokens using [transfer_locked_tokens|fip-0006.md#transfer-locked-tokens] amount of Staking Rewards is computed as follows:
+|Lock seconds|Lock days|Lock years|APR|Total return at period end|
+|---|---|---|---|---|
+|2592000|30 days|0.08|2%|0.065%|
+|15552000|180 days|0.5|10%|5%|
+|31536000|365 days|1|15%|15%|
+|63072000|730 days|2|20%|40%|
+|94608000|1095 days|3|30%|90%|
+
+In order to receive Staking Rewards, tokens have to be locked with only one period for the exact number of days specified. If more than one period is specified, or number of days is different than specified, no Staking Rewards will be earned.
+
+Staking Rewards are computed, and new tokens are minted and transferred into the account and lock schedule is updated to reflect the new tokens in a way that locked amount is updated to the original amount + Staking Rewards.
+
+#### Tokens locked before program launch
+Tokens locked before program launch do not earn Staking Rewards.
+
+## Modifications to existing actions
+### [trnsloctoks](fip-0020.md)
+Added logic to award Staking Rewards.
+#### Request
+No changes
+#### Processing
+* If lock contains a single period and number of seconds is equal to number specified compute Staking Rewards, mint tokens, transfer tokens to payee_public_key account, update lock schedule.
+#### Exception handling
+No changes
+#### Response
+No changes
+
+# Rationale
+A bond yield formula was considered instead of fixed rate of return for pre-specified periods, but was not chosen because:
+* It's easier to control specific rates for specific periods directly rather than via formula.
+* The Foundation may want to lock tokens for private sales without the Staking Rewards being attached.
+* It's likely that the user interface will offer limited options for lock duration anyway.
+
+# Implementation
+* Deployment dependency:
+  * Foundation will transfer 20,000,000 FIO Tokens from [FIO Address Giveaways](https://kb.fioprotocol.io/fio-token/token-distribution#tokens-minted-over-time) to eosio for the purpose of retiring (burning).
+* Deployment considerations:
+  * 20,000,000 FIO Tokens held by eosio are retired.
+
+# Backwards Compatibility
+No impact on existing functionality.
+
+# Future considerations
+May be considered in the future:
+* Modify 
+
+# Discussion link
+https://fioprotocol.atlassian.net/wiki/spaces/WP/pages/34078744/FIO+Staking
