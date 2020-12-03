@@ -26,6 +26,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-20](fip-0020.md)|FIO Co-op|Draft|
 |[FIP-21](fip-0021.md)|FIO Staking|Draft|
 |[FIP-22](fip-0022.md)|Retire FIO Tokens|Draft|
+|[FIP-23](fip-0023.md)|Token locking/staking in same/existing account|Draft|
 
 ## Contributing
 ### Review FIPs
