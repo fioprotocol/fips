@@ -1,6 +1,6 @@
 ---
 fip: pending
-title: Secure messsage standard
+title: Secure message standard
 status: draft
 type: standard
 author: w-canvas
