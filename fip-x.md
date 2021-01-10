@@ -104,7 +104,7 @@ In order to protect the user's privacy from third parties, all recognizable iden
 ```
 
 ##### Message emission
-<!-- Diagram placeholder -->
+![](images/Diagram-Sending-Direct-Message.png)
 
 ### Message actions
 To facilitate development, secure message actions will be defined in a similar way to fio api [endpoints](https://developers.fioprotocol.io/api/api-spec) and actions proposed in [fip-0008](https://github.com/fioprotocol/fips/blob/master/fip-0008.md).
