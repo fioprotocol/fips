@@ -27,8 +27,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-21](fip-0021.md)|FIO Staking|Deferred|
 |[FIP-22](fip-0022.md)|Retire FIO Tokens|Accepted|
 |[FIP-23](fip-0023.md)|Temporary adjustment of reserves to pay Block Producers|Draft|
-|[FIP-x](fip-x.md)|Secure messsage standard|Draft|
-
+|[FIP-24](fip-0024.md)|Secure messsage standard|Draft|
 
 ## Contributing
 ### Review FIPs
