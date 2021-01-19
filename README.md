@@ -28,6 +28,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-22](fip-0022.md)|Retire FIO Tokens|Accepted|
 |[FIP-23](fip-0023.md)|Temporary adjustment of reserves to pay Block Producers|Draft|
 |[FIP-24](fip-0024.md)|Secure messsage standard|Draft|
+|[FIP-25](fip-0025.md)|Return bundle transaction count in get_fio_names|Draft|
 
 ## Contributing
 ### Review FIPs
