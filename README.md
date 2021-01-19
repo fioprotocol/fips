@@ -4,12 +4,12 @@ FIPs describe proposed changes to the FIO Protocol.
 ## FIPs
 |FIP|Title|Status|
 |---|---|---|
-|[FIP-1](fip-0001.md)|FIO Domain/FIO Address transfer and data purge|Accepted|
+|[FIP-1](fip-0001.md)|FIO Domain/FIO Address transfer and data purge|Final|
 |[FIP-2](fip-0002.md)|Improvements to paging via API|Final|
 |[FIP-3](fip-0003.md)|Provide ability to cancel a request for funds|Final|
 |[FIP-4](fip-0004.md)|Provide ability to remove pub address from the FIO protocol for a user|Final|
 |[FIP-5](fip-0005.md)|Enhanced privacy|Draft|
-|[FIP-6](fip-0006.md)|Transfer locked tokens|Accepted|
+|[FIP-6](fip-0006.md)|Transfer locked tokens|Final|
 |[FIP-7](fip-0007.md)|Provide ability to burn FIO Address|Final|
 |[FIP-8](fip-0008.md)|Public Address Request|Draft|
 |[FIP-9](fip-0009.md)|Allow voting and proxying without a FIO Address|Final|
@@ -21,7 +21,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-15](fip-0015.md)|Chain and token code standard|Final|
 |[FIP-16](fip-0016.md)|CLIO Enhancements|Accepted|
 |[FIP-17](fip-0017.md)|FIO Token and Domain Wrapping|Accepted|
-|[FIP-18](fip-0018.md)|Chain-level public address|Accepted|
+|[FIP-18](fip-0018.md)|Chain-level public address|Final|
 |[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Accepted|
 |[FIP-20](fip-0020.md)|FIO Co-op|Deferred|
 |[FIP-21](fip-0021.md)|FIO Staking|Deferred|
