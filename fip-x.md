@@ -4,7 +4,8 @@ title: FIO Domain Marketplace
 status: Draft
 type: Functionality
 author: Isaiah Williams - EOS BlockSmith
-updated: 2/5/21
+created: 2021-02-05
+updated: 2021-02-08
 ---
 
 # Abstract
@@ -13,9 +14,9 @@ What we are planning to create is a marketplace where users can buy and sell FIO
 Proposed new actions:
 |Action|Description|
 |---|---|
-|list|User puts domain up for sale|
-|cancel_listing|Seller of domain decides not to sell and cancels their listing|
-|buy_listing|User buys a domain that is up for sale|
+|listdomain|User puts domain up for sale|
+|cxlistdomain|Seller of domain decides not to sell and cancels their listing|
+|buydomain|User buys a domain that is up for sale|
 
 # Terminology
 * **Listing** - a domain that is up for sale
@@ -40,9 +41,9 @@ The second scenario, in blue, starts will the seller cancelling their listing on
 The last scenario, in green, starts with a different user buying a listing on the website.  This second user is denoted as "buyer."  The website then communicates with the smart contract in order to transfer ownership of the address to the buyer and transfer the funds used to buy the domain to the seller. 
 
 ## New actions
-### List
+### List Domain for Sale
 This action will post the domain up for sale on the marketplace for a specified price. 
-#### New action: *list*
+#### New action: *listdomain*
 
 #### Request
 |Parameter|Required|Format|Definition|
@@ -60,9 +61,9 @@ This action will post the domain up for sale on the marketplace for a specified 
 }
 ```
 
-### Cancel Listing
+### Cancel Domain Listing
 This action will take the domain off of the marketplace and return ownership of the domain to the seller. 
-#### New action: *cancel_listing*
+#### New action: *cxlistdomain*
 
 #### Request
 |Parameter|Required|Format|Definition|
@@ -78,9 +79,9 @@ This action will take the domain off of the marketplace and return ownership of 
 }
 ```
 
-### Buy Listing
+### Buy Domain Listing
 This action will post the domain up for sale on the marketplace for a specified price. 
-#### New action: *buy_listing*
+#### New action: *buydomain*
 
 #### Request
 Describe what parameters are passed in. Example:
