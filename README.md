@@ -24,7 +24,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-18](fip-0018.md)|Chain-level public address|Final|
 |[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Accepted|
 |[FIP-20](fip-0020.md)|FIO Co-op|Deferred|
-|[FIP-21](fip-0021.md)|FIO Staking|Deferred|
+|[FIP-21](fip-0021.md)|FIO Staking|Draft|
 |[FIP-22](fip-0022.md)|Retire FIO Tokens|Accepted|
 |[FIP-23](fip-0023.md)|Temporary adjustment of Block Producers Reserves|Draft|
 |[FIP-24](fip-0024.md)|Secure messsage standard|Draft|
