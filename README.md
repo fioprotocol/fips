@@ -20,8 +20,8 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-14](fip-0014.md)|Ensuring API response data integrity|Draft|
 |[FIP-15](fip-0015.md)|Chain and token code standard|Final|
 |[FIP-16](fip-0016.md)|CLIO Enhancements|Accepted|
-|[FIP-17](fip-0017a.md)|FIO Token Wrapping|Accepted|
-|[FIP-17](fip-0017b.md)|FIO Domain Wrapping|Accepted|
+|[FIP-17a](fip-0017a.md)|FIO Token Wrapping|Accepted|
+|[FIP-17b](fip-0017b.md)|FIO Domain Wrapping|Accepted|
 |[FIP-18](fip-0018.md)|Chain-level public address|Final|
 |[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Accepted|
 |[FIP-20](fip-0020.md)|FIO Co-op|Deferred|
