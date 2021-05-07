@@ -60,7 +60,7 @@ Maps a specific NFT to a FIO Address.
 |nfts|token_id|Yes|String|Token ID of NFT. May be left blank if not applicable. Max 64 characters.|
 |nfts|url|Yes|String|URL of NFT asset, e.g. image url. May be left blank if not applicable. Max 128 characters.|
 |nfts|hash|Yes|String|SHA-256 hash of NFT asset, e.g. image url. May be left blank if not applicable. Max 64 characters.|
-|nfts|metdata|Yes|String|TBD|
+|nfts|metdata|Yes|String|Future use. Now requires empty.|
 ||max_fee|Yes|Positive Int|Maximum amount of SUFs the user is willing to pay for fee. Should be preceded by [/get_fee](https://developers.fioprotocol.io/api/api-spec/reference/get-fee/get-fee) for correct value.|
 ||tpid|Yes|FIO Address|FIO Address of the entity which generates this transaction. TPID rewards will be paid to this address. Set to empty if not known.|
 ||actor|Yes|12 character string|Valid actor of signer|
