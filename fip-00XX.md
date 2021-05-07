@@ -1,5 +1,5 @@
 ---
-fip: XX
+fip: 27
 title: NFT Signatures
 status: Draft
 type: Functionality
@@ -513,4 +513,3 @@ None
 
 # Discussion link
 https://fioprotocol.atlassian.net/wiki/spaces/FC/pages/113606966/NFT+Digital+Signature
-
