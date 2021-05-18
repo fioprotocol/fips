@@ -31,7 +31,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-24](fip-0024.md)|Secure messsage standard|Draft|
 |[FIP-25](fip-0025.md)|Return bundle transaction count in get_fio_names|Accepted|
 |[FIP-26](fip-0026.md)|FIO Domain Marketplace|Draft|
-|[FIP-27](fip-0027.md)|NFT Signatures|Draft|
+|[FIP-27](fip-0027.md)|NFT Signatures|Accepted|
 
 ## Contributing
 ### Review FIPs
