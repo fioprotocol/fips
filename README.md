@@ -20,16 +20,19 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-14](fip-0014.md)|Ensuring API response data integrity|Draft|
 |[FIP-15](fip-0015.md)|Chain and token code standard|Final|
 |[FIP-16](fip-0016.md)|CLIO Enhancements|Accepted|
-|[FIP-17](fip-0017.md)|FIO Token and Domain Wrapping|Accepted|
+|[FIP-17a](fip-0017a.md)|FIO Token Wrapping|Accepted|
+|[FIP-17b](fip-0017b.md)|FIO Domain Wrapping|Accepted|
 |[FIP-18](fip-0018.md)|Chain-level public address|Final|
 |[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Accepted|
 |[FIP-20](fip-0020.md)|FIO Co-op|Deferred|
-|[FIP-21](fip-0021.md)|FIO Staking|Draft|
+|[FIP-21](fip-0021.md)|FIO Staking|Accepted|
 |[FIP-22](fip-0022.md)|Retire FIO Tokens|Accepted|
 |[FIP-23](fip-0023.md)|Temporary adjustment of Block Producers Reserves|Final|
 |[FIP-24](fip-0024.md)|Secure messsage standard|Draft|
 |[FIP-25](fip-0025.md)|Return bundle transaction count in get_fio_names|Accepted|
 |[FIP-26](fip-0026.md)|FIO Domain Marketplace|Draft|
+|[FIP-27](fip-0027.md)|NFT Signatures|Accepted|
+|[FIP-28](fip-0028.md)|Delay FIO Address burning after expiration|Accepted|
 
 ## Contributing
 ### Review FIPs
