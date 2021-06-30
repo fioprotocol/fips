@@ -33,7 +33,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-26](fip-0026.md)|FIO Domain Marketplace|Draft|
 |[FIP-27](fip-0027.md)|NFT Signatures|Accepted|
 |[FIP-28](fip-0028.md)|Delay FIO Address burning after expiration|Final|
-|[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Accepted|
+|[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Deferred|
 
 ## Contributing
 ### Review FIPs
