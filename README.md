@@ -34,6 +34,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-27](fip-0027.md)|NFT Signatures|Accepted|
 |[FIP-28](fip-0028.md)|Delay FIO Address burning after expiration|Final|
 |[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Deferred|
+|[FIP-30](fip-0030.md)|pNetwork Support|Draft|
 
 ## Contributing
 ### Review FIPs
