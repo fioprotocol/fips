@@ -64,7 +64,7 @@ Create an issue describing the FIP or section of a FIP you would like to open up
 
 ## Successful FIP includes
 ### Preamble
-Each EIP must begin with an RFC 822 style header preamble, preceded and followed by three hyphens (---). This header is also termed “front matter” by Jekyll. The headers must appear in the following order. All other headers are required.
+Each FIP must begin with an RFC 822 style header preamble, preceded and followed by three hyphens (---). This header is also termed “front matter” by Jekyll. The headers must appear in the following order. All other headers are required.
 ```
 ---
 fip: FIP number
