@@ -35,7 +35,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-28](fip-0028.md)|Delay FIO Address burning after expiration|Final|
 |[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Deferred|
 |[FIP-30](fip-0030.md)|pNetwork Support|Draft|
-|[FIP-31](fip-0031.md)|Eliminate FIO Address Expiration|Draft|
+|[FIP-31](fip-0031.md)|Eliminate FIO Address Expiration|Accepted|
 
 ## Contributing
 ### Review FIPs
