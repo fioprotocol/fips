@@ -14,7 +14,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-8](fip-0008.md)|Public Address Request|Draft|
 |[FIP-9](fip-0009.md)|Allow voting and proxying without a FIO Address|Final|
 |[FIP-10](fip-0010.md)|Redesign Fee Computations|Final|
-|[FIP-11](fip-0011.md)|Ehnhance bundled transaction usability|Accepted|
+|[FIP-11](fip-0011.md)|Add ability to purchase bundled transactions|Final|
 |[FIP-12](fip-0012.md)|Move action whitelisting into state|Final|
 |[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Final|
 |[FIP-14](fip-0014.md)|Ensuring API response data integrity|Draft|
