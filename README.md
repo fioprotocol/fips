@@ -36,7 +36,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Deferred|
 |[FIP-30](fip-0030.md)|pNetwork Support|Accepted|
 |[FIP-31](fip-0031.md)|Eliminate FIO Address Expiration|Accepted|
-|[FIP-32](fip-0032.md)|Allow unlimited size of content parameter in New Funds Request|Draft|
+|[FIP-32](fip-0032.md)|Allow unlimited size of content parameter in New Funds Request|Accepted|
 
 ## Contributing
 ### Review FIPs
