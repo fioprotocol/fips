@@ -31,11 +31,11 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-24](fip-0024.md)|Secure messsage standard|Draft|
 |[FIP-25](fip-0025.md)|Return bundle transaction count in get_fio_names|Final|
 |[FIP-26](fip-0026.md)|FIO Domain Marketplace|Accepted|
-|[FIP-27](fip-0027.md)|NFT Signatures|Accepted|
+|[FIP-27](fip-0027.md)|NFT Signatures|Final|
 |[FIP-28](fip-0028.md)|Delay FIO Address burning after expiration|Final|
 |[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Deferred|
 |[FIP-30](fip-0030.md)|pNetwork Support|Accepted|
-|[FIP-31](fip-0031.md)|Eliminate FIO Address Expiration|Accepted|
+|[FIP-31](fip-0031.md)|Eliminate FIO Address Expiration|Final|
 |[FIP-32](fip-0032.md)|Allow unlimited size of content parameter in New Funds Request|Accepted|
 
 ## Contributing
