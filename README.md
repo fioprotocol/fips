@@ -14,26 +14,29 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-8](fip-0008.md)|Public Address Request|Draft|
 |[FIP-9](fip-0009.md)|Allow voting and proxying without a FIO Address|Final|
 |[FIP-10](fip-0010.md)|Redesign Fee Computations|Final|
-|[FIP-11](fip-0011.md)|Ehnhance bundled transaction usability|Accepted|
+|[FIP-11](fip-0011.md)|Add ability to purchase bundled transactions|Final|
 |[FIP-12](fip-0012.md)|Move action whitelisting into state|Final|
-|[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Accepted|
+|[FIP-13](fip-0013.md)|Ability to retrive all public addresses for a FIO Address|Final|
 |[FIP-14](fip-0014.md)|Ensuring API response data integrity|Draft|
 |[FIP-15](fip-0015.md)|Chain and token code standard|Final|
-|[FIP-16](fip-0016.md)|CLIO Enhancements|Accepted|
+|[FIP-16](fip-0016.md)|CLIO Enhancements|Final|
 |[FIP-17a](fip-0017a.md)|FIO Token Wrapping|Accepted|
 |[FIP-17b](fip-0017b.md)|FIO Domain Wrapping|Accepted|
 |[FIP-18](fip-0018.md)|Chain-level public address|Final|
-|[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Accepted|
+|[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Final|
 |[FIP-20](fip-0020.md)|FIO Co-op|Deferred|
 |[FIP-21](fip-0021.md)|FIO Staking|Accepted|
 |[FIP-22](fip-0022.md)|Retire FIO Tokens|Accepted|
 |[FIP-23](fip-0023.md)|Temporary adjustment of Block Producers Reserves|Final|
 |[FIP-24](fip-0024.md)|Secure messsage standard|Draft|
-|[FIP-25](fip-0025.md)|Return bundle transaction count in get_fio_names|Accepted|
-|[FIP-26](fip-0026.md)|FIO Domain Marketplace|Draft|
-|[FIP-27](fip-0027.md)|NFT Signatures|Accepted|
+|[FIP-25](fip-0025.md)|Return bundle transaction count in get_fio_names|Final|
+|[FIP-26](fip-0026.md)|FIO Domain Marketplace|Accepted|
+|[FIP-27](fip-0027.md)|NFT Signatures|Final|
 |[FIP-28](fip-0028.md)|Delay FIO Address burning after expiration|Final|
-|[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Accepted|
+|[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Deferred|
+|[FIP-30](fip-0030.md)|pNetwork Support|Accepted|
+|[FIP-31](fip-0031.md)|Eliminate FIO Address Expiration|Final|
+|[FIP-32](fip-0032.md)|Allow unlimited size of content parameter in New Funds Request|Accepted|
 
 ## Contributing
 ### Review FIPs
@@ -62,7 +65,7 @@ Create an issue describing the FIP or section of a FIP you would like to open up
 
 ## Successful FIP includes
 ### Preamble
-Each EIP must begin with an RFC 822 style header preamble, preceded and followed by three hyphens (---). This header is also termed “front matter” by Jekyll. The headers must appear in the following order. All other headers are required.
+Each FIP must begin with an RFC 822 style header preamble, preceded and followed by three hyphens (---). This header is also termed “front matter” by Jekyll. The headers must appear in the following order. All other headers are required.
 ```
 ---
 fip: FIP number
