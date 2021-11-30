@@ -37,6 +37,8 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-30](fip-0030.md)|pNetwork Support|Accepted|
 |[FIP-31](fip-0031.md)|Eliminate FIO Address Expiration|Final|
 |[FIP-32](fip-0032.md)|Allow unlimited size of content parameter in New Funds Request|Accepted|
+|[FIP-33](fip-0033.md)|Allow $ in token codes|Accepted|
+|[FIP-34](fip-0034.md)|Allow unlimited size of content parameter in Record OBT Data|Draft|
 
 ## Contributing
 ### Review FIPs
