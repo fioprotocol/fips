@@ -40,6 +40,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-33](fip-0033.md)|Allow $ in token codes|Accepted|
 |[FIP-34](fip-0034.md)|Allow unlimited size of content parameter in Record OBT Data|Accepted|
 |[FIP-35](fip-0035.md)|Increase max size of token_id in addnft|Accepted|
+|[FIP-36](fip-0036.md)|Add ability to fetch FIO Public Key for an account|Draft|
 
 ## Contributing
 ### Review FIPs
