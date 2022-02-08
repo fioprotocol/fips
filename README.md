@@ -44,6 +44,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-37](fip-0037.md)|Lift limit on number of FIO Public Keys in account's permissions|Draft|
 |[FIP-38](fip-0038.md)|Add ability to create FIO Chain Account|Draft|
 |[FIP-39](fip-0039.md)|Support alternate FIO Public Key for encryption of New Funds Request/Record OBT content blob|Draft|
+|[FIP-40](fip-0040.md)|Enable specified accounts to register FIO Addresses on private FIO Domains|Draft|
 
 ## Contributing
 ### Review FIPs
