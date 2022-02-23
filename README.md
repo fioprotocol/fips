@@ -46,6 +46,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-39](fip-0039.md)|Support alternate FIO Public Key for encryption of New Funds Request/Record OBT content blob|Accepted|
 |[FIP-40](fip-0040.md)|Enable specified accounts to register FIO Addresses on private FIO Domains|Accepted|
 |[FIP-41](fip-0041.md)|Enable token locking to existing accounts|Accepted|
+|[FIP-42](fip-0042.md)|Enable FIO Address and Domain registration in a single transaction|Draft|
 
 ## Contributing
 ### Review FIPs
