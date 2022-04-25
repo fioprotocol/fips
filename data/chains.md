@@ -54,10 +54,10 @@ BITS|Bitstar||
 BLK|BlackCoin||10
 BLKC|BlackHat||
 BLOCK|Blocknet||328
-BNB|Binance Coin|{address}?memo={value}|714
+BNB|Binance Chain|{address}?memo={value}|714
 BOS|BOScoin||
 BPS|BitcoinPoS||576
-BSC|BSC FARM||519
+BSC|Binance Smart Chain||
 BSTY|GlobalBoost-Y||
 BSV|Bitcoin SV||236
 BTC|Bitcoin||0
