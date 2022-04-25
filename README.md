@@ -26,20 +26,20 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Final|
 |[FIP-20](fip-0020.md)|FIO Co-op|Deferred|
 |[FIP-21](fip-0021.md)|FIO Staking|Final|
-|[FIP-22](fip-0022.md)|Retire FIO Tokens|Accepted|
+|[FIP-22](fip-0022.md)|Retire FIO Tokens|Final|
 |[FIP-23](fip-0023.md)|Temporary adjustment of Block Producers Reserves|Final|
 |[FIP-24](fip-0024.md)|Secure messsage standard|Draft|
 |[FIP-25](fip-0025.md)|Return bundle transaction count in get_fio_names|Final|
-|[FIP-26](fip-0026.md)|FIO Domain Marketplace|Accepted|
+|[FIP-26](fip-0026.md)|FIO Domain Marketplace|Final|
 |[FIP-27](fip-0027.md)|NFT Signatures|Final|
 |[FIP-28](fip-0028.md)|Delay FIO Address burning after expiration|Final|
 |[FIP-29](fip-0029.md)|Temporarily disable Transfer of locked tokens|Deferred|
-|[FIP-30](fip-0030.md)|pNetwork Support|Accepted|
+|[FIP-30](fip-0030.md)|pNetwork Support|Deferred|
 |[FIP-31](fip-0031.md)|Eliminate FIO Address Expiration|Final|
-|[FIP-32](fip-0032.md)|Allow unlimited size of content parameter in New Funds Request|Accepted|
-|[FIP-33](fip-0033.md)|Allow $ in token codes|Accepted|
-|[FIP-34](fip-0034.md)|Allow unlimited size of content parameter in Record OBT Data|Accepted|
-|[FIP-35](fip-0035.md)|Increase max size of token_id in addnft|Accepted|
+|[FIP-32](fip-0032.md)|Allow unlimited size of content parameter in New Funds Request|Final|
+|[FIP-33](fip-0033.md)|Allow $ in token codes|Final|
+|[FIP-34](fip-0034.md)|Allow unlimited size of content parameter in Record OBT Data|Final|
+|[FIP-35](fip-0035.md)|Increase max size of token_id in addnft|Final|
 |[FIP-36](fip-0036.md)|Add ability to fetch FIO Public Key for an account|Accepted|
 |[FIP-37](fip-0037.md)|Lift limit on number of FIO Public Keys in account's permissions|Accepted|
 |[FIP-38](fip-0038.md)|Add ability to create FIO Chain Account|Accepted|
