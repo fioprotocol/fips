@@ -48,6 +48,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-41](fip-0041.md)|Enable token locking to existing accounts|Accepted|
 |[FIP-42](fip-0042.md)|Enable FIO Address and Domain registration in a single transaction|Accepted|
 |[FIP-43](fip-0043.md)|Made FIO Address optional for actions which do not require a FIO Address|Accepted|
+|[FIP-44](fip-0044.md)|Allow FIO Domains to be mapped to DNS record|Draft|
 
 ## Contributing
 ### Review FIPs
