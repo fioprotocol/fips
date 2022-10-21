@@ -20,8 +20,8 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-14](fip-0014.md)|Ensuring API response data integrity|Draft|
 |[FIP-15](fip-0015.md)|Chain and token code standard|Final|
 |[FIP-16](fip-0016.md)|CLIO Enhancements|Final|
-|[FIP-17a](fip-0017a.md)|FIO Token Wrapping|Accepted|
-|[FIP-17b](fip-0017b.md)|FIO Domain Wrapping|Accepted|
+|[FIP-17a](fip-0017a.md)|FIO Token Wrapping|Final|
+|[FIP-17b](fip-0017b.md)|FIO Domain Wrapping|Final|
 |[FIP-18](fip-0018.md)|Chain-level public address|Final|
 |[FIP-19](fip-0019.md)|Add ability to retrieve all received FIO Requests|Final|
 |[FIP-20](fip-0020.md)|FIO Co-op|Deferred|
@@ -45,7 +45,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-38](fip-0038.md)|Add ability to create FIO Chain Account|Accepted|
 |[FIP-39](fip-0039.md)|Support alternate FIO Public Key for encryption of New Funds Request/Record OBT content blob|Accepted|
 |[FIP-40](fip-0040.md)|Enable specified accounts to register FIO Addresses on private FIO Domains|Accepted|
-|[FIP-41](fip-0041.md)|Enable token locking to existing accounts|Accepted|
+|[FIP-41](fip-0041.md)|Enable token locking to existing accounts|Final|
 |[FIP-42](fip-0042.md)|Enable FIO Address and Domain registration in a single transaction|Accepted|
 |[FIP-43](fip-0043.md)|Made FIO Address optional for actions which do not require a FIO Address|Accepted|
 |[FIP-44](fip-0044.md)|Allow FIO Domains to be mapped to DNS record|Draft|
