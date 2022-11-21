@@ -151,6 +151,7 @@ FIO|FIO Protocol||235
 FIRO|Firo||
 FIS|Stafi||907
 FJC|FujiCoin||75
+FLR|Flare||
 FLOW|Flow||539
 FLUX|Flux||19167
 FO|FIBOS||10000
@@ -340,6 +341,7 @@ SERO|Super Zero Protocol||569
 SFD|SAFE DEAL||
 SFT|Safex Token||
 SFX|Safex Cash||
+SGB|Songbird||
 SHFT|Shyft Network||
 SHND|StrongHands||
 SIB|SIBCoin||
