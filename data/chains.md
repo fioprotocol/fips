@@ -20,6 +20,7 @@ AMB|Ambrosus||
 APL|Apollo Currency||
 APN|Apron Network||598
 APPC|AppCoins||
+APT|Aptos||637
 AR|Arweave||472
 ARBIONE|Arbitrum One||
 ARC|Advanced Technology Coin||
