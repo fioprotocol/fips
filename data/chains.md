@@ -22,7 +22,7 @@ APN|Apron Network||598
 APPC|AppCoins||
 APT|Aptos||637
 AR|Arweave||472
-ARBIONE|Arbitrum One||
+ARB1|Arbitrum||9001
 ARC|Advanced Technology Coin||
 ARDR|Ardor||16754
 ARK|Ark||111
