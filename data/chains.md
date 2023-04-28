@@ -350,6 +350,7 @@ SIGNA|Signum||
 SKY|Skycoin||8000
 SMART|SmartCash||224
 SMLY|SmileyCoin||59
+SOCIALS|Reserved for linking Social Media Accounts||
 SOL|Solana||501
 SONO|SonoCoin||
 SPD|Stipend||
