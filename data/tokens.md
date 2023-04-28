@@ -5961,6 +5961,31 @@ SIGNA|SIGNA|Signum|
 SKY|SKY|Skycoin|
 SMART|SMART|SmartCash|
 SMLY|SMLY|SmileyCoin|
+SOCIALS|Discord|
+SOCIALS|Douyin|
+SOCIALS|Facebook|
+SOCIALS|Instagram|
+SOCIALS|Kuaishou|
+SOCIALS|Linkedin|
+SOCIALS|Mastodone|
+SOCIALS|Pintrest|
+SOCIALS|QQ|
+SOCIALS|Quora|
+SOCIALS|Qzone|
+SOCIALS|Reddit|
+SOCIALS|Sina Weibo|
+SOCIALS|Snapchat|
+SOCIALS|Stack Exchange|
+SOCIALS|TikTok|
+SOCIALS|Tumblr|
+SOCIALS|Twitch|
+SOCIALS|Twitter|
+SOCIALS|Telegram|
+SOCIALS|Viber|
+SOCIALS|Weibo|
+SOCIALS|WeChat|
+SOCIALS|WhatsApp|
+SOCIALS|YouTube|
 SOL|APEX|ApeXit Finance|51tMb3zBKDiQhNwGqpgwbavaGH54mk8fXFzxTc1xnasg
 SOL|ATLAS|Star Atlas|ATLASXmbPQxBUYbxPsV97usA3fPQYEqzQBUHgiFCUsXx
 SOL|BOP|Boring Protocol|BLwTnYKqf7u4qjgZrrsKeNs2EzWkMLqVCu6j8iHyrNA3
