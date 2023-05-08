@@ -1986,6 +1986,7 @@ BSC|?DOGE|tDoge|0xe550a593d09fbc8dcd557b5c88cea6946a8b404a
 BSTY|BSTY|GlobalBoost-Y|
 BSV|BSV|Bitcoin SV|
 BTC|BTC|Bitcoin|
+BTC|LNBC|Bitcoin Lightning Network invoice|
 BTC2|BTC2|Bitcoin 2|
 BTCP|BTCP|Bitcoin Private|
 BTCZ|BTCZ|BitcoinZ|
