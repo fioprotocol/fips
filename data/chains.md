@@ -27,6 +27,7 @@ ARC|Advanced Technology Coin||
 ARDR|Ardor||16754
 ARK|Ark||111
 ARQ|Arqma||
+ASTR|Astar Network||810
 ARRR|Pirate Chain||
 ASK|Permission Coin||2221
 ATOM|Cosmos|{address}?memo={value}|118
