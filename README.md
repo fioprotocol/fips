@@ -40,18 +40,18 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-33](fip-0033.md)|Allow $ in token codes|Final|
 |[FIP-34](fip-0034.md)|Allow unlimited size of content parameter in Record OBT Data|Final|
 |[FIP-35](fip-0035.md)|Increase max size of token_id in addnft|Final|
-|[FIP-36](fip-0036.md)|Add ability to fetch FIO Public Key for an account|Accepted|
-|[FIP-37](fip-0037.md)|Lift limit on number of FIO Public Keys in account's permissions|Accepted|
-|[FIP-38](fip-0038.md)|Add ability to create FIO Chain Account|Accepted|
-|[FIP-39](fip-0039.md)|Support alternate FIO Public Key for encryption of New Funds Request/Record OBT content blob|Accepted|
-|[FIP-40](fip-0040.md)|Enable specified accounts to register FIO Addresses on private FIO Domains|Accepted|
+|[FIP-36](fip-0036.md)|Add ability to fetch FIO Public Key for an account|Final|
+|[FIP-37](fip-0037.md)|Lift limit on number of FIO Public Keys in account's permissions|Final|
+|[FIP-38](fip-0038.md)|Add ability to create FIO Chain Account|Final|
+|[FIP-39](fip-0039.md)|Support alternate FIO Public Key for encryption of New Funds Request/Record OBT content blob|Final|
+|[FIP-40](fip-0040.md)|Enable specified accounts to register FIO Addresses on private FIO Domains|Final|
 |[FIP-41](fip-0041.md)|Enable token locking to existing accounts|Final|
-|[FIP-42](fip-0042.md)|Enable FIO Address and Domain registration in a single transaction|Accepted|
-|[FIP-43](fip-0043.md)|Made FIO Address optional for actions which do not require a FIO Address|Accepted|
+|[FIP-42](fip-0042.md)|Enable FIO Address and Domain registration in a single transaction|Final|
+|[FIP-43](fip-0043.md)|Made FIO Address optional for actions which do not require a FIO Address|Final|
 |[FIP-44](fip-0044.md)|Allow FIO Domains to be mapped to DNS record|Draft|
 |[FIP-45](fip-0045.md)|Set price of FIO Domain registration and renewal based on length|Draft|
-|[FIP-46](fip-0046.md)|Update Chain Plugin to increase get_table_rows timeout|Accepted|
-|[FIP-47](fip-0047.md)|Allow FIO Block Producers to update their information|Accepted|
+|[FIP-46](fip-0046.md)|Update Chain Plugin to increase get_table_rows timeout|Final|
+|[FIP-47](fip-0047.md)|Allow FIO Block Producers to update their information|Final|
 
 ## Contributing
 ### Review FIPs
