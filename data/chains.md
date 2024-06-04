@@ -120,6 +120,7 @@ DNA|Metaverse Dualchain Network Architecture||
 DOCK|Dock||594
 DOGE|Dogecoin||3
 DOGEC|DogeCash||385
+DOJ|Dojima||1401
 DOT|Polkadot||354
 DTEP|DECOIN||
 DYN|Dynamic||3381
