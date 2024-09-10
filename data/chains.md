@@ -470,7 +470,7 @@ ZIL|Zilliqa||313
 ZKSYNC|zkSync||804
 ZNN|Zenon||
 ZNZ|ZENZO||377
-ZP|Zen Protocol||
 ZORA|Zora||
+ZP|Zen Protocol||
 ZRC|ZrCoin||27
 ZYN|Zynecoin||77777
