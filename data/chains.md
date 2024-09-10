@@ -36,8 +36,8 @@ AVAX|Avalanche||9000
 AXEL|AXEL||
 AYA|Aryacoin||357
 BAN|Banano||
-BASE|Base||8453
 BAND|Band Protocol|{address}?memo={value}|494
+BASE|Base||8453
 BC|Bitcoin Confidential||426
 BCA|Bitcoin Atom||185
 BCD|Bitcoin Diamond||999
