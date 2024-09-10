@@ -236,7 +236,6 @@ LUX|LUXCoin||3003
 MANNA|Manna||
 MARO|Maro||
 MASS|Massnet||297
-MATIC|Polygon||966
 MBC|MicroBitcoin||
 MCM|Mochimo||1027
 MEC|Megacoin||217
@@ -313,6 +312,7 @@ PLC|PLATINCOIN||580
 PMEER|Qitmeer||
 PNY|Peony||840
 POA|POA||178
+POL|Polygon||966
 POT|PotCoin||81
 PPC|Peercoin||6
 PRCY|PRCY Coin||853
