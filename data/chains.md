@@ -467,8 +467,8 @@ ZENI|Zennies||
 ZER|Zero||323
 ZET|Zetacoin||
 ZIL|Zilliqa||313
-ZNN|Zenon||
 ZKSYNC|zkSync||804
+ZNN|Zenon||
 ZNZ|ZENZO||377
 ZP|Zen Protocol||
 ZORA|Zora||
