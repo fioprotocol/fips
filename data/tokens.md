@@ -5903,6 +5903,7 @@ ONT|MBL|MovieBloc|e5a49d7fd57e7178e189d3965d1ee64368a1036d
 ONT|ONG|Ontology Gas|
 ONT|ONT|Ontology|
 ONT|WING|Wing Finance|
+OP|ETH|Ethereum|
 ORB|ORB|Orbitcoin|
 OSMO|ATOM|Cosmos|
 OSMO|OSMO|Osmosis|
