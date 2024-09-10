@@ -22,7 +22,7 @@ APN|Apron Network||598
 APPC|AppCoins||
 APT|Aptos||637
 AR|Arweave||472
-ARB1|Arbitrum||9001
+ARB|Arbitrum||9001
 ARC|Advanced Technology Coin||
 ARDR|Ardor||16754
 ARK|Ark||111
@@ -36,6 +36,7 @@ AVAX|Avalanche||9000
 AXEL|AXEL||
 AYA|Aryacoin||357
 BAN|Banano||
+BASE|Base||8453
 BAND|Band Protocol|{address}?memo={value}|494
 BC|Bitcoin Confidential||426
 BCA|Bitcoin Atom||185
@@ -222,6 +223,7 @@ LBC|LBRY Credits||140
 LBTC|Lightning Bitcoin||998
 LCC|Litecoin Cash||192
 LIKE|LikeCoin||
+LINEA|Linea||
 LN|LINK||438
 LOBS|Lobstex||
 LOG|Woodcoin||
@@ -247,6 +249,7 @@ MINA|Mina||12586
 MINTME|MintMe.com Coin||
 MIOTA|IOTA||
 MLK|MiL.k||
+MNT|Mantle||
 MODIC|Modern Investment Coin||
 MONA|MonaCoin||22
 MONK|MONK||214
@@ -289,6 +292,7 @@ OMNI|Omni||200
 ONE|Harmony||1023
 ONION|DeepOnion||305
 ONT|Ontology||1024
+OP|Optimism||
 ORB|Orbitcoin||
 OSMO|Osmosis||
 OTO|OTOCASH||
@@ -313,6 +317,7 @@ PMEER|Qitmeer||
 PNY|Peony||840
 POA|POA||178
 POL|Polygon||966
+POLZK|Polygon zkEVM||
 POT|PotCoin||81
 PPC|Peercoin||6
 PRCY|PRCY Coin||853
@@ -463,7 +468,9 @@ ZER|Zero||323
 ZET|Zetacoin||
 ZIL|Zilliqa||313
 ZNN|Zenon||
+ZKSYNC|zkSync||804
 ZNZ|ZENZO||377
 ZP|Zen Protocol||
+ZORA|Zora||
 ZRC|ZrCoin||27
 ZYN|Zynecoin||77777
