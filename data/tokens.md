@@ -5706,6 +5706,7 @@ LBC|LBC|LBRY Credits|
 LBTC|LBTC|Lightning Bitcoin|
 LCC|LCC|Litecoin Cash|
 LIKE|LIKE|LikeCoin|
+LINEA|ETH|Ethereum|
 LN|LN|LINK|
 LOBS|LOBS|Lobstex|
 LOG|LOG|Woodcoin|
