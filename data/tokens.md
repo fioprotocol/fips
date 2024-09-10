@@ -5739,6 +5739,7 @@ MINA|MINA|Mina|
 MINTME|MINTME|MintMe.com Coin|
 MIOTA|MIOTA|IOTA|
 MLK|MLK|MiL.k|
+MNT|MNT|Mantle|
 MODIC|MODIC|Modern Investment Coin|
 MONA|MONA|MonaCoin|
 MONK|MONK|MONK|
