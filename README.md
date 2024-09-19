@@ -53,6 +53,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-46](fip-0046.md)|Update Chain Plugin to increase get_table_rows timeout|Final|
 |[FIP-47](fip-0047.md)|Allow FIO Block Producers to update their information|Final|
 |[FIP-48](fip-0048.md)|Reallocate Unclaimed Initial Integrating Wallets FIO Tokens to FIO Handles Giveaways|Final|
+|[FIP-49](fip-0049.md)|FIO Domain Auto-renew On-chain|Draft|
 
 ## Contributing
 ### Review FIPs
