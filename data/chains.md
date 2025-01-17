@@ -372,11 +372,12 @@ TCC|The ChampCoin||
 TELOS|Teloscoin||424
 TENT|TENT||410
 TERA|TERA||
+TEVM|Telos EVM||
 THC|HempCoin||113
 THETA|THETA||500
 TIPS|FedoraCoin||
 TKS|Tokes||
-TLOS|Telos||
+TLOS|Telos Zero||977
 TN|TurtleNetwork||
 TNC|TNC Coin||
 TOMO|TomoChain||889
