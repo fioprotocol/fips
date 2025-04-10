@@ -935,7 +935,7 @@
 |OPT|Optimism||614|10|optimistic-ethereum|
 |ORAICHAIN|Oraichain||||oraichain|
 |ORB|Orbitcoin|||||
-|ORDINALS|Bitcoin||||ordinals|
+|ORDINALS|Bitcoin Ordinals||||ordinals|
 |ORENIUM|Orenium||||orenium|
 |OSMI|Osmium||9969|||
 |OSMO|Osmosis||10000118||osmosis|
@@ -1073,6 +1073,7 @@
 |RSTR|Ondori|||||
 |RTM|Raptoreum||10226|||
 |RUNE|Thorchain||931||thorchain|
+|RUNES|Bitcoin Ordinals|||||
 |RUPX|Rupaya||499|||
 |RUTA|Rutanio||462|||
 |RVC|Ravencoin Classic|||||
