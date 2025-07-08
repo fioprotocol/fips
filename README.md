@@ -56,6 +56,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-49](fip-0049.md)|FIO Domain Auto-renew On-chain|Draft|
 |[FIP-50](fip-0050.md)|FIO Assets|Draft|
 |[FIP-51](fip-0051.md)|Make FIO Domains Permanent (Forever Domains)|Draft|
+|[FIO-52](fip-0052.md)|FIO Restake|Draft|
 
 ## Contributing
 ### Review FIPs
