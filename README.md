@@ -57,6 +57,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-50](fip-0050.md)|FIO Assets|Draft|
 |[FIP-51](fip-0051.md)|Make FIO Domains Permanent (Forever Domains)|Draft|
 |[FIP-52](fip-0052.md)|Add support for contract addresses in token codes|Draft|
+|[FIP-53](fip-0053.md)|Reallocation of Tokens from New User Bounties to FIO Handles Giveaways|Draft|
 
 ## Contributing
 ### Review FIPs
