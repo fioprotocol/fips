@@ -58,6 +58,7 @@ FIPs describe proposed changes to the FIO Protocol.
 |[FIP-51](fip-0051.md)|Make FIO Domains Permanent (Forever Domains)|Draft|
 |[FIP-52](fip-0052.md)|Add support for contract addresses in token codes|Draft|
 |[FIP-53](fip-0053.md)|Reallocation of Tokens from New User Bounties to FIO Handles Giveaways|Draft|
+|[FIP-54](fip-0054.md)|FIO 2.0 - Stellar as the home chain of FIO Protocol and migration of the FIO registry to Soroban|Draft|
 
 ## Contributing
 ### Review FIPs
